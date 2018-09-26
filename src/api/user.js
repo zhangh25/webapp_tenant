@@ -54,3 +54,31 @@ export function udpatePassword (phone, code, password) {
     params: {phone, code, password}
   })
 }
+// POST
+// /csusers/getUserInfo
+// 获取用户信息
+export function getUserInfo () {
+  return request({
+    url: '/csusers/getUserInfo',
+    method: 'post'
+  })
+}
+// POST
+// /csusers/updateCsUsers
+// 修改用户信息
+export function updateCsUsers (data) {
+  return request({
+    url: '/csusers/updateCsUsers',
+    method: 'post',
+    params: data
+  })
+}
+// GET
+// /common/qiniu/token
+// 七牛云获取token
+export function getQiniuToken () {
+  return request({
+    url: '/common/qiniu/token',
+    method: 'get'
+  })
+}

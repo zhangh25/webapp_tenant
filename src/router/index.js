@@ -9,6 +9,7 @@ export default new Router({
     {
       path: '/',
       name: 'HelloWorld',
+      redirect: '/map',
       component: HelloWorld
     },
     {

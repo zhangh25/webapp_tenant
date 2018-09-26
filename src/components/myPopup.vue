@@ -1,7 +1,7 @@
 <template>
   <div class="pop" ref="pop" @touchstart.stop="touch" v-show="visiblepop">
     <div class="header">
-      <div class="back" @click="back"><icon-svg icon-class="back" class="icon"></icon-svg></div>
+      <div class="back" @click="back"><icon-svg :icon-class="iconType" class="icon"></icon-svg></div>
       <span class="title"><slot name="title"></slot></span>
       <div class="right"></div>
     </div>
@@ -15,6 +15,21 @@ export default {
     value: {
       default: false,
       type: Boolean
+    },
+    position: {
+      default: 'right',
+      type: String
+    }
+  },
+  computed: {
+    iconType () {
+      let val = ''
+      if (this.position === 'right') {
+        val = 'back'
+      } else if (this.position === 'bottom') {
+        val = 'close'
+      }
+      return val
     }
   },
   data () {

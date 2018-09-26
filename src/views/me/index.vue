@@ -4,7 +4,7 @@
       <!-- <img src="../../assets/434x290.png" alt="" class="head-img"> -->
       <div class="bg"></div>
       <div class="box">
-        <div class="himg"><img :src="token  ? login_logo : logout_logo " alt="" width="34" height="50" style="margin-top:10px"></div>
+        <div class="himg" @click="personalShow"><img :src="token  ? login_logo : logout_logo " alt="" width="34" height="50" style="margin-top:10px"></div>
         <div class="text" >
           <div v-if="!token" @click="visibleLogin = true"> <span class="login">登录</span> / <span class="register">注册</span></div>
           <span v-else-if="userData">{{userData.phone}}</span>
@@ -18,7 +18,7 @@
         <div class="bar-item"><i class="icon icon-wallet"></i><br>钱包</div>
         <div class="bar-item"><i class="icon icon-pact"></i><br>合同</div>
       </div>
-      <cell title="实名认证" is-link>
+      <cell title="实名认证" is-link @click.native="visibleReal=true">
         <img slot="icon" src="./img/icon_shiming@2x.png" width="22" height="22" class="list-icon">
       </cell>
       <cell title="客服电话" is-link @click.native="callPhone">
@@ -48,7 +48,14 @@
       <span slot="title">设置</span>
       <setting></setting>
     </mypop>
-    <mypop v-model="visiblePersonal"></mypop>
+    <mypop v-model="visiblePersonal">
+      <template slot="title">个人资料</template>
+      <personal></personal>
+    </mypop>
+    <mypop v-model="visibleReal">
+      <template slot="title">实名认证</template>
+      <realname></realname>
+    </mypop>
   </div>
 </template>
 
@@ -61,6 +68,7 @@ import suggest from './suggest'
 import about from './about'
 import setting from './setting/index'
 import personal from './user/personal'
+import realname from './realname/index'
 export default {
   computed: {
     ...mapGetters(['token', 'userData'])
@@ -73,7 +81,8 @@ export default {
       visibleIdea: false,
       visibleAbout: false,
       visibleSetting: false,
-      visiblePersonal: false
+      visiblePersonal: false,
+      visibleReal: false
     }
   },
   created () {
@@ -100,6 +109,7 @@ export default {
       // if ()
       this.visiblePersonal = true
     }
+    // personalShow () {}
     // ideaShow ()
   },
   components: {
@@ -109,7 +119,8 @@ export default {
     suggest,
     about,
     setting,
-    personal
+    personal,
+    realname
   }
 }
 </script>

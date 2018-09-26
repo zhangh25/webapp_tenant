@@ -236,7 +236,7 @@ export default {
   display: inline-block;
   width: 9px;
   height: 12px;
-  background-image: url(../home/icon_weizhi@2x.png);
+  background-image: url(../home/icon/icon_weizhi@2x.png);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;

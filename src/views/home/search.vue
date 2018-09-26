@@ -75,7 +75,7 @@ export default {
     border: none;
     outline: none;
     padding-left: 20px;
-    background-image: url(icon_sousuo@2x.png);
+    background-image: url(./icon/icon_sousuo@2x.png);
     // background-repeat: no-repeat;
 
   }

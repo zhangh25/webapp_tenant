@@ -18,17 +18,17 @@
         <img :src="item.url" width="40" height="40"><br> <span class="title">{{item.name}}</span>
       </div>
       <!-- <div class="bar-item">
-        <img src="./icon_pinpaigongyu.@2x.png" width="40" height="40"><br> <span class="title">品牌公寓</span>
+        <img src="././icon/icon_pinpaigongyu.@2x.png" width="40" height="40"><br> <span class="title">品牌公寓</span>
       </div>
       <div class="bar-item">
-        <img src="./icon_huayuanxiaoqu.@2x.png" width="40" height="40"><br> <span class="title">花园小区</span>
+        <img src="././icon/icon_huayuanxiaoqu.@2x.png" width="40" height="40"><br> <span class="title">花园小区</span>
       </div>
       <div class="bar-item">
-        <img src="./icon_chengzhongcun.@2x.png" width="40" height="40"><br> <span class="title">城中村</span>
+        <img src="././icon/icon_chengzhongcun.@2x.png" width="40" height="40"><br> <span class="title">城中村</span>
       </div> -->
     </div>
     <div class="house-title">
-      精选房源 <div class="more">查看更多<i class="icon-more"></i></div>
+      精选房源 <div class="more" @click="listVisible=true">查看更多<i class="icon-more"></i></div>
     </div>
       <div class="list-item" v-for="item in roomList" :key="item.roomId" @click="houseDeatils">
         <div class="img"></div>
@@ -58,6 +58,10 @@
     <mypop v-model="searchVisible">
       <searchPage></searchPage>
     </mypop>
+    <mypop v-model="listVisible" class="list">
+      <span slot="title" class="input">输入你想住的区域或小区</span>
+      <list></list>
+    </mypop>
   </div>
 </template>
 
@@ -67,6 +71,7 @@ import houseDetails from '../houses/details.vue'
 import {homeList} from '@/api/home'
 import mypop from '@/components/myPopup'
 import searchPage from './search'
+import list from '@/components/houseList/list'
 export default {
   data () {
     return {
@@ -75,7 +80,8 @@ export default {
       roomList: [],
       roomMenuRespList: [],
       city: '深圳',
-      searchVisible: false
+      searchVisible: false,
+      listVisible: false
     }
   },
 
@@ -101,7 +107,7 @@ export default {
     }
   },
   components: {
-    Swipe, SwipeItem, Cell, Popup, houseDetails, mypop, searchPage
+    Swipe, SwipeItem, Cell, Popup, houseDetails, mypop, searchPage, list
   }
 }
 </script>
@@ -141,7 +147,7 @@ export default {
         display: inline-block;
         width: 15px;
         height: 15px;
-        background-image: url(nav_searchfor@2x.png);
+        background-image: url(./icon/nav_searchfor@2x.png);
         background-size: contain;
         vertical-align: middle;
         position: relative;
@@ -240,7 +246,7 @@ export default {
   display: inline-block;
   width: 9px;
   height: 12px;
-  background-image: url(icon_weizhi@2x.png);
+  background-image: url(./icon/icon_weizhi@2x.png);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -252,7 +258,7 @@ export default {
   display: inline-block;
   width: 6px;
   height: 11px;
-  background-image: url(icon_fanhui@2x.png);
+  background-image: url(./icon/icon_fanhui@2x.png);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -260,6 +266,14 @@ export default {
   vertical-align: middle;
   position: relative;
   top: -1px;
+}
+.list {
+  .input{
+    display: inline-block;
+    // border: 1px solid @gray;
+    font-size: 12px;
+    color: @gray;
+  }
 }
 // .left-pop{
 //   position: absolute;
