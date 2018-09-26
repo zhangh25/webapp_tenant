@@ -151,7 +151,7 @@ export default {
       display: inline-block;
       width: 8px;
       height: 15px;
-      background-image: url(icon_fanhui@2x.png);
+      background-image: url(./icon/icon_fanhui@2x.png);
       background-size: contain;
       margin-top: 10px;
     }
@@ -268,7 +268,7 @@ export default {
       background-position: top center;
       background-repeat: no-repeat;
       &.icon-kt{
-        background-image: url(icon_airconditioner.png)
+        background-image: url(./icon/icon_airconditioner.png)
       }
     }
   }
@@ -343,12 +343,12 @@ export default {
       display: inline-block;
       width: 19px;
       height: 17px;
-      background-image: url(./icon_aixin@2x.png);
+      background-image: url(././icon/icon_aixin@2x.png);
       background-size: contain;
       margin-top: 8px;
       margin-bottom: -4px;
       &.icon-store{
-        background-image: url(./icon_aixin.@2x.png);
+        background-image: url(././icon/icon_aixin.@2x.png);
       }
     }
     .word {

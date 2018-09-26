@@ -22,11 +22,13 @@
         </div>
       </div>
     </mypop>
+    <tabbar></tabbar>
   </div>
 </template>
 
 <script>
 import mypop from '@/components/myPopup'
+import tabbar from '@/components/tabbar/index'
 import { AMapManager } from 'vue-amap'
 let amapManager = new AMapManager()
 export default {
@@ -46,7 +48,8 @@ export default {
     }
   },
   components: {
-    mypop
+    mypop,
+    tabbar
   }
 }
 </script>

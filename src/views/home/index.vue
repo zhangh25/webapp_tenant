@@ -17,18 +17,9 @@
       <div class="bar-item" v-for="item in roomMenuRespList" :key="item.id">
         <img :src="item.url" width="40" height="40"><br> <span class="title">{{item.name}}</span>
       </div>
-      <!-- <div class="bar-item">
-        <img src="././icon/icon_pinpaigongyu.@2x.png" width="40" height="40"><br> <span class="title">品牌公寓</span>
-      </div>
-      <div class="bar-item">
-        <img src="././icon/icon_huayuanxiaoqu.@2x.png" width="40" height="40"><br> <span class="title">花园小区</span>
-      </div>
-      <div class="bar-item">
-        <img src="././icon/icon_chengzhongcun.@2x.png" width="40" height="40"><br> <span class="title">城中村</span>
-      </div> -->
     </div>
     <div class="house-title">
-      精选房源 <div class="more" @click="listVisible=true">查看更多<i class="icon-more"></i></div>
+      精选房源 <div class="more" @click="listMore">查看更多<i class="icon-more"></i></div>
     </div>
       <div class="list-item" v-for="item in roomList" :key="item.roomId" @click="houseDeatils">
         <div class="img"></div>
@@ -58,10 +49,11 @@
     <mypop v-model="searchVisible">
       <searchPage></searchPage>
     </mypop>
-    <mypop v-model="listVisible" class="list">
+    <!-- <mypop v-model="listVisible" class="list">
       <span slot="title" class="input">输入你想住的区域或小区</span>
       <list></list>
-    </mypop>
+    </mypop> -->
+    <tabbar></tabbar>
   </div>
 </template>
 
@@ -72,6 +64,7 @@ import {homeList} from '@/api/home'
 import mypop from '@/components/myPopup'
 import searchPage from './search'
 import list from '@/components/houseList/list'
+import tabbar from '@/components/tabbar/index'
 export default {
   data () {
     return {
@@ -80,8 +73,8 @@ export default {
       roomList: [],
       roomMenuRespList: [],
       city: '深圳',
-      searchVisible: false,
-      listVisible: false
+      searchVisible: false
+      // listVisible: false
     }
   },
 
@@ -104,10 +97,13 @@ export default {
     },
     showSearch () {
       this.searchVisible = true
+    },
+    listMore () {
+      this.$router.push('./list')
     }
   },
   components: {
-    Swipe, SwipeItem, Cell, Popup, houseDetails, mypop, searchPage, list
+    Swipe, SwipeItem, Cell, Popup, houseDetails, mypop, searchPage, list, tabbar
   }
 }
 </script>

@@ -18,6 +18,16 @@ export default new Router({
       component: () => import('@/views/home/index')
     },
     {
+      path: '/houseDetails',
+      name: 'houseDetails',
+      component: () => import('@/views/houses/details')
+    },
+    {
+      path: '/list',
+      name: 'list',
+      component: () => import('@/views/houses/list')
+    },
+    {
       path: '/map',
       name: 'map',
       component: () => import('@/views/map/index')

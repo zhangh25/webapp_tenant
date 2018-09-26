@@ -56,6 +56,7 @@
       <template slot="title">实名认证</template>
       <realname></realname>
     </mypop>
+    <tabbar></tabbar>
   </div>
 </template>
 
@@ -69,6 +70,7 @@ import about from './about'
 import setting from './setting/index'
 import personal from './user/personal'
 import realname from './realname/index'
+import tabbar from '@/components/tabbar/index'
 export default {
   computed: {
     ...mapGetters(['token', 'userData'])
@@ -120,7 +122,8 @@ export default {
     about,
     setting,
     personal,
-    realname
+    realname,
+    tabbar
   }
 }
 </script>
