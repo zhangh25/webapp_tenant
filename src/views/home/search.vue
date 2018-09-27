@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <div class="header">
-      <div class="left"><input type="text" class="input" placeholder="你想住哪儿"></div> <div class="cancel">取消</div>
+      <div class="left"><input type="text" class="input" v-model="keyWord" placeholder="你想住哪儿" @keyup.enter="submit"></div> <div class="cancel">取消</div>
     </div>
     <div class="item" >
       <div class="title">热门标签</div>
@@ -33,7 +33,8 @@ export default {
   },
   data () {
     return {
-      tagList: ['明治', '坂田', '杨美']
+      tagList: ['明治', '坂田', '杨美'],
+      keyWord: ''
       // history: ['xx', 'sae']
     }
   },
@@ -42,7 +43,17 @@ export default {
     search (val) {
       console.log(val)
       this.addHistory(val)
+      this.$router.push({
+        path: '/list',
+        query: {
+          content: val
+        }
+      })
       // this.$store.dispatch('addHistory', val)
+    },
+    submit () {
+      console.log(this.keyWord)
+      this.search(this.keyWord)
     },
     addHistory (word) {
       this.$store.dispatch('addHistory', word)

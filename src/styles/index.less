@@ -94,6 +94,37 @@ input{
 .amap-logo,.amap-copyright{
   display: none !important;
 }
+/* 地图房源提示 */
+.markerTip {
+  position: relative;
+  display: inline-block;
+  height: 27px;
+  line-height: 27px;
+  margin-left:calc(-50% + 9px);
+  padding: 0 15px;
+  white-space: nowrap;
+  border-radius: 5px;
+  text-align: center;
+  color: #fff;
+  background-color: #2175e3;
+  box-shadow: 0px 3px 5px 0px rgba(50, 127, 228, 0.48);
+  text-align: center;
+  border-radius: 15px;
+  .buttom{
+    position: absolute;
+    top: 27px;
+    left: 50%;
+    // display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: -4px;
+    vertical-align: middle;
+    border-top: 4px solid;
+    border-color: #2175e3;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+  }
+}
 
 @media (-webkit-min-device-pixel-ratio: 1.5),(min-device-pixel-ratio: 1.5) {
   .border-1px {

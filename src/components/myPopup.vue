@@ -1,6 +1,6 @@
 <template>
   <div class="pop" ref="pop" @touchstart.stop="touch" v-show="visiblepop">
-    <div class="header">
+    <div class="header" v-if="header">
       <div class="back" @click="back"><icon-svg :icon-class="iconType" class="icon"></icon-svg></div>
       <span class="title"><slot name="title"></slot></span>
       <div class="right"></div>
@@ -19,6 +19,10 @@ export default {
     position: {
       default: 'right',
       type: String
+    },
+    header: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {
@@ -48,7 +52,7 @@ export default {
     this.visiblepop = this.value
   },
   mounted () {
-    console.log(this.$refs.pop.parentNode)
+    // console.log(this.$refs.pop.parentNode)
     this.$refs.pop.parentNode.style.overflow = 'hidden'
   },
   methods: {

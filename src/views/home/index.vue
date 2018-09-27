@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="bar">
-      <div class="bar-item" v-for="item in roomMenuRespList" :key="item.id">
+      <div class="bar-item" v-for="item in roomMenuRespList" :key="item.id" @click="menuRespClick(item)">
         <img :src="item.url" width="40" height="40"><br> <span class="title">{{item.name}}</span>
       </div>
     </div>
@@ -46,7 +46,7 @@
     <mypop v-model="detailsPopup">
       <house-details></house-details>
     </mypop>
-    <mypop v-model="searchVisible">
+    <mypop v-model="searchVisible" :header="false">
       <searchPage></searchPage>
     </mypop>
     <!-- <mypop v-model="listVisible" class="list">
@@ -99,7 +99,15 @@ export default {
       this.searchVisible = true
     },
     listMore () {
-      this.$router.push('./list')
+      this.$router.push('/list')
+    },
+    menuRespClick (item) {
+      this.$router.push({
+        path: '/list',
+        query: {
+          menuResp: item.id
+        }
+      })
     }
   },
   components: {
