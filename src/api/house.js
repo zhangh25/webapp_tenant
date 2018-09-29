@@ -3,12 +3,12 @@ import request from '@/utils/request'
 // /queryRoomList
 // 查看房源列表
 export function queryRoomList (data) {
-  let temp = JSON.parse(JSON.stringify(data))
+  // let temp = JSON.parse(JSON.stringify(data))
   // Object.assign(temp, {role: 1})
   return request({
     url: '/queryRoomList',
     method: 'post',
-    params: temp
+    data
   })
 }
 // POST
@@ -57,7 +57,7 @@ export function patSubwayLineQueryRoom (data) {
   return request({
     url: '/patSubwayLineQueryRoom',
     method: 'post',
-    params: data
+    data
   })
 }
 // POST
@@ -67,7 +67,7 @@ export function patSubwayStationQueryRoom (data) {
   return request({
     url: '/patSubwayStationQueryRoom',
     method: 'post',
-    params: data
+    data
   })
 }
 
@@ -78,6 +78,16 @@ export function patQueryRoom (data) {
   return request({
     url: '/patQueryRoom',
     method: 'post',
-    params: data
+    data
+  })
+}
+// POST
+// /querRoomDetailList
+// 查看房间信息
+export function querRoomDetailList (roomId) {
+  return request({
+    url: '/querRoomDetailList',
+    method: 'post',
+    params: {roomId}
   })
 }

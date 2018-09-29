@@ -21,7 +21,7 @@
     <div class="house-title">
       精选房源 <div class="more" @click="listMore">查看更多<i class="icon-more"></i></div>
     </div>
-      <div class="list-item" v-for="item in roomList" :key="item.roomId" @click="houseDeatils">
+      <div class="list-item" v-for="item in roomList" :key="item.roomId" @click="houseDeatils(item.roomId)">
         <div class="img"></div>
         <div class="addr">
           <span class="address">{{item.roomTitle}}</span>
@@ -82,8 +82,9 @@ export default {
     this._getHomeList()
   },
   methods: {
-    houseDeatils () {
-      this.detailsPopup = true
+    houseDeatils (id) {
+      // this.detailsPopup = true
+      this.$router.push(`/roomDetails/${id}`)
     },
     _getHomeList () {
       homeList().then(res => {

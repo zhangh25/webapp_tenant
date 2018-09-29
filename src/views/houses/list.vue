@@ -3,8 +3,8 @@
     <csheader class="top"></csheader>
     <div class="bar">
       <div class="item" v-for="(item, idx) in barTitile" :class="{active: idx===openType}" :key="idx" @click="open(idx)">{{item}}<icon-svg class="icon" icon-class="triangle"></icon-svg></div>
-      <div class="model" v-if="showModel">
-        <div class="address" v-if="openType===0">
+      <div class="model" v-show="showModel">
+        <div class="address" v-show="openType===0">
           <ul class="one"><li v-for="(item, idx) in addrTypes" :key="idx" :class="{active: addrIdx=== idx}" @click="addrClick(idx)"><span class="txt">{{item}}</span></li></ul>
           <ul class="two">
             <li v-if="twoArr.length>0" @click="twoUnlimited">不限</li>
@@ -15,10 +15,10 @@
             <li v-for="item in threeArr" :key="item.id" :class="{active: threeId===item.id}" @click="threeClick(item)">{{item.name}}</li>
           </ul>
         </div>
-        <ul class="sort" v-if="openType===1">
+        <ul class="sort" v-show="openType===1">
           <li v-for="item in sortType" :key="item.id" @click="orderClick(item)" :class="{active: item.id===order.id}">{{item.name}}</li>
         </ul>
-        <csfilter v-if="openType===2" v-model="filterData"></csfilter>
+        <csfilter v-show="openType===2" v-model="filterData" height="340px"></csfilter>
         <!-- <div class="morefilter" v-if="openType===2">
           <div class="box">
             <div class="list">
@@ -53,32 +53,37 @@
         </div> -->
       </div>
     </div>
-    <div class="con-list">
-      <div class="item" v-for="item in list" :key="item.roomId">
-        <div class="left"><img src="" width="98"></div>
-        <div class="right">
-          <div class="title">{{item.roomTitle}}</div>
-          <div class="dec">{{item.typeName}}</div>
-          <div class="dec"></div>
-          <div class="price">{{item.rent}}元/月</div>
-        </div>
-      </div>
-    </div>
-    <div class="model-bg" @click="showModel=false" v-if="showModel" :confirmFilter="confirm"></div>
+    <houseslist :filterData="queryData" ref="list"></houseslist>
+    <div class="model-bg" @click="hideModel" v-if="showModel" :confirmFilter="confirm"></div>
     <!-- <Spinner></Spinner> -->
   </div>
 </template>
 
 <script>
-import {queryRoomList, queryRegion, querySubwayLine, filterCondition, patSubwayLineQueryRoom, patQueryRoom} from '@/api/house'
+import {queryRoomList, queryRegion, querySubwayLine, patSubwayLineQueryRoom, patQueryRoom} from '@/api/house'
 import { InfiniteScroll, Spinner } from 'mint-ui'
 import radio from 'components/csradio/index'
 import csheader from '@/components/header'
 import csfilter from './moreFilter'
+import houseslist from './houseslist'
 export default {
   data () {
     return {
-      queryData: {},
+      queryData: {
+        areaId: null, // 区域编码
+        cityId: 440300,
+        content: null, // 搜索内容
+        hotTagResp: null, // 房间特色,多选拼成id,如:12,343,454
+        configResp: null, // 房间配置
+        lineId: null, // 地铁线路
+        maxRent: null, // 最大租金
+        minRent: null, // 最小租金
+        menuResp: null, // 房产类型
+        orderType: null, // 排序类型
+        orientation: null, // 朝向
+        streetId: null, // 街道编码
+        towerId: null // 小区编码
+      },
       cityId: '440300',
       loading: false,
       showModel: false,
@@ -86,7 +91,7 @@ export default {
       addrTypes: ['区域', '地铁'],
       addrIdx: 0,
       barTitile: ['位置', '排序', '更多筛选'],
-      openType: 0,
+      openType: -1,
       twoArr: [],
       twoSelect: {},
       threeSelect: {},
@@ -110,11 +115,11 @@ export default {
       rent: {},
       filterData: {
         rent: {},
-        configResp: {},
-        hotTagResp: {},
-        houseType: {},
-        menuResp: {},
-        orientation: {}
+        configResp: [],
+        hotTagResp: [],
+        houseType: [],
+        menuResp: [],
+        orientation: []
       },
       configRespList: [], // 房间配置
       configResp: {},
@@ -131,16 +136,19 @@ export default {
   created () {
     this._queryArea()
     this._querySubwayLine()
-    this._filterCondition()
+    // this._filterCondition()
   },
   mounted () {
-    let content = this.$route.query.content
-    let menuResp = this.$route.query.menuResp
-    this._getHouseList({
-      cityId: this.cityId,
-      content,
-      menuResp
-    })
+    // let content =
+    // let menuResp = this.$route.query.menuResp
+    this.queryData.content = this.$route.query.content
+    this.queryData.menuResp = this.$route.query.menuResp
+    this.$refs.list.getHouseList()
+    // this._getHouseList({
+    //   cityId: this.cityId,
+    //   content,
+    //   menuResp
+    // })
   },
   methods: {
     /* 筛选重置 */
@@ -154,27 +162,40 @@ export default {
     },
     /* 筛选确定 */
     confirm (data) {
-      console.log(this.filterData)
+      // console.log(this.filterData)
       console.log(data)
       // if ()
-      this.showModel = false
-      // this._getHouseList({
-      //   configResp: this.configResp.id,
-      //   houseType: this.houseType.id,
-      //   hotTagResp: this.hotTagResp.id,
-      //   menuResp: this.menuResp.id,
-      //   orientation: this.orientation.id
-      // })
+      // this.showModel = false
+      this.hideModel()
+      if (data.rent.id) {
+        this.queryData.maxRent = data.rent.maxRent
+        this.queryData.minRent = data.rent.minRent
+      }
+      this.queryData.configResp = data.configResp.map(item => item.id).join(',')
+      this.queryData.hotTagResp = data.hotTagResp.map(item => item.id).join(',')
+      this.queryData.houseType = data.houseType.map(item => item.id)
+      this.queryData.menuResp = data.menuResp.map(item => item.id).join(',')
+      this.queryData.orientation = data.orientation.map(item => item.id).join(',')
+      this.$refs.list.getHouseList()
     },
     threeClick (data) {
       this.threeId = data.id
-      this.showModel = false
+      // this.showModel = false
       this.barTitile[0] = data.name
       this.threeSelect = data
-      if (this.addrIdx === 0) {} else if (this.addrIdx === 1) {
-        this._patSubwayLineQueryRoom({lineId: this.twoSelect.id, stationId: data.id})
+      this.hideModel()
+      // this.openType = -1
+      if (this.addrIdx === 0) {
+        this.queryData.streetId = data.id
+        this.queryData.regionLevel = 'tower'
+      } else if (this.addrIdx === 1) {
+        this.queryData.stationId = data.id
+        this.queryData.regionLevel = 'station'
+        // this._patSubwayLineQueryRoom({lineId: this.twoSelect.id, stationId: data.id})
       }
+      this.$refs.list.getHouseList()
     },
+    /* 点击地铁线路或区 */
     twoClick (data) {
       this.twoId = data.id
       if (this.addrIdx === 0) {
@@ -185,6 +206,12 @@ export default {
       }
       this.twoSelect = data
     },
+    /* 隐藏筛选条件 */
+    hideModel () {
+      this.openType = -1
+      this.showModel = false
+    },
+    /* 切换地铁或区域 */
     addrClick (idx) {
       this.addrIdx = idx
       this.threeArr = []
@@ -199,26 +226,40 @@ export default {
       this.showModel = false
       this.order = order
       this.barTitile[1] = order.name
+      this.queryData.orderType = order.id
+      this.openType = -1
+      this.$refs.list.getHouseList()
       // this.
     },
     /* 点击区或地铁线路不限 */
     twoUnlimited () {
       this.showModel = false
+      this.openType = -1
       if (this.addrIdx === 0) {
-        this._patQueryRoom({})
+
+      //   this._patQueryRoom({})
       } else if (this.addrIdx === 1) {
-        this._patSubwayLineQueryRoom({})
+      //   this._patSubwayLineQueryRoom({})
       }
+      this.$refs.list.getHouseList()
     },
     /* 具体位置不限 */
     threeUnlimited () {
       this.showModel = false
       console.log(this.twoSelect)
+
+      this.queryData.regionLevel = 'area'
+      this.barTitile[0] = this.twoSelect.name
+      this.openType = -1
       if (this.addrIdx === 0) {
-        this._patQueryRoom({})
+        this.queryData.areaId = this.twoSelect.id
+        this.queryData.regionLevel = 'street'
+      //   this._patQueryRoom({})
       } else if (this.addrIdx === 1) {
-        this._patSubwayLineQueryRoom({lineId: this.twoSelect.id})
+        this.queryData.lineId = this.twoSelect.id
+      //   this._patSubwayLineQueryRoom({lineId: this.twoSelect.id})
       }
+      this.$refs.list.getHouseList()
     },
     /* 查找房源列表 */
     _getHouseList (data) {
@@ -281,22 +322,22 @@ export default {
           this.subway = res.data
         }
       })
-    },
-    _filterCondition () {
-      filterCondition().then(res => {
-        console.log(res)
-        if (res.code === 1) {
-          this.configRespList = res.data.configRespList
-          this.hotTagRespList = res.data.hotTagRespList
-          this.houseTypeList = res.data.houseTypeList
-          this.menuRespList = res.data.menuRespList
-          this.orientationList = res.data.orientationList
-        }
-      })
     }
+    // _filterCondition () {
+    //   filterCondition().then(res => {
+    //     console.log(res)
+    //     if (res.code === 1) {
+    //       this.configRespList = res.data.configRespList
+    //       this.hotTagRespList = res.data.hotTagRespList
+    //       this.houseTypeList = res.data.houseTypeList
+    //       this.menuRespList = res.data.menuRespList
+    //       this.orientationList = res.data.orientationList
+    //     }
+    //   })
+    // }
   },
   components: {
-    csheader, InfiniteScroll, Spinner, radio, csfilter
+    csheader, InfiniteScroll, Spinner, radio, csfilter, houseslist
   }
 }
 </script>
@@ -422,33 +463,7 @@ ul {
     }
   }
 }
-.con-list{
-  >.item{
-    display: flex;
-    background-color: #fff;
-    padding: 15px;
-    // border-bottom: 1px solid #ccc;
-    .border-1px(#f1f1f1);
-    .left{
-      flex: 0 0 117px;
-    }
-    .right{
-      flex: 1;
-      padding-left: 11px;
-      .title{
-        font-size: 14px;
-      }
-      .dec{
-        color: @gray;
-        font-size: 12px;
-        line-height: 20px;
-      }
-      .price{
-        color: @pink;
-      }
-    }
-  }
-}
+
 .model-bg {
   position: fixed;
   top: 0;

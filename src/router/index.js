@@ -28,6 +28,11 @@ export default new Router({
       component: () => import('@/views/houses/list')
     },
     {
+      path: '/roomDetails/:id',
+      name: 'details',
+      component: () => import('@/views/houses/details')
+    },
+    {
       path: '/map',
       name: 'map',
       component: () => import('@/views/map/index')
@@ -46,6 +51,11 @@ export default new Router({
       path: '/wish',
       name: 'wish',
       component: () => import('@/views/wish/index')
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: () => import('@/views/test11/loadmore')
     }
   ]
 })

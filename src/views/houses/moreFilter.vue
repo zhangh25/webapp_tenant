@@ -1,6 +1,6 @@
 <template>
   <div class="morefilter">
-    <div class="box">
+    <div class="box" :style="{height}">
     <!-- <div>帅选</div> -->
       <div class="list">
         <div class="title">租金</div>
@@ -8,23 +8,23 @@
       </div>
       <div class="list">
         <div class="title">房源户型</div>
-        <radio class="radio-list" v-model="filterData.houseType" :valueData="houseTypeList"></radio>
+        <checkbox class="radio-list" v-model="filterData.houseType" :valueData="houseTypeList"></checkbox>
       </div>
       <div class="list">
         <div class="title">房源类型</div>
-        <radio class="radio-list" v-model="filterData.menuResp" :valueData="menuRespList"></radio>
+        <checkbox class="radio-list" v-model="filterData.menuResp" :valueData="menuRespList"></checkbox>
       </div>
       <div class="list">
         <div class="title">朝向</div>
-        <radio class="radio-list" v-model="filterData.orientation" :valueData="orientationList"></radio>
+        <checkbox class="radio-list" v-model="filterData.orientation" :valueData="orientationList"></checkbox>
       </div>
       <div class="list">
         <div class="title">房屋配置</div>
-        <radio class="radio-list" v-model="filterData.configResp" :valueData="configRespList"></radio>
+        <checkbox class="radio-list" v-model="filterData.configResp" :valueData="configRespList"></checkbox>
       </div>
       <div class="list">
         <div class="title">房源特色</div>
-        <radio class="radio-list" v-model="filterData.hotTagResp" :valueData="hotTagRespList"></radio>
+        <checkbox class="radio-list" v-model="filterData.hotTagResp" :valueData="hotTagRespList"></checkbox>
       </div>
     </div>
     <div class="bottom">
@@ -37,6 +37,7 @@
 <script>
 import {filterCondition} from '@/api/house'
 import radio from 'components/csradio/index'
+import checkbox from 'components/cscheckbox/index'
 export default {
   props: {
     value: {
@@ -46,6 +47,10 @@ export default {
     confirmFilter: {
       default: null,
       type: Function
+    },
+    height: {
+      default: 'auto',
+      type: String
     }
   },
   watch: {
@@ -79,23 +84,24 @@ export default {
   created () {
     this.filterData = this.value
     this._filterCondition()
+    console.log(this.filterData)
   },
   methods: {
     resetClick () {
       this.filterData.rent = {}
-      this.filterData.configResp = {}
-      this.filterData.hotTagResp = {}
-      this.filterData.houseType = {}
-      this.filterData.menuResp = {}
-      this.filterData.orientation = {}
+      this.filterData.configResp = []
+      this.filterData.hotTagResp = []
+      this.filterData.houseType = []
+      this.filterData.menuResp = []
+      this.filterData.orientation = []
     },
     confirm () {
       console.log('ddd')
       // this.$emit('confirmFilter')
-
-      if (this.confirmFilter) {
-        this.confirmFilter()
-      }
+      this.$parent.confirm(this.filterData)
+      // if (this.confirmFilter) {
+      //   this.confirmFilter()
+      // }
     },
     _filterCondition () {
       filterCondition().then(res => {
@@ -111,7 +117,7 @@ export default {
     }
   },
   components: {
-    radio
+    radio, checkbox
   }
 }
 </script>
@@ -121,7 +127,7 @@ export default {
 .morefilter {
     padding-bottom: 40px;
     .box {
-      height: 340px;
+      // height: 340px;
       overflow-y: scroll;
     }
     .radio-list{

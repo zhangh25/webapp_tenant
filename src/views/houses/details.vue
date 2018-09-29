@@ -11,9 +11,9 @@
       </div>
     </div>
     <div class="general">
-      <div class="addr"><span class="address">福田区-得到</span> <span class="date">6月19号可入住</span></div>
+      <div class="addr"><span class="address">{{deatil.roomTitle}}</span> <span class="date">6月19号可入住</span></div>
       <div>
-        <span class="price">2000/月</span> <span class="pay-way">押一付一</span>
+        <span class="price">{{deatil.rent}}/月</span> <span class="pay-way">押一付一</span>
       </div>
       <div class="btns">
         <span class="btn">首次出租</span>
@@ -25,10 +25,10 @@
 
     </div>
     <div class="desc">
-        <div class="item">24㎡</div>
-        <div class="item">一室一厅</div>
-        <div class="item">10/12层</div>
-        <div class="item">朝南</div>
+        <div class="item">{{deatil.roomArea?deatil.roomArea:0}}㎡</div>
+        <div class="item" v-if="deatil.typeName">{{deatil.typeName}}</div>
+        <div class="item" v-if="deatil.floorNumber">{{deatil.floorNumber}}/{{deatil.floorTotal}}层</div>
+        <div class="item" v-if="deatil.orientation">{{deatil.orientation}}</div>
     </div>
     <div class="addr-detail">
       <i class="icon-addr"></i>距离9号线梅景（地铁站）994米
@@ -50,7 +50,7 @@
       </div>
       <div class="title" style="padding: 20px 15px">房源介绍</div>
       <div class="introduce">
-        南北通透的房源。。。
+        {{deatil.content}}
       </div>
         <!-- <el-amap-marker vid="component-marker" :position="componentMarker.position" :content-render="componentMarker.contentRender" ></el-amap-marker> -->
 
@@ -59,9 +59,9 @@
       <div class="title">您的管家</div>
       <div class="butler-info clearfix">
         <div class="head">
-          <img >
+          <img :src="deatil.ownerUrl">
         </div>
-        <span class="name">小明</span>
+        <span class="name">{{deatil.ownerName}}</span>
         <div class="btn" @click="phone">联系电话</div>
       </div>
       <div class="text">
@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import {querRoomDetailList} from '@/api/house'
 import {Swipe, SwipeItem, MessageBox} from 'mint-ui'
 export default {
   props: {
@@ -99,11 +100,17 @@ export default {
       zoom: 14,
       center: [121.5273285, 31.21515044],
       show: false,
-      isStore: false
+      isStore: false,
+      roomId: null,
+      deatil: {}
     }
   },
   created () {
     this.show = this.visible
+    this.roomId = this.$route.params.id
+  },
+  mounted () {
+    this.querRoomDetail()
   },
   methods: {
     handleChange (index) {
@@ -111,8 +118,19 @@ export default {
     },
     hiden () {
       this.show = false
-      this.$emit('update:visible', false)
-      console.log('ssfg')
+      // this.$emit('update:visible', false)
+      // console.log('ssfg')
+      this.$router.go(-1)
+    },
+    querRoomDetail () {
+      querRoomDetailList(this.roomId).then(res => {
+        console.log(res)
+        if (res.code === 1) {
+          this.deatil = res.data
+          this.center = [res.data.longitude, res.data.latitude]
+          console.log()
+        }
+      })
     },
     toggleStore () {
       this.isStore = !this.isStore
@@ -158,6 +176,7 @@ export default {
   }
 }
 .details {
+  padding-bottom: 56px;
   .swipe {
     height: 150px;
   }
