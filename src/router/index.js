@@ -48,6 +48,16 @@ export default new Router({
       component: () => import('@/views/msg/index')
     },
     {
+      path: '/msglist',
+      name: 'deatailList',
+      component: () => import('@/views/msg/deatailList')
+    },
+    {
+      path: '/msgdetails',
+      name: 'msgdetails',
+      component: () => import('@/views/msg/details')
+    },
+    {
       path: '/wish',
       name: 'wish',
       component: () => import('@/views/wish/index')

@@ -82,7 +82,8 @@ export default {
         orderType: null, // 排序类型
         orientation: null, // 朝向
         streetId: null, // 街道编码
-        towerId: null // 小区编码
+        towerId: null, // 小区编码
+        regionLevel: null // 搜索区域级别
       },
       cityId: '440300',
       loading: false,
@@ -143,8 +144,8 @@ export default {
     // let menuResp = this.$route.query.menuResp
     this.queryData.content = this.$route.query.content
     this.queryData.menuResp = this.$route.query.menuResp
-    this.$refs.list.getHouseList()
-    // this._getHouseList({
+    this.$refs.list.getHouseListFrist(this.queryData)
+    // this._getHouseListFrist({
     //   cityId: this.cityId,
     //   content,
     //   menuResp
@@ -173,10 +174,11 @@ export default {
       }
       this.queryData.configResp = data.configResp.map(item => item.id).join(',')
       this.queryData.hotTagResp = data.hotTagResp.map(item => item.id).join(',')
-      this.queryData.houseType = data.houseType.map(item => item.id)
+      let houseType = data.houseType.map(item => item.id)
+      this.queryData.houseType = houseType.length > 0 ? houseType : null
       this.queryData.menuResp = data.menuResp.map(item => item.id).join(',')
       this.queryData.orientation = data.orientation.map(item => item.id).join(',')
-      this.$refs.list.getHouseList()
+      this.$refs.list.getHouseListFrist(this.queryData)
     },
     threeClick (data) {
       this.threeId = data.id
@@ -184,25 +186,35 @@ export default {
       this.barTitile[0] = data.name
       this.threeSelect = data
       this.hideModel()
+      console.log('three  ', this.addrIdx)
       // this.openType = -1
       if (this.addrIdx === 0) {
+        console.log()
         this.queryData.streetId = data.id
-        this.queryData.regionLevel = 'tower'
+        this.queryData.stationId = null
+        this.queryData.lineId = null
+        console.log(this.queryData)
       } else if (this.addrIdx === 1) {
         this.queryData.stationId = data.id
-        this.queryData.regionLevel = 'station'
+        this.queryData.streetId = null
+        this.queryData.areaId = null
         // this._patSubwayLineQueryRoom({lineId: this.twoSelect.id, stationId: data.id})
       }
-      this.$refs.list.getHouseList()
+      this.queryData.regionLevel = 'tower'
+      this.$refs.list.getHouseListFrist(this.queryData)
     },
     /* 点击地铁线路或区 */
     twoClick (data) {
       this.twoId = data.id
+      this.threeId = -1
+      console.log(data)
+      // this.addressIdsInit()
       if (this.addrIdx === 0) {
-        // this.threeArr = data.
-        this.queryStreet(data.id)
+        this.threeArr = data.streetList
+        this.queryData.areaId = data.id
       } else if (this.addrIdx === 1) {
         this.threeArr = data.subwayStation
+        this.queryData.lineId = data.id
       }
       this.twoSelect = data
     },
@@ -211,8 +223,18 @@ export default {
       this.openType = -1
       this.showModel = false
     },
+    /* 位置初始化 区，地铁， 街道等id设为为null */
+    addressIdsInit () {
+      this.queryData.areaId = null
+      this.queryData.streetId = null
+      this.queryData.towerId = null
+      this.queryData.lineId = null
+      this.queryData.stationId = null
+      this.queryData.regionLevel = null
+    },
     /* 切换地铁或区域 */
     addrClick (idx) {
+      this.addressIdsInit()
       this.addrIdx = idx
       this.threeArr = []
       if (idx === 0) {
@@ -228,27 +250,23 @@ export default {
       this.barTitile[1] = order.name
       this.queryData.orderType = order.id
       this.openType = -1
-      this.$refs.list.getHouseList()
+      this.$refs.list.getHouseListFrist(this.queryData)
       // this.
     },
     /* 点击区或地铁线路不限 */
     twoUnlimited () {
+      this.addressIdsInit()
       this.showModel = false
       this.openType = -1
-      if (this.addrIdx === 0) {
-
-      //   this._patQueryRoom({})
-      } else if (this.addrIdx === 1) {
-      //   this._patSubwayLineQueryRoom({})
-      }
-      this.$refs.list.getHouseList()
+      this.barTitile[0] = '位置'
+      this.$refs.list.getHouseListFrist(this.queryData)
     },
     /* 具体位置不限 */
     threeUnlimited () {
       this.showModel = false
       console.log(this.twoSelect)
-
-      this.queryData.regionLevel = 'area'
+      this.addressIdsInit()
+      // this.queryData.regionLevel = 'area'
       this.barTitile[0] = this.twoSelect.name
       this.openType = -1
       if (this.addrIdx === 0) {
@@ -257,12 +275,13 @@ export default {
       //   this._patQueryRoom({})
       } else if (this.addrIdx === 1) {
         this.queryData.lineId = this.twoSelect.id
+        this.queryData.regionLevel = 'station'
       //   this._patSubwayLineQueryRoom({lineId: this.twoSelect.id})
       }
-      this.$refs.list.getHouseList()
+      this.$refs.list.getHouseListFrist(this.queryData)
     },
     /* 查找房源列表 */
-    _getHouseList (data) {
+    _getHouseListFrist (data) {
       console.log(data)
       queryRoomList(data).then(res => {
         console.log(res)
@@ -303,14 +322,6 @@ export default {
           if (this.addrIdx === 0) {
             this.twoArr = this.area
           }
-        }
-      })
-    },
-    /* 获取街道数据 */
-    queryStreet (pid) {
-      queryRegion({pid, level: 4}).then(res => {
-        if (res.code === 1) {
-          this.threeArr = res.data
         }
       })
     },

@@ -99,7 +99,7 @@ export default {
         }
       },
       filterData: {
-        cityId: '440300',
+        cityId: 440300,
         areaId: null,
         lineId: null,
         stationId: null,
@@ -197,6 +197,8 @@ export default {
           this._patSubwayStationQueryRoom()
         } else if (this.level === 3) {
           console.log('sss')
+          this._patQueryRoom()
+          // this._patSubwayStationQueryRoom()
         }
       }
     },
@@ -297,10 +299,13 @@ export default {
       } else if (this.level === 2) {
         this.level++ //  level=3 根据街道或地铁站点找小区
         this.zoom = 16
-        this.filterData.platLevel = 14
+        this.filterData.platLevel = 16
         if (this.isArea) {
           this.filterData.regionLevel = 'tower'
           this.filterData.streetId = data.id
+        } else {
+          this.filterData.regionLevel = 'station'
+          console.log('333')
         }
         this.findHouses()
       } else if (this.level === 3) { // 根据小区搜索列表
