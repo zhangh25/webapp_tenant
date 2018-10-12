@@ -1,6 +1,7 @@
 import axios from 'axios'
 // import { Message } from 'element-ui'
 import store from '@/store'
+import {Toast} from 'mint-ui'
 // import { getToken } from '@/utils/auth'
 const debug = process.env.NODE_ENV !== 'production'
 // create an axios instance
@@ -36,6 +37,7 @@ service.interceptors.response.use(
     return response.data
   },
   error => {
+    Toast('网络超时')
     console.log('err' + error) // for debug
     // Message({
     //   message: error.msg,

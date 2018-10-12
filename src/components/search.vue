@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <div class="header">
-      <div class="left"><input type="text" class="input" v-model="keyWord" placeholder="你想住哪儿" @keyup.enter="submit"></div> <div class="cancel">取消</div>
+      <div class="left"><input type="text" class="input" v-model="keyWord" placeholder="你想住哪儿" @keyup.enter="submit"></div> <div class="cancel" @click="cancel">取消</div>
     </div>
     <div class="item" >
       <div class="title">热门标签</div>
@@ -12,7 +12,7 @@
     <div class="item" style="border-top: 1px solid #e5e5e5" v-if="history.length>0">
       <div class="title">历史记录 <div class="clear" @click="clearHistory">清空</div> </div>
       <div class="list">
-        <span v-for="(item, i) in reverseData" :key="i" class="btn">{{item}}</span>
+        <span v-for="(item, i) in reverseData" :key="i" class="btn" @click="search(item)">{{item}}</span>
       </div>
     </div>
   </div>
@@ -39,20 +39,23 @@ export default {
     }
   },
   methods: {
-    cancel () {},
+    cancel () {
+      this.$parent.$parent.searchVisible = false
+    },
     search (val) {
       console.log(val)
       this.addHistory(val)
-      this.$router.push({
-        path: '/list',
-        query: {
-          content: val
-        }
-      })
+      this.$emit('csearch', val)
+      // this.$router.push({
+      //   path: '/list',
+      //   query: {
+      //     content: val
+      //   }
+      // })
       // this.$store.dispatch('addHistory', val)
     },
     submit () {
-      console.log(this.keyWord)
+      // console.log(this.keyWord)
       this.search(this.keyWord)
     },
     addHistory (word) {
@@ -66,7 +69,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../styles/mixin.less';
+@import '../styles/mixin.less';
 .header{
   display: flex;
   padding: 15px;
@@ -86,7 +89,7 @@ export default {
     border: none;
     outline: none;
     padding-left: 20px;
-    background-image: url(./icon/icon_sousuo@2x.png);
+    // background-image: url(./icon/icon_sousuo@2x.png);
     // background-repeat: no-repeat;
 
   }

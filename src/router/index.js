@@ -38,29 +38,64 @@ export default new Router({
       component: () => import('@/views/map/index')
     },
     {
-      path: '/me',
+      path: '/me', // 我的
       name: 'me',
       component: () => import('@/views/me/index')
     },
     {
-      path: '/message',
+      path: '/message', // 消息
       name: 'msg',
       component: () => import('@/views/msg/index')
     },
     {
-      path: '/msglist',
+      path: '/msglist/:type', // 消息列表
       name: 'deatailList',
       component: () => import('@/views/msg/deatailList')
     },
     {
-      path: '/msgdetails',
+      path: '/msgdetails', // 消息详情
       name: 'msgdetails',
       component: () => import('@/views/msg/details')
     },
     {
-      path: '/wish',
+      path: '/wish', // 心愿单
       name: 'wish',
       component: () => import('@/views/wish/index')
+    },
+    {
+      path: '/lease', // 租约管理
+      name: 'lease',
+      component: () => import('@/views/lease/index')
+    },
+    {
+      path: '/leaseRecord', // 租约记录
+      name: 'leaserecord',
+      component: () => import('@/views/lease/record')
+    },
+    {
+      path: '/checkout', // 退房
+      name: 'checkout',
+      component: () => import('@/views/lease/checkout')
+    },
+    {
+      path: '/leaseCancel', // 租约取消
+      name: 'leaserCancel',
+      component: () => import('@/views/lease/cancelCase')
+    },
+    {
+      path: '/leaseDetailStep/:id', // 租约详情 进度
+      name: 'leaserDetailstep',
+      component: () => import('@/views/lease/detailStep')
+    },
+    {
+      path: '/leaseDetail/:id', // 租约详情
+      name: 'leaserDetail',
+      component: () => import('@/views/lease/detail')
+    },
+    {
+      path: '/record', // 预约记录
+      name: 'record',
+      component: () => import('@/views/wish/record')
     },
     {
       path: '/test',

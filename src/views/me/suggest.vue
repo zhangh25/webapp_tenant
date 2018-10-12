@@ -6,7 +6,8 @@
 </template>
 
 <script>
-import { Button } from 'mint-ui'
+import { Button, Toast } from 'mint-ui'
+import {saveSysFeedback} from '@/api/user'
 export default {
   data () {
     return {
@@ -16,6 +17,15 @@ export default {
   methods: {
     submit () {
       console.log(this.ideaString)
+      saveSysFeedback(this.ideaString).then(res => {
+        console.log(res)
+        if (res.code === 1) {
+          Toast('提交成功')
+          this.ideaString = ''
+        } else {
+          Toast(res.msg)
+        }
+      })
     }
   },
   components: {

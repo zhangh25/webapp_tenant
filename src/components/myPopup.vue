@@ -1,9 +1,11 @@
 <template>
-  <div class="pop" ref="pop" @touchstart.stop="touch" v-show="visiblepop">
+  <div class="pop" ref="pop" @touchstart.stop="touch" v-if="visiblepop">
     <div class="header" v-if="header">
       <div class="back" @click="back"><icon-svg :icon-class="iconType" class="icon"></icon-svg></div>
       <span class="title"><slot name="title"></slot></span>
-      <div class="right"></div>
+      <div class="right">
+        <slot name="right"></slot>
+      </div>
     </div>
     <slot :visible.sync="visiblepop"></slot>
   </div>
@@ -53,7 +55,7 @@ export default {
   },
   mounted () {
     // console.log(this.$refs.pop.parentNode)
-    this.$refs.pop.parentNode.style.overflow = 'hidden'
+    if (this.$refs.pop) { this.$refs.pop.parentNode.style.overflow = 'hidden' }
   },
   methods: {
     touch () {
@@ -111,6 +113,7 @@ export default {
     float: right;
     width: 40px;
     height: 44px;
+    text-align: left;
   }
 }
 </style>

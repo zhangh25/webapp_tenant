@@ -90,6 +90,19 @@ input{
   overflow: auto;
 }
 
+// 日期
+.mint-datetime-cancel {
+  padding-left: 20px;
+  text-align: left;
+  color: #666;
+  font-size: 18px;
+}
+.mint-datetime-confirm{
+  padding-right: 20px;
+  text-align: right;
+  color: #2175e3;
+  font-size: 18px;
+}
 /* 高德地图底部 logo 版权信息 */
 .amap-logo,.amap-copyright{
   display: none !important;
@@ -123,6 +136,61 @@ input{
     border-color: #2175e3;
     border-right: 4px solid transparent;
     border-left: 4px solid transparent;
+  }
+}
+.csmarker{
+  display: block;
+}
+.amap-marker-content{
+  img{
+    display: none;
+  }
+}
+// 预约看房
+.textarea {
+  .mint-cell-title{
+    flex: none;
+  }
+  .mint-cell-value {
+    width: 100%;
+  }
+}
+
+//
+.mint-checkbox-label {
+  font-size: 13px;
+}
+
+input:disabled {
+  background-color: #fff;
+}
+
+.mint-field-core{
+  font-size: 14px;
+  &::placeholder {
+    color: #d9d9d9;
+  }
+}
+/* 图片轮播 */
+.banner-imgs {
+  position: relative;
+  height: 200px;
+  .tip{
+    position: absolute;
+    padding: 0 3px;
+    height: 25px;
+    border-radius: 50px;
+    text-align: center;
+    line-height: 25px;
+    background-color: #333;
+    opacity: .76;
+    color: #fff;
+    font-size: 12px;
+    right: 10px;
+    bottom: 10px;
+  }
+  .mint-swipe-indicators{
+    display: none;
   }
 }
 

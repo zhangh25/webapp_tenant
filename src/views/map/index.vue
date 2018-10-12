@@ -7,13 +7,13 @@
         <span :class="{active: isArea}" style="margin-right: 30px;" @click="toggleWay(true)">区域</span>
         <span :class="{active: !isArea}" @click="toggleWay(false)">地铁</span>
       </div>
-      <div class="right" @click="areaClick('marker')">
+      <div class="right" @click="searchVisible=true">
         <icon-svg icon-class="search"></icon-svg>
       </div>
     </div>
     <div class="map">
       <el-amap vid="amap" class="" ref="map" :center="center" :zoom="zoom" :plugin="plugin" :zooms="zooms" :events="events">
-        <el-amap-marker v-for="marker in topMarkers" :key="marker.id" :position="marker.position" :vid="marker.id" :events="marker.events">
+        <el-amap-marker v-for="marker in topMarkers" :key="marker.id" :position="marker.position" :vid="marker.id" :events="marker.events" class="csmarker" v-if="level!==3||marker.countNum">
           <div class="circle-marker" v-if="level<3" @click="areaClick(marker)"><div style="white-space:nowrap;">{{marker.name}}</div>{{marker.countNum?marker.countNum:0}}套</div>
           <div class="markerTip" v-else>{{marker.name}} {{marker.countNum?marker.countNum:0}}套<div class="buttom"></div></div>
         </el-amap-marker>
@@ -26,14 +26,17 @@
         :stroke-opacity="localCircles.strokeOpacity"
         :fill-opacity="localCircles.fillOpacity"
         :fill-color="localCircles.fillColor"></el-amap-circle>
+        <el-amap-marker :position="localCircles.center" v-if="localShow" class="csmarker">
+          <i class="local-icon"></i>
+        </el-amap-marker>
       </el-amap>
       <div class="btns">
         <div class="btn icon-filter" @click="showFilter=true"></div>
-        <div class="btn icon-list" @click="listShow=true"></div>
+        <div class="btn icon-list" @click="showList"></div>
         <div class="btn icon-location" @click="location"></div>
       </div>
     </div>
-    <div class="filter-model" v-if="showFilter">
+    <div class="filter-model" v-show="showFilter">
       <div class="bg" @click="showFilter=false"></div>
       <csfilter class="filter" v-model="filtersData"></csfilter>
     </div>
@@ -46,10 +49,13 @@
       </div>
     </mypop>
     <Popup v-model="listShow" position="bottom" class="listpop">
-      <div>2344分</div>
-      <div>2344分</div>
+      <!-- <div>2344分</div>
+      <div>2344分</div> -->
       <houseslist :filterData="filterData" ref="list"></houseslist>
     </Popup>
+    <mypop v-model="searchVisible" :header="false">
+      <searchPage @csearch="search"></searchPage>
+    </mypop>
     <tabbar></tabbar>
   </div>
 </template>
@@ -61,6 +67,8 @@ import mypop from '@/components/myPopup'
 import tabbar from '@/components/tabbar/index'
 import csfilter from '../houses/moreFilter'
 import houseslist from '../houses/houseslist'
+// import searchPage from './search'
+import searchPage from 'components/search'
 import { AMapManager } from 'vue-amap'
 let amapManager = new AMapManager()
 export default {
@@ -73,8 +81,10 @@ export default {
       amapManager,
       center: [114.02597366, 22.54605355],
       localVisible: false,
+      searchVisible: false,
       city: '深圳',
       cityId: '440300',
+      isScale: false,
       events: {
         // zoomchange: (aa) => {
         //   // console.log(this.zoom)
@@ -84,10 +94,21 @@ export default {
         //   // console.log(aa, 'ddd')
         // },
         zoomend: () => {
-          this.zoom = this.$refs.map.$$getInstance().getZoom()
+          let zoom = this.$refs.map.$$getInstance().getZoom()
+          this.setRegionLevel(zoom)
+          // console.log(this.zoom)
+          if (this.isScale) {
+            this.isScale = false
+          } else {
+            let center = this.$refs.map.$$getCenter()
+            console.log('zoomed')
+            this.filterData.longitude = center[0]
+            this.filterData.latitude = center[1]
+            this.findHouses()
+          }
         },
         touchstart: () => {
-          console.log('触摸开始')
+          // console.log('触摸开始')
           console.log(this.$refs.map.$$getCenter())
           startPosition = this.$refs.map.$$getCenter()
         },
@@ -105,7 +126,15 @@ export default {
         stationId: null,
         regionLevel: 'area',
         longitude: null, // 经度
-        latitude: null // 纬度
+        latitude: null, // 纬度
+        content: null, // 搜索内容
+        hotTagResp: null, // 房间特色,多选拼成id,如:12,343,454
+        configResp: null, // 房间配置
+        maxRent: null, // 最大租金
+        minRent: null, // 最小租金
+        menuResp: null, // 房产类型
+        orderType: null, // 排序类型
+        orientation: null // 朝向
       },
       isArea: true, // true: 区域找房， false: 地铁找房
       level: 1, // 1-地区,2-街道,3-小区
@@ -119,18 +148,6 @@ export default {
             init (o) {
               console.log('center')
               self.Geolocation = o
-              // o 是高德地图定位插件实例
-              // o.getCurrentPosition((status, result) => {
-              //   // console.log(status, result)
-              //   if (result && result.position) {
-              //     // console.log(result, '123244444444444')
-              //     self.lng = result.position.lng
-              //     self.lat = result.position.lat
-              //     self.center = [self.lng, self.lat]
-              //     self.loaded = true
-              //     self.$nextTick()
-              //   }
-              // })
             }
           }
         }
@@ -179,6 +196,12 @@ export default {
       white-space: nowrap; */
       return `<div class="markerTip">${str}<div class="buttom"></div></div>`
     },
+    search (val) {
+      // this.initIds()
+      this.filterData.content = val
+      this.findHouses()
+      // console.log(val, 'ubbbb')
+    },
     toggleWay (val) {
       this.isArea = val
       this.zoom = 12
@@ -208,17 +231,42 @@ export default {
     location () {
       console.log('333')
       if (this.Geolocation) {
-        Indicator.open('获取当前位置...')
+        Indicator.open('正在定位...')
         this.Geolocation.getCurrentPosition((status, result) => {
           Indicator.close()
           console.log(status, result)
           if (result && result.position) {
-            this.zoom = 16
             this.localShow = true
             this.localMaker.position = this.localCircles.center = [result.position.lng, result.position.lat]
+            this.filterData.longitude = result.position.lng
+            this.filterData.latitude = result.position.lat
+            this.setRegionLevel(16)
+          } else {
+            Toast({message: '定位失败', position: 'top'})
           }
         })
       }
+    },
+    /* 筛选确定 */
+    confirm (data) {
+      // console.log(this.filterData)
+      console.log(data)
+      // if ()
+      // this.showModel = false
+      // this.hideModel()
+      this.showFilter = false
+      if (data.rent.id) {
+        this.filterData.maxRent = data.rent.maxRent
+        this.filterData.minRent = data.rent.minRent
+      }
+      this.filterData.configResp = data.configResp.map(item => item.id).join(',')
+      this.filterData.hotTagResp = data.hotTagResp.map(item => item.id).join(',')
+      let houseType = data.houseType.map(item => item.id)
+      this.filterData.houseType = houseType.length > 0 ? houseType : null
+      this.filterData.menuResp = data.menuResp.map(item => item.id).join(',')
+      this.filterData.orientation = data.orientation.map(item => item.id).join(',')
+      // this.$refs.list.getHouseListFrist(this.queryData)
+      this.findHouses()
     },
     /* 根据经纬度获取两点距离 */
     getDistance (p1, p2) {
@@ -243,11 +291,24 @@ export default {
       }
     },
     csAlert (data) {
-      let num = data.map(item => +item.countNum).reduce((temp, next) => temp + next)
+      console.log(data, data.length, 'alert')
+      let num = 0
+      if (data.length > 0) {
+        num = data.map(item => +item.countNum).reduce((temp, next) => temp + next)
+      }
       Toast({
         message: `找到${num}房源`,
         position: 'top'
       })
+    },
+    /* 显示列表 */
+    showList () {
+      if (this.level === 3) {
+        this.listShow = true
+        this.$refs.list.getHouseListFrist(this.filterData)
+      } else {
+        this.$router.push('/list')
+      }
     },
     /* 区域，街道等id设为null */
     initIds () {
@@ -255,6 +316,31 @@ export default {
       this.filterData.streetId = null
       this.filterData.lineId = null
       this.filterData.stationId = null
+    },
+    /* 设置区域级别 */
+    setRegionLevel (zoom) {
+      if (zoom < 14) {
+        this.localShow = false
+        this.filterData.regionLevel = 'area'
+        this.filterData.platLevel = 12
+        this.level = 1
+        // this.zoom = 12
+      } else if (zoom < 16) {
+        this.localShow = false
+        this.level = 2
+        this.filterData.platLevel = 14
+        if (this.isArea) {
+          this.filterData.regionLevel = 'street'
+        } else {
+          this.filterData.regionLevel = 'station'
+        }
+      } else {
+        this.level = 3
+        this.filterData.regionLevel = 'tower'
+        this.filterData.platLevel = 16
+      }
+      this.zoom = zoom
+      this.findHouses()
     },
     /* 初始化经纬度 */
     setLnglat (lng, lat) {
@@ -267,11 +353,12 @@ export default {
     },
     /* 根据距离查找房源 */
     findHousesByDistance (data, distance) {
+      console.log(this.level, 'level')
       if (this.level > 1 && data.length === 2) {
         if (this.level === 2 && distance < 3000) {
           return
         }
-        if (this.level === 3 && distance < 1000) {
+        if (this.level === 3 && distance < 500) {
           return
         }
         // this.initIds()
@@ -283,37 +370,30 @@ export default {
       console.log(data)
       this.setLnglat(null, null)
       if (this.level === 1) {
-        this.level++ // level=2 根据区或地铁线路找街道或地铁站点
-        this.filterData.platLevel = 14
+        // this.level++ // level=2 根据区或地铁线路找街道或地铁站点
+        this.isScale = true
+        this.setRegionLevel(14)
         if (this.isArea) {
           this.filterData.areaId = data.id
-          this.filterData.regionLevel = 'street'
-          this.findHouses()
         } else {
-          this.filterData.regionLevel = 'station'
           this.filterData.lineId = data.id
-          // console.log(data.id)
-          this.findHouses()
         }
-        this.zoom = 14
       } else if (this.level === 2) {
-        this.level++ //  level=3 根据街道或地铁站点找小区
-        this.zoom = 16
-        this.filterData.platLevel = 16
+        // this.level++ //  level=3 根据街道或地铁站点找小区
+        this.isScale = true
+        this.setRegionLevel(16)
         if (this.isArea) {
-          this.filterData.regionLevel = 'tower'
           this.filterData.streetId = data.id
         } else {
-          this.filterData.regionLevel = 'station'
+          this.filtersData.stationId = data.id
+          // this.filterData.regionLevel = 'station'
           console.log('333')
         }
-        this.findHouses()
       } else if (this.level === 3) { // 根据小区搜索列表
         // this.level++ // 4
         // if ()
         this.setLnglat(data.longitude, data.latitude)
-        this.$refs.list.getHouseList()
-        this.listShow = true
+        this.showList()
       }
     },
     /*  地铁找房 */
@@ -345,7 +425,7 @@ export default {
           // this.topMarkers = res.data
           this.setTopMarker(res.data)
           this.csAlert(res.data)
-          if (res.data.length > 0) {
+          if (res.data.length > 0 && this.level !== 1) {
             // console.log('center')
             this.center = [res.data[0].longitude, res.data[0].latitude]
             // this.center
@@ -359,7 +439,8 @@ export default {
     tabbar,
     csfilter,
     Popup,
-    houseslist
+    houseslist,
+    searchPage
   }
 }
 </script>
@@ -517,5 +598,12 @@ export default {
   font-size: 11px;
       position: relative;
     z-index: 100;
+}
+.local-icon{
+  display: inline-block;
+  width: 21px;
+  height: 41px;
+  background-image: url(./icon/icon_weizhi@2x.png);
+  background-size: contain;
 }
 </style>

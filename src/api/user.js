@@ -70,7 +70,16 @@ export function updateCsUsers (data) {
   return request({
     url: '/csusers/updateCsUsers',
     method: 'post',
-    params: data
+    data
+  })
+}
+// POST
+// /csowner/getOwnerInfo
+// 获取房东信息
+export function getOwnerInfo () {
+  return request({
+    url: '/csowner/getOwnerInfo',
+    method: 'post'
   })
 }
 // GET
@@ -80,5 +89,36 @@ export function getQiniuToken () {
   return request({
     url: '/common/qiniu/token',
     method: 'get'
+  })
+}
+
+// POST
+// /common/saveSysFeedback
+// 添加意见反馈
+export function saveSysFeedback (content) {
+  return request({
+    url: '/common/saveSysFeedback',
+    method: 'post',
+    params: {roleType: 0, content}
+  })
+}
+// POST
+// /common/RealName
+// 实名认证
+export function realName (data) {
+  return request({
+    url: '/common/RealName',
+    method: 'post',
+    params: data
+  })
+}
+// POST
+// /csusers/replacePhone
+// 更换手机号
+export function replacePhone (data) {
+  return request({
+    url: '/csusers/replacePhone',
+    method: 'post',
+    params: data
   })
 }

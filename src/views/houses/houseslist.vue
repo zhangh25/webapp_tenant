@@ -73,10 +73,12 @@ export default {
     // }
   },
   created () {
+    console.log('sssas')
     // this.fData = this.filterData
     Object.assign(this.fData, this.filterData)
   },
   mounted () {
+    console.log('sssas')
     this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top
     // this._getHouseList()
     // console.log(this.wrapperHeight)
@@ -86,7 +88,7 @@ export default {
       this.bottomStatus = status
     },
     loadBottom () {
-      console.log('loadbottom')
+      console.log('loadbottom', this.wrapperHeight)
       this.getHouseList()
       // setTimeout(() => {
       //   // let lastValue = this.list[this.list.length - 1]
@@ -128,10 +130,13 @@ export default {
             this.allLoaded = true
           }
           // this.dataList = [...this.dataList, ...res.data]
+        } else {
+          this.allLoaded = true
         }
       }, err => {
         console.log(err, 'list timeoutt')
         this.loading = false
+        this.allLoaded = true
       })
     }
   },

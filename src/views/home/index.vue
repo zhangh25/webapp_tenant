@@ -10,7 +10,7 @@
       </Swipe>
       <div class="header">
         <div class="city"><span class="icon">{{city}}</span> <i class=""></i> </div>
-        <span class="input" @click="showSearch"><i class="icon-search"></i> 输入你想住的区域或小区</span>
+        <span class="input" @click="showSearch"><icon-svg class="icon" icon-class="search"></icon-svg> 输入你想住的区域或小区</span>
       </div>
     </div>
     <div class="bar">
@@ -22,13 +22,15 @@
       精选房源 <div class="more" @click="listMore">查看更多<i class="icon-more"></i></div>
     </div>
       <div class="list-item" v-for="item in roomList" :key="item.roomId" @click="houseDeatils(item.roomId)">
-        <div class="img"></div>
+        <div class="img">
+          <img :src="item.imageUrl" alt="">
+        </div>
         <div class="addr">
           <span class="address">{{item.roomTitle}}</span>
           <span class="price">{{parseInt(item.rent)}}元/月</span>
         </div>
         <div class="describe">{{item.typeName}}</div>
-        <div class="describe address-detail"><i class="icon-addr"></i></div>
+        <!-- <div class="describe address-detail"><i class="icon-addr"></i></div> -->
       </div>
       <!-- <div class="list-item">
         <div class="img"></div>
@@ -47,7 +49,7 @@
       <house-details></house-details>
     </mypop>
     <mypop v-model="searchVisible" :header="false">
-      <searchPage></searchPage>
+      <searchPage @csearch="search"></searchPage>
     </mypop>
     <!-- <mypop v-model="listVisible" class="list">
       <span slot="title" class="input">输入你想住的区域或小区</span>
@@ -62,7 +64,7 @@ import { Swipe, SwipeItem, Cell, Popup } from 'mint-ui'
 import houseDetails from '../houses/details.vue'
 import {homeList} from '@/api/home'
 import mypop from '@/components/myPopup'
-import searchPage from './search'
+import searchPage from 'components/search'
 import list from '@/components/houseList/list'
 import tabbar from '@/components/tabbar/index'
 export default {
@@ -93,6 +95,15 @@ export default {
           this.bannarList = res.data.bannerlist
           this.roomList = res.data.roomList
           this.roomMenuRespList = res.data.roomMenuRespList
+        }
+      })
+    },
+    search (val) {
+      // console.log(val)
+      this.$router.push({
+        path: '/list',
+        query: {
+          content: val
         }
       })
     },
@@ -225,7 +236,7 @@ export default {
   }
   .addr {
     font-size: 14px;
-    // padding-bottom: 10px;
+    padding-top: 10px;
     .address{
       color: #353535;
     }

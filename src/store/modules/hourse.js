@@ -1,12 +1,18 @@
 let history = JSON.parse(localStorage.getItem('history'))
 if (!history) history = []
+let collect = JSON.parse(localStorage.getItem('collect'))
+if (!collect) collect = []
 const hourse = {
   state: {
-    history
+    history,
+    collect // 收藏
   },
   mutations: {
     SET_HISTORY: (state, history) => {
       state.history = history
+    },
+    SET_COLLECT: (state, collect) => {
+      state.collect = collect
     }
   },
   actions: {
@@ -24,6 +30,19 @@ const hourse = {
     clearHistory ({commit}) {
       localStorage.removeItem('history')
       commit('SET_HISTORY', [])
+    },
+    addCollect ({state, commit}, coll) {
+      let idx = state.collect.indexOf(coll)
+      if (idx === -1) {
+        state.collect.push(coll)
+        localStorage.setItem('collect', JSON.stringify(state.collect))
+        commit('SET_COLLECT', state.collect)
+      }
+    },
+    delCollect ({state, commit}, coll) {
+      let idx = state.collect.indexOf(coll)
+      state.collect.splice(idx, 1)
+      commit('SET_COLLECT', state.collect)
     }
   }
 }

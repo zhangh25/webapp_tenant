@@ -1,6 +1,10 @@
 <template>
   <div>
-    <csheader class="top"></csheader>
+    <csheader class="top">
+      <!-- <div class="mid" @click="searchVisible=true"><icon-svg class="icon" icon-class="search"></icon-svg> 输入你想住的区域或小区</div> -->
+      <input class="mid" type="text" placeholder="输入你想住的区域或小区" v-model="keyword" @keyup.enter="cssearch">
+      <i slot="right" @click="$router.push('/map')" class="addr-icon"></i>
+    </csheader>
     <div class="bar">
       <div class="item" v-for="(item, idx) in barTitile" :class="{active: idx===openType}" :key="idx" @click="open(idx)">{{item}}<icon-svg class="icon" icon-class="triangle"></icon-svg></div>
       <div class="model" v-show="showModel">
@@ -55,6 +59,10 @@
     </div>
     <houseslist :filterData="queryData" ref="list"></houseslist>
     <div class="model-bg" @click="hideModel" v-if="showModel" :confirmFilter="confirm"></div>
+    <!-- <mypop v-model="searchVisible" :header="false">
+      <searchPage></searchPage>
+    </mypop> -->
+    <!--  -->
     <!-- <Spinner></Spinner> -->
   </div>
 </template>
@@ -62,13 +70,17 @@
 <script>
 import {queryRoomList, queryRegion, querySubwayLine, patSubwayLineQueryRoom, patQueryRoom} from '@/api/house'
 import { InfiniteScroll, Spinner } from 'mint-ui'
+import mypop from '@/components/myPopup'
 import radio from 'components/csradio/index'
 import csheader from '@/components/header'
 import csfilter from './moreFilter'
 import houseslist from './houseslist'
+import searchPage from 'components/search'
 export default {
   data () {
     return {
+      searchVisible: false,
+      keyword: '',
       queryData: {
         areaId: null, // 区域编码
         cityId: 440300,
@@ -134,6 +146,11 @@ export default {
       orientation: {}
     }
   },
+  watch: {
+    $router (val) {
+      console.log(val)
+    }
+  },
   created () {
     this._queryArea()
     this._querySubwayLine()
@@ -142,16 +159,20 @@ export default {
   mounted () {
     // let content =
     // let menuResp = this.$route.query.menuResp
+    console.log('mounted')
     this.queryData.content = this.$route.query.content
     this.queryData.menuResp = this.$route.query.menuResp
-    this.$refs.list.getHouseListFrist(this.queryData)
-    // this._getHouseListFrist({
-    //   cityId: this.cityId,
-    //   content,
-    //   menuResp
-    // })
+
+    this.$refs.list.getHouseListFrist(JSON.parse(JSON.stringify(this.queryData)))
+    this.queryData.content = null
+    this.queryData.menuResp = null
   },
   methods: {
+    cssearch () {
+      this.addressIdsInit()
+      this.queryData.content = this.keyword
+      this.$refs.list.getHouseListFrist(this.queryData)
+    },
     /* 筛选重置 */
     resetClick () {
       this.rent = {}
@@ -225,6 +246,7 @@ export default {
     },
     /* 位置初始化 区，地铁， 街道等id设为为null */
     addressIdsInit () {
+      this.queryData.content = null
       this.queryData.areaId = null
       this.queryData.streetId = null
       this.queryData.towerId = null
@@ -348,7 +370,7 @@ export default {
     // }
   },
   components: {
-    csheader, InfiniteScroll, Spinner, radio, csfilter, houseslist
+    csheader, InfiniteScroll, Spinner, radio, csfilter, houseslist, searchPage, mypop
   }
 }
 </script>
@@ -474,7 +496,19 @@ ul {
     }
   }
 }
-
+.mid{
+  width: 100%;
+  text-align: center;
+  border: none;
+  box-shadow: 0px 1px 5px 0px #eceaea;
+  border-radius: 5px;
+  height: 30px;
+  margin-top: 5px;
+  line-height: 30px;
+  &::placeholder{
+    color: @gray;
+  }
+}
 .model-bg {
   position: fixed;
   top: 0;
@@ -486,5 +520,14 @@ ul {
 }
 .top {
   z-index: 10;
+}
+.addr-icon{
+  display: inline-block;
+  width: 15px;
+  height: 17.5px;
+  background-image: url(./icon/icon_daohanglanditu@2x.png);
+  background-size: contain;
+  position: relative;
+    top: 3px;
 }
 </style>

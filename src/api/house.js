@@ -91,3 +91,34 @@ export function querRoomDetailList (roomId) {
     params: {roomId}
   })
 }
+
+// GET
+// /saveUsersFavorite
+// 用户收藏房源
+export function saveUsersFavorite (roomId) {
+  return request({
+    url: '/saveUsersFavorite',
+    method: 'get',
+    params: {roomId}
+  })
+}
+// GET
+// /delUsersFavorite
+// 用户取消收藏
+export function delUsersFavorite (favoriteId) {
+  return request({
+    url: '/delUsersFavorite',
+    method: 'get',
+    params: {favoriteId}
+  })
+}
+// GET
+// /queryUsersFavorite
+// 查询用户收藏房源列表
+export function queryUsersFavorite (startRow, rows) {
+  return request({
+    url: '/queryUsersFavorite',
+    method: 'get',
+    params: {startRow, rows}
+  })
+}

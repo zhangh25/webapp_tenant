@@ -1,46 +1,50 @@
 <template>
   <div class="details" >
     <div class="top">
-      <Swipe class="swipe" @change="handleChange">
-        <SwipeItem style="background: #ff0000">1</SwipeItem>
-        <SwipeItem style="background: #120050">2</SwipeItem>
-        <SwipeItem style="background: #af0000">3</SwipeItem>
-      </Swipe>
+      <div class="banner-imgs">
+        <Swipe class="swipe" @change="handleChange">
+          <SwipeItem style="background: #ff0000" v-for="item in deatil.imageList" :key="item.index"><img :src="item.url" alt="" width="100%"></SwipeItem>
+        </Swipe>
+        <div class="tip" v-if="deatil.imageList&&deatil.imageList.length > 0">{{curImgidx}}/{{deatil.imageList.length}}</div>
+      </div>
       <div class="header">
         <i class="icon-back" @click="hiden"></i>
       </div>
     </div>
     <div class="general">
-      <div class="addr"><span class="address">{{deatil.roomTitle}}</span> <span class="date">6月19号可入住</span></div>
+      <div class="addr"><span class="address">{{deatil.roomTitle}}</span>
+      <!-- <span class="date">6月19号可入住</span> -->
+      </div>
       <div>
         <span class="price">{{deatil.rent}}/月</span> <span class="pay-way">押一付一</span>
       </div>
       <div class="btns">
-        <span class="btn">首次出租</span>
+        <span class="btn" v-for="item in deatil.roomHotTagRespList" :key="item.id">{{item.name}}</span>
+        <!-- <span class="btn">首次出租</span>
         <span class="btn active">近地铁</span>
         <span class="btn">精装修</span>
         <span class="btn">WIFI覆盖</span>
-        <span class="btn">月度保洁</span>
+        <span class="btn">月度保洁</span> -->
       </div>
 
     </div>
     <div class="desc">
-        <div class="item">{{deatil.roomArea?deatil.roomArea:0}}㎡</div>
+        <div class="item" v-if="deatil.roomArea">{{deatil.roomArea?deatil.roomArea:0}}㎡</div>
         <div class="item" v-if="deatil.typeName">{{deatil.typeName}}</div>
         <div class="item" v-if="deatil.floorNumber">{{deatil.floorNumber}}/{{deatil.floorTotal}}层</div>
         <div class="item" v-if="deatil.orientation">{{deatil.orientation}}</div>
     </div>
-    <div class="addr-detail">
-      <i class="icon-addr"></i>距离9号线梅景（地铁站）994米
+    <div class="addr-detail" v-if="deatil.address">
+      <i class="icon-addr"></i>{{deatil.address}}
     </div>
-    <div class="box  device">
+    <div class="box  device" v-if="deatil.roomConfigRespList&&deatil.roomConfigRespList.length>0">
       <div class="title">配置设备</div>
       <div class="clearfix" style="margin-top: 15px;">
+        <div class="item" v-for="item in deatil.roomConfigRespList" :key="item.id"><img :src="item.url" alt="" height="18" style="margin-bottom: 10px"><br><span>{{item.name}}</span></div>
+        <!-- <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
         <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
         <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
-        <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
-        <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
-        <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
+        <div class="item"><i class="icon icon-kt"></i><span>空调</span></div> -->
       </div>
     </div>
     <div class="box around">
@@ -73,16 +77,34 @@
         <i class="icon" :class="{'icon-store': isStore}"></i><br>
         <span :class="{word: isStore}">收藏</span>
       </div>
-      <div class="bespoke">预约看房</div>
-      <div class="sign">立即签约</div>
+      <div class="bespoke" @click="appointment">预约看房</div>
+      <div class="sign" @click="contract">立即签约</div>
     </div>
+    <login v-model="loginVisible"></login>
+    <mypop v-model="appointmentVisible">
+      <template slot="title">预约看房</template>
+      <appointment v-model="deatil">
+      </appointment>
+    </mypop>
+    <mypop v-model="contractVisible">
+      <template slot="title">信息确认</template>
+      <contract v-model="deatil"></contract>
+    </mypop>
   </div>
 </template>
 
 <script>
-import {querRoomDetailList} from '@/api/house'
+import { mapGetters } from 'vuex'
+import {querRoomDetailList, saveUsersFavorite} from '@/api/house'
 import {Swipe, SwipeItem, MessageBox} from 'mint-ui'
+import login from '@/views/me/user/login'
+import mypop from '@/components/myPopup'
+import appointment from './appointment'
+import contract from './contract'
 export default {
+  computed: {
+    ...mapGetters(['token', 'collect'])
+  },
   props: {
     visible: {
       default: false,
@@ -99,10 +121,14 @@ export default {
     return {
       zoom: 14,
       center: [121.5273285, 31.21515044],
+      curImgidx: 1,
       show: false,
       isStore: false,
       roomId: null,
-      deatil: {}
+      deatil: {},
+      loginVisible: false,
+      appointmentVisible: false,
+      contractVisible: false
     }
   },
   created () {
@@ -114,7 +140,8 @@ export default {
   },
   methods: {
     handleChange (index) {
-      // console.log(index)
+      // console.log(index, 'bannar')
+      this.curImgidx = index + 1
     },
     hiden () {
       this.show = false
@@ -128,12 +155,72 @@ export default {
         if (res.code === 1) {
           this.deatil = res.data
           this.center = [res.data.longitude, res.data.latitude]
+          this.initCollect()
           console.log()
         }
       })
     },
+    tips (str) {
+      MessageBox({
+        title: '',
+        message: `登录之后才能${str}，请前往登录`,
+        showCancelButton: true,
+        confirmButtonText: '确认'
+      }).then(s => {
+        // console.log('ddd', s)
+        if (s === 'confirm') {
+          // this.appointmentVisible = true
+          this.loginVisible = true
+          // console.log('ssd1')
+        }
+      })
+    },
+    /* 预约 */
+    appointment () {
+      console.log('预约')
+      if (!this.deatil.roomId) return
+      if (this.token) {
+        this.appointmentVisible = true
+      } else {
+        this.tips('预约房源')
+      }
+    },
+    /* 签约 */
+    contract () {
+      console.log('签约')
+      if (!this.deatil.roomId) return
+      if (this.token) {
+        this.contractVisible = true
+      } else {
+        this.tips('签约房源')
+      }
+    },
+    initCollect () {
+      console.log(this.collect)
+      for (let item of this.collect) {
+        console.log(item, 'cooo')
+        if (item === this.deatil.roomId) {
+          this.isStore = true
+        }
+      }
+    },
+    /* 切换收藏 */
     toggleStore () {
       this.isStore = !this.isStore
+      if (this.isStore) {
+        this.$store.dispatch('addCollect', this.deatil.roomId)
+        if (this.token) {
+          saveUsersFavorite(this.deatil.roomId).then(res => {
+            console.log(res)
+            if (res.code === 1) {
+            }
+          })
+        }
+      } else {
+        // console.log('no')
+        this.$store.dispatch('delCollect', this.deatil.roomId)
+      }
+      // console.log(this.collect)
     },
     phone () {
       MessageBox({
@@ -150,7 +237,7 @@ export default {
     }
   },
   components: {
-    Swipe, SwipeItem
+    Swipe, SwipeItem, login, mypop, appointment, contract
   }
 }
 </script>
@@ -177,9 +264,9 @@ export default {
 }
 .details {
   padding-bottom: 56px;
-  .swipe {
-    height: 150px;
-  }
+  // .swipe {
+  //   height: 200px;
+  // }
   .general {
     padding: 15px;
     background-color: #fff;
@@ -319,6 +406,7 @@ export default {
     margin-right: 8px;
     img{
       width: 100%;
+      height: 100%;
     }
 
   }

@@ -45,8 +45,11 @@ export default {
   }
   .center {
     flex: 1;
+    text-align: center;
+    font-size: 17px;
   }
   .right{
+    position: relative;
     flex: 0 0 35px;
     padding-right: 10px;
     text-align: right;

@@ -7,9 +7,12 @@ import 'mint-ui/lib/style.css'
 import '@/styles/index.less'
 import '@/icons' // icon
 import store from './store'
+import * as filters from '@/utils/filters' // global filter
 import AMap from 'vue-amap'
 Vue.use(AMap)
-
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])
+})
 Vue.config.productionTip = false
 
 AMap.initAMapApiLoader({

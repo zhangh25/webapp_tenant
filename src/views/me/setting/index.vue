@@ -8,7 +8,7 @@
       <Cell title="清除缓存" is-link></Cell>
     </div>
     <!-- <Button size="large">退出登录</Button> -->
-    <div class="quit" @click="quit">退出登录</div>
+    <div class="quit" @click="quit" v-if="token">退出登录</div>
     <mypop v-model="visiblePhone">
       <span slot="title">手机绑定</span>
       <phone></phone>
@@ -21,11 +21,15 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import {Cell, Toast} from 'mint-ui'
 import mypop from '@/components/myPopup'
 import phone from './phoneBind'
 import problem from './problem'
 export default {
+  computed: {
+    ...mapGetters(['token'])
+  },
   data () {
     return {
       visiblePhone: false,
@@ -45,7 +49,11 @@ export default {
       })
     },
     bindPhone () {
-      this.visiblePhone = true
+      if (this.token) {
+        this.visiblePhone = true
+      } else {
+        Toast('您未登录')
+      }
     }
   },
   components: {

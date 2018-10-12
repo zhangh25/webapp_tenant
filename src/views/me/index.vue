@@ -4,7 +4,7 @@
       <!-- <img src="../../assets/434x290.png" alt="" class="head-img"> -->
       <div class="bg"></div>
       <div class="box">
-        <div class="himg" @click="personalShow"><img :src="token  ? login_logo : logout_logo " alt="" width="34" height="50" style="margin-top:10px"></div>
+        <div class="himg" @click="personalShow"><img :src="headImg" alt="" width="34" height="50" style="margin-top:10px"></div>
         <div class="text" >
           <div v-if="!token" @click="visibleLogin = true"> <span class="login">登录</span> / <span class="register">注册</span></div>
           <span v-else-if="userData">{{userData.phone}}</span>
@@ -13,12 +13,12 @@
     </div>
     <div class="content">
       <div class="bar">
-        <div class="bar-item"><i class="icon icon-lease"></i><br>租约管理</div>
+        <div class="bar-item" @click="leaseClick"><i class="icon icon-lease"></i><br>租约管理</div>
         <div class="bar-item"><i class="icon icon-bill"></i><br>账单</div>
         <div class="bar-item"><i class="icon icon-wallet"></i><br>钱包</div>
         <div class="bar-item"><i class="icon icon-pact"></i><br>合同</div>
       </div>
-      <cell title="实名认证" is-link @click.native="visibleReal=true">
+      <cell title="实名认证" is-link @click.native="real">
         <img slot="icon" src="./img/icon_shiming@2x.png" width="22" height="22" class="list-icon">
       </cell>
       <cell title="客服电话" is-link @click.native="callPhone">
@@ -62,7 +62,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import {Cell, MessageBox} from 'mint-ui'
+import {Cell, MessageBox, Toast} from 'mint-ui'
 import login from './user/login'
 import mypop from '@/components/myPopup'
 import suggest from './suggest'
@@ -70,10 +70,26 @@ import about from './about'
 import setting from './setting/index'
 import personal from './user/personal'
 import realname from './realname/index'
+import real from './realname/real'
 import tabbar from '@/components/tabbar/index'
 export default {
   computed: {
-    ...mapGetters(['token', 'userData'])
+    ...mapGetters(['token', 'userData']),
+    headImg () {
+      let str = ''
+      if (this.token) {
+        // console.log(this.userData)
+        if (this.userData.imageurl) {
+          str = this.userData.imageurl
+        } else {
+          str = this.login_logo
+        }
+      } else {
+        str = this.logout_logo
+      }
+      // console.log(str)
+      return str
+    }
   },
   data () {
     return {
@@ -87,6 +103,7 @@ export default {
       visibleReal: false
     }
   },
+  // computed: {},
   created () {
     console.log(this.userData)
     // this.$store.dispatch('setToken', '')
@@ -107,9 +124,25 @@ export default {
         }
       })
     },
+    /* 跳转实名认证 */
+    real () {
+      if (this.token) {
+        this.visibleReal = true
+      } else {
+        Toast('你还未登录')
+      }
+    },
     personalShow () {
-      // if ()
-      this.visiblePersonal = true
+      if (this.token) {
+        this.visiblePersonal = true
+      }
+    },
+    leaseClick () {
+      if (this.token) {
+        this.$router.push('/lease')
+      } else {
+        Toast('你还未登录')
+      }
     }
     // personalShow () {}
     // ideaShow ()
@@ -123,6 +156,7 @@ export default {
     setting,
     personal,
     realname,
+    real,
     tabbar
   }
 }

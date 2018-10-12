@@ -4,7 +4,7 @@
     <div class="str">当前手机号：{{userData.phone}}</div>
     <div class="tip">绑定新手机后，下次登录可以使用新手机号登录。</div>
     <div class="form-item">
-      <input type="text" class="input" v-model="formData.phone" placeholder="请输入新手机号">
+      <input type="text" class="input" maxlength='11' v-model="formData.newPhone" placeholder="请输入新手机号">
     </div>
     <div class="form-item cd">
       <div class="code"><input type="text" class="input" v-model="formData.code" placeholder="请输入6位短信验证吗"></div>
@@ -18,6 +18,7 @@
 import {Button, Toast} from 'mint-ui'
 import { mapGetters } from 'vuex'
 import { isMobile } from '@/utils/validate'
+import {sendSmsCode, replacePhone} from '@/api/user'
 export default {
   computed: {
     ...mapGetters(['userData'])
@@ -26,17 +27,21 @@ export default {
     return {
       btnText: '获取验证码',
       formData: {
+        newPhone: '',
         phone: '',
         code: ''
       }
     }
   },
+  created () {
+    this.formData.phone = this.userData.phone
+  },
   methods: {
     validateMobile () {
-      if (this.formData.phone.trim().length < 1) {
+      if (this.formData.newPhone.trim().length < 1) {
         Toast('请输入手机号')
         return false
-      } else if (isMobile(this.formData.phone)) {
+      } else if (isMobile(this.formData.newPhone)) {
         console.log('success')
         return true
       }
@@ -52,9 +57,11 @@ export default {
       return true
     },
     getCode () {
-      console.log('getcode')
+      // console.log('getcode')
       if (this.validateMobile()) {
-
+        sendSmsCode(this.formData.newPhone, 3).then(res => {
+          if (res.code === 1) {}
+        })
       }
     },
     change () {
@@ -64,7 +71,16 @@ export default {
       if (!this.validateCode()) {
         return false
       }
-      this.$parent.back()
+      console.log(this.formData)
+      // if (false) return
+      replacePhone(this.formData).then(res => {
+        if (res.code === 1) {
+          Toast('更改成功')
+          this.$parent.back()
+        } else {
+          Toast(res.msg)
+        }
+      })
     }
   },
   components: {

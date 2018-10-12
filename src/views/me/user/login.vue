@@ -24,7 +24,7 @@
         <input class="input" type="password" v-model="formData.password" placeholder="输入密码">
       </div>
       <div class="btns">
-        <template v-if="loginType !== 3"> <checklist v-model="agree" :options='["同意"]' class="login-check"></checklist> <span class="clause">《城宿租房条款》</span>
+        <template v-if="loginType !== 3"> <checklist v-model="agree" :options='["同意"]' class="login-check"></checklist> <span class="clause" @click="visibleProtocol=true">《城宿租房条款》</span>
         <div class="forget" @click="forgetPwd" v-if="loginType === 2">忘记密码?</div></template>
         <Button type="primary" class="btn" style="margin-top: 20px" @click.native="login">{{loginType !== 3 ? '登录' : '确认'}}</Button>
         <div class="btn-pwd" @click="switchType" v-if="loginType !== 3">使用{{ loginType === 1 ? '密码' : '验证码'}}登录</div>
@@ -40,14 +40,22 @@
         <Button type="primary" class="btn" style="margin-top: 20px" @click.native="setPwd">确定</Button>
       </div>
     </Popup>
+    <mypop v-model="visibleProtocol" class="lpop">
+      <template slot="title">服务协议</template>
+      <iframe
+        class="main-content"
+        src="https://mobile.chengsu.vip/protocol/tenantProtocol.html"
+      ></iframe>
+    </mypop>
   </div>
 </template>
 
 <script>
-import { Button, Checklist, Toast, Popup, Header } from 'mint-ui'
+import { Button, Checklist, Toast, Popup, Header, Indicator } from 'mint-ui'
 // Indicator
 import { isMobile } from '@/utils/validate'
 import { sendSmsCode, userRegister, setPassword, udpatePassword } from '@/api/user'
+import mypop from '@/components/myPopup'
 export default {
   props: {
     value: {
@@ -70,7 +78,8 @@ export default {
       btnTxt: '获取验证码',
       timeLoad: false,
       loginType: 1,
-      popupVisible: false
+      popupVisible: false,
+      visibleProtocol: false
     }
   },
   watch: {
@@ -134,9 +143,9 @@ export default {
       if (this.interval) clearInterval(this.interval)
       this.btnTxt = '重新获取验证码'
       this.timeLoad = false
-      // Indicator.open()
+      Indicator.open()
       userRegister({phone: this.formData.phone, code: this.formData.code}).then(response => {
-        // Indicator.close()
+        Indicator.close()
         console.log('ssss', response)
         if (response.code === 1) {
           // response.loginstate integer ($int32) 是否为第一次登陆,-1:刚注册 0 默认是第一次 1 不是第一次
@@ -153,14 +162,17 @@ export default {
         } else {
           Toast(response.msg)
         }
+      }, erro => {
+        Indicator.close()
       }).catch(erro => {
         console.log(erro, '33')
+        Indicator.close()
       })
     },
     _loginByPassword () {
-      // Indicator.open()
+      Indicator.open()
       userRegister({phone: this.formData.phone, password: this.formData.password}).then(response => {
-        // Indicator.close()
+        Indicator.close()
         if (response.code === 1) {
           this.$store.dispatch('setToken', response.data.token)
           this.$store.dispatch('setUser', response.data)
@@ -169,6 +181,8 @@ export default {
         } else {
           Toast(response.msg)
         }
+      }, erro => {
+        Indicator.close()
       })
     },
     /*
@@ -264,7 +278,7 @@ export default {
     }
   },
   components: {
-    Button, Checklist, Popup, Header
+    Button, Checklist, Popup, Header, mypop
   }
 }
 </script>
@@ -416,5 +430,15 @@ padding-left: 0;
   height: 48px;
   line-height: 48px;
   padding-right: 10px;
+}
+
+.lpop{
+  // display: flex;
+  .main-content{
+    border: none;
+    // flex: 1
+    width: 100%;
+    height: calc(100% - 44px);
+  }
 }
 </style>
