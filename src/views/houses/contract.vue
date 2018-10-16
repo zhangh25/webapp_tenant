@@ -17,7 +17,7 @@
         <img v-if="house.imageList" :src="house.imageList[0].url" alt="">
       </div>
       <div class="right">
-        <div class="title">{{house.roomTitle}}</div>
+        <div class="title">{{house.areaName}}-{{house.roomTitle}}</div>
         <div class="name">{{house.typeName}}</div>
         <div v-if="house.rent" class="rent">{{house.rent}}元/月</div>
       </div>
@@ -26,7 +26,7 @@
       <div class="title">签约信息</div>
       <Field label="姓名" v-model="userData.username" @click.native="auth" disabled placeholder="请完成身份认证"></Field>
       <template v-if="userData.auditing === 1">
-        <Field label="身份证号" disabled></Field>
+        <Field label="身份证号" disabled v-model="userData.idNumber"></Field>
         <Field label="性别" disabled v-model="sex"></Field>
       </template>
       <Field label="手机号" disabled v-model="userData.phone"></Field>

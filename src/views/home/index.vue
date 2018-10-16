@@ -26,7 +26,7 @@
           <img :src="item.imageUrl" alt="">
         </div>
         <div class="addr">
-          <span class="address">{{item.roomTitle}}</span>
+          <span class="address">{{item.areaName}}-{{item.roomTitle}}</span>
           <span class="price">{{parseInt(item.rent)}}元/月</span>
         </div>
         <div class="describe">{{item.typeName}}</div>

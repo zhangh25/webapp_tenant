@@ -4,7 +4,7 @@
       <!-- <img src="../../assets/434x290.png" alt="" class="head-img"> -->
       <div class="bg"></div>
       <div class="box">
-        <div class="himg" @click="personalShow"><img :src="headImg" alt="" width="34" height="50" style="margin-top:10px"></div>
+        <div class="himg" @click="personalShow"><img :src="headImg"></div>
         <div class="text" >
           <div v-if="!token" @click="visibleLogin = true"> <span class="login">登录</span> / <span class="register">注册</span></div>
           <span v-else-if="userData">{{userData.phone}}</span>
@@ -14,8 +14,8 @@
     <div class="content">
       <div class="bar">
         <div class="bar-item" @click="leaseClick"><i class="icon icon-lease"></i><br>租约管理</div>
-        <div class="bar-item"><i class="icon icon-bill"></i><br>账单</div>
-        <div class="bar-item"><i class="icon icon-wallet"></i><br>钱包</div>
+        <div class="bar-item" @click="goBill"><i class="icon icon-bill"></i><br>账单</div>
+        <div class="bar-item" @click="goWallet"><i class="icon icon-wallet"></i><br>钱包</div>
         <div class="bar-item"><i class="icon icon-pact"></i><br>合同</div>
       </div>
       <cell title="实名认证" is-link @click.native="real">
@@ -132,6 +132,20 @@ export default {
         Toast('你还未登录')
       }
     },
+    goBill () {
+      if (this.token) {
+        this.$router.push('/bill')
+      } else {
+        Toast('你还未登录')
+      }
+    },
+    goWallet () {
+      if (this.token) {
+        this.$router.push('/wallet')
+      } else {
+        Toast('你还未登录')
+      }
+    },
     personalShow () {
       if (this.token) {
         this.visiblePersonal = true
@@ -185,6 +199,11 @@ export default {
       height: 70px;
       border-radius: 50%;
       background-color: #ffffff;
+      overflow: hidden;
+      img {
+        max-width: 100%;
+        vertical-align: middle;
+      }
     }
     .text{
       margin-top: 25px;

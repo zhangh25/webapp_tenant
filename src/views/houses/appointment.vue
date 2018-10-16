@@ -10,9 +10,9 @@
       <img :src="house.imageList[0].url" alt="">
     </div> -->
     <div class="general">
-      <div class="addr"><span class="address">{{house.roomTitle}}</span> <span class="date">6月19号可入住</span></div>
+      <div class="addr"><span class="address">{{house.areaName}}-{{house.roomTitle}}</span> <span class="date">6月19号可入住</span></div>
       <div>
-        <span class="price">{{house.rent}}/月</span> <span class="pay-way">押一付一</span>
+        <span class="price">{{house.rent}}元/月</span> <span class="pay-way">押一付一</span>
       </div>
     </div>
     <Cell title="手机"><input type="text" v-model="phone" placeholder="请输入手机号" class="input"></Cell>

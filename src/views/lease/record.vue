@@ -17,6 +17,7 @@
           <div class="bt">看房时间：2222</div>
           <div class="btns">
             <div class="item"><Button @click="call(item.phone)">联系房东</Button></div>
+            <div class="item"><Button @click.stop="cancel(1)">取消签约</Button></div>
           </div>
         </div>
         <div class="list" >
@@ -74,7 +75,8 @@
 
 <script>
 import csheader from '@/components/header'
-import {TabContainer, TabContainerItem, Button, Toast} from 'mint-ui'
+import {TabContainer, TabContainerItem, Button, Toast, MessageBox} from 'mint-ui'
+import {queryLeaseOrder} from '@/api/appoint'
 export default {
   data () {
     return {
@@ -84,7 +86,36 @@ export default {
         {id: 'finished', name: '已完成签约'}
       ],
       unfinishList: [],
-      finishList: []
+      finishList: [],
+      status: ['待确认', '已取消', '已取消', '待签字', '待支付', '支付中', '签约成功', '退房中', '退房中', '已退房']
+    }
+  },
+  methods: {
+    getunfinishList () {
+      queryLeaseOrder(1).then(res => {
+        if (res.code === 1) {
+          this.unfinishList = res.data
+        }
+      })
+    },
+    getfinishList () {
+      queryLeaseOrder(2).then(res => {
+        if (res.code === 2) {
+          this.finishList = res.data
+        }
+      })
+    },
+    cancel (id) {
+      MessageBox({
+        title: '',
+        message: '你确定要取消签约吗',
+        showCancelButton: true,
+        confirmButtonText: '确认'
+      }).then(type => {
+        if (type === 'confirm') {
+          this.$router.push(`/leaseCancel/${id}`)
+        }
+      })
     }
   },
   components: {

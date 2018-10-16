@@ -4,6 +4,7 @@ const getters = {
   userData: state => state.user.userData,
   history: state => state.hourse.history,
   collect: state => state.hourse.collect,
-  houselease: state => state.lease.houselease
+  houselease: state => state.lease.houselease,
+  card: state => state.wallet.card
 }
 export default getters

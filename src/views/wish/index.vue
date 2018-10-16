@@ -13,7 +13,7 @@
         <div class="list-item" v-for="(item, idx) in list" :key="item.roomId" @click="$router.push(`/roomDetails/${item.roomId}`)">
           <div class="img"><img :src="item.imageUrl" alt=""><icon-svg @click.native.stop="storeRoom(item, idx)" :icon-class="item.favorite ? 'heart0' : 'heart1'" :class="{empty: !item.favorite}" class="icon"></icon-svg></div>
           <div class="addr">
-            <span class="address">{{item.roomTitle}}</span>
+            <span class="address">{{item.areaName}}-{{item.roomTitle}}</span>
             <span class="price">{{parseInt(item.rent)}}元/月</span>
           </div>
           <div class="describe">{{item.typeName}}</div>
@@ -89,7 +89,7 @@ export default {
       console.log(item.favorite)
       this.storing = true
       if (item.favorite) {
-        delUsersFavorite(item.favoriteId).then(res => {
+        delUsersFavorite(item.roomId).then(res => {
           // console.log(res)
           if (res.code === 1) {
             console.log(res)

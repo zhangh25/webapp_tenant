@@ -85,3 +85,33 @@ export function queryLeaseOrderDetail (id) {
     params: {id}
   })
 }
+// GET
+// /cancelApply
+// 取消签约申请
+export function cancelApply (id, cancelCause) {
+  return request({
+    url: '/cancelApply',
+    method: 'get',
+    params: {id, cancelCause, role: 1}
+  })
+}
+// GET
+// /queryCauseConfigure
+// 取消签约订单原因
+export function queryCauseConfigure () {
+  return request({
+    url: '/queryCauseConfigure',
+    method: 'get',
+    params: {role: 1}
+  })
+}
+// POST
+// /cancelApplyRetireRoom
+// 用户取消申请退房
+export function cancelApplyRetireRoom (id) {
+  return request({
+    url: '/cancelApplyRetireRoom',
+    method: 'post',
+    params: {id}
+  })
+}

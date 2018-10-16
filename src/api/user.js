@@ -28,8 +28,8 @@ export function userRegister (data) {
 export function Logout (token) {
   return request({
     url: '/sys/logout',
-    method: 'post'
-    // params: {token}
+    method: 'post',
+    params: {role: 1}
   })
 }
 

@@ -69,7 +69,7 @@ export default {
       startTime: '',
       startdate: '',
       caseArr: [],
-      isSubmit: true,
+      isSubmit: false,
       fData: {
         id: null, // *
         retireApplyTime: null, //

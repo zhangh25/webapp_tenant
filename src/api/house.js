@@ -105,11 +105,11 @@ export function saveUsersFavorite (roomId) {
 // GET
 // /delUsersFavorite
 // 用户取消收藏
-export function delUsersFavorite (favoriteId) {
+export function delUsersFavorite (roomId) {
   return request({
     url: '/delUsersFavorite',
     method: 'get',
-    params: {favoriteId}
+    params: {roomId}
   })
 }
 // GET

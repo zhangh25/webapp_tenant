@@ -7,37 +7,61 @@
       <div class="title">已为您取消签约</div>
       <div class="lable">请告知我们原因帮助我们改善服务</div>
     </div>
-      <Checklist
-      :max="5"
+      <Radio
       align="right"
       class="page-part"
       v-model="caseVal"
       :options="options">
-    </Checklist>
+    </Radio>
     <div class="buttom">
-    <Button type="primary" size="large">提交</Button>
+    <Button type="primary" size="large" @click="submit">提交</Button>
     </div>
   </div>
 </template>
 
 <script>
 import csheader from '@/components/header'
-import {Checklist, Button} from 'mint-ui'
+import {Radio, Button, Toast} from 'mint-ui'
+import {cancelApply, queryCauseConfigure} from '@/api/appoint'
 export default {
   data () {
     return {
-      caseVal: [],
-      options: [
-        {label: '不是很满意，想要再看看', value: '1'},
-        {label: '与房东协商不一致', value: '2'},
-        {label: '已找到合适的房源', value: '3'},
-        {label: '房子与想象的不符', value: '4'},
-        {label: '个人因素，暂无租房需要', value: '5'}
-      ]
+      caseVal: '',
+      options: ['不是很满意，想要再看看', '与房东协商不一致', '已找到合适的房源', '房子与想象的不符', '个人因素，暂无租房需要'],
+      id: null
+    }
+  },
+  mounted () {
+    queryCauseConfigure().then(res => {
+      if (res.code === 1) {
+        this.options = []
+        // console.log(res)
+        for (let item of res.data) {
+          this.options.push(item.cfgValue)
+        }
+      }
+    })
+  },
+  methods: {
+    submit () {
+      // console.log(this.caseVal)
+      // let pp = false
+      if (this.caseVal) {
+        cancelApply(this.id, this.caseVal).then(res => {
+          if (res.code === 1) {
+            Toast('提交成功')
+            this.$router.go(-1)
+          } else {
+            Toast(res.msg)
+          }
+        })
+      } else {
+        Toast('请选择原因')
+      }
     }
   },
   components: {
-    csheader, Checklist, Button
+    csheader, Radio, Button
   }
 }
 </script>

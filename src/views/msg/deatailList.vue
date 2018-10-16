@@ -7,7 +7,7 @@
     </div> -->
     <csheader>系统消息 <span ref="edit" class="edit" slot="right" @click="edit">编辑</span></csheader>
 
-    <div class="list" v-for="item in list" :key="item.id">
+    <div class="list" v-for="item in list" :key="item.id" :class="{read: item.status==1}">
       <div class="time">{{item.addTime}}</div>
       <div class="title">{{item.fileTitle}}</div>
       <div class="label">{{item.content}}</div>
@@ -17,6 +17,12 @@
       <img src="./icon/icon_wuxiaoxi@2x.png" alt="" width="132">
       <div style="padding-top: 10px">暂无消息</div>
     </div>
+    <!-- <div class="list read">
+      <div class="time">2012-12-12</div>
+      <div class="title">温馨提示：城宿免押金活动即将结束！</div>
+      <div class="label">活动于2018年9月14日18：00截止，活动结束后权益将自动失效......</div>
+      <Cell title="查看详情" is-link></Cell>
+    </div> -->
     <!-- <div class="list">
       <div class="time">2012-12-12</div>
       <div class="title">温馨提示：城宿免押金活动即将结束！</div>
@@ -33,10 +39,10 @@
     </Popup>
     <mypop v-model="detailVisible">
       <template slot="title">消息详情</template>
-      <div class="list">
-        <div class="time">{{item.addTime}}</div>
-        <div class="title">{{item.fileTitle}}</div>
-        <div class="label">{{item.content}}</div>
+      <div class="list de">
+        <div class="time">{{detail.addTime}}</div>
+        <div class="title">{{detail.fileTitle}}</div>
+        <div class="label">{{detail.content}}</div>
       </div>
     </mypop>
   </div>
@@ -66,15 +72,18 @@ export default {
         }
       })
     },
-    readMessage (id) {
-      usersReadMessage(id).then(res => {
+    readMessage (item) {
+      usersReadMessage(item).then(res => {
         if (res.code === 1) {
-          console.log(res, '读取成功')
+          // console.log(res, '读取成功')
+          // let idx = this.list.indexOf(item)
+          item.status = 1
         }
       })
     },
     goDetail (item) {
       this.detail = item
+      this.readMessage(item)
       this.detailVisible = true
     },
     delMessage (id) {
@@ -92,7 +101,7 @@ export default {
       console.log('read')
       this.pupvisible = false
       for (let item of this.list) {
-        this.readMessage(item.id)
+        this.readMessage(item)
       }
     },
     empty () {
@@ -104,7 +113,9 @@ export default {
     }
   },
   mounted () {
-    this.buttonBottom = this.$refs.edit.getBoundingClientRect().bottom
+    if (this.$refs.edit) {
+      this.buttonBottom = this.$refs.edit.getBoundingClientRect().bottom
+    }
     this.getDetailiList()
   },
   components: {
@@ -129,6 +140,10 @@ export default {
 }
 .list {
   background-color: #ffffff;
+  &.read{
+    // color: @gray;
+    opacity: .5;
+  }
   .time{
     padding: 15px;
     color: @gray;
@@ -143,6 +158,11 @@ export default {
     padding: 15px;
     color: @gray;
     max-height: 90px;
+  }
+  .de {
+    .label{
+      max-height: none;
+    }
   }
 }
 .pop{
@@ -175,5 +195,10 @@ export default {
       }
     }
   }
+}
+.nomsg {
+  text-align: center;
+  padding-top: 60px;
+  color: @gray;
 }
 </style>

@@ -12,11 +12,12 @@
       </div>
     </div>
     <div class="general">
-      <div class="addr"><span class="address">{{deatil.roomTitle}}</span>
+      <div class="addr"><span class="address">{{deatil.areaName}}-{{deatil.roomTitle}}</span>
       <!-- <span class="date">6月19号可入住</span> -->
       </div>
       <div>
-        <span class="price">{{deatil.rent}}/月</span> <span class="pay-way">押一付一</span>
+        <span class="price">{{deatil.rent}}元/月</span>
+        <!-- <span class="pay-way">押一付一</span> -->
       </div>
       <div class="btns">
         <span class="btn" v-for="item in deatil.roomHotTagRespList" :key="item.id">{{item.name}}</span>
@@ -95,7 +96,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import {querRoomDetailList, saveUsersFavorite} from '@/api/house'
+import {querRoomDetailList, saveUsersFavorite, delUsersFavorite} from '@/api/house'
 import {Swipe, SwipeItem, MessageBox} from 'mint-ui'
 import login from '@/views/me/user/login'
 import mypop from '@/components/myPopup'
@@ -197,10 +198,15 @@ export default {
     },
     initCollect () {
       console.log(this.collect)
-      for (let item of this.collect) {
-        console.log(item, 'cooo')
-        if (item === this.deatil.roomId) {
-          this.isStore = true
+      if (this.token) {
+        // if (this.deatil.is)
+        this.isStore = !!this.deatil.isfavorite
+      } else {
+        for (let item of this.collect) {
+          console.log(item, 'cooo')
+          if (item === this.deatil.roomId) {
+            this.isStore = true
+          }
         }
       }
     },
@@ -208,17 +214,28 @@ export default {
     toggleStore () {
       this.isStore = !this.isStore
       if (this.isStore) {
-        this.$store.dispatch('addCollect', this.deatil.roomId)
         if (this.token) {
           saveUsersFavorite(this.deatil.roomId).then(res => {
             console.log(res)
             if (res.code === 1) {
+              this.$store.dispatch('addCollect', this.deatil.roomId)
             }
           })
+        } else {
+          this.$store.dispatch('addCollect', this.deatil.roomId)
         }
       } else {
         // console.log('no')
-        this.$store.dispatch('delCollect', this.deatil.roomId)
+
+        if (this.token) {
+          delUsersFavorite(this.deatil.roomId).then(res => {
+            if (res.code === 1) {
+              this.$store.dispatch('delCollect', this.deatil.roomId)
+            }
+          })
+        } else {
+          this.$store.dispatch('delCollect', this.deatil.roomId)
+        }
       }
       // console.log(this.collect)
     },
@@ -379,9 +396,9 @@ export default {
     }
   }
 }
-.around{
+// .around{
 
-}
+// }
 .amap{
   height: 150px;
   margin-top: 20px;

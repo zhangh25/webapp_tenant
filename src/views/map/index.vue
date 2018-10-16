@@ -362,6 +362,8 @@ export default {
           return
         }
         // this.initIds()
+        this.filterData.streetId = null
+        this.filterData.lineId = null
         this.setLnglat(data[0], data[1])
         this.findHouses()
       }

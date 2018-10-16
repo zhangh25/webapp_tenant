@@ -78,7 +78,7 @@ export default new Router({
       component: () => import('@/views/lease/checkout')
     },
     {
-      path: '/leaseCancel', // 租约取消
+      path: '/leaseCancel/:id', // 租约取消
       name: 'leaserCancel',
       component: () => import('@/views/lease/cancelCase')
     },
@@ -96,6 +96,36 @@ export default new Router({
       path: '/record', // 预约记录
       name: 'record',
       component: () => import('@/views/wish/record')
+    },
+    {
+      path: '/bill', // 账单
+      name: 'bill',
+      component: () => import('@/views/bill/index')
+    },
+    {
+      path: '/billDetail', // 账单详情
+      name: 'billdetail',
+      component: () => import('@/views/bill/billDetail')
+    },
+    {
+      path: '/wallet', // 钱包
+      name: 'wallet',
+      component: () => import('@/views/wallet/index')
+    },
+    {
+      path: '/walletDetail', // 钱包
+      name: 'walletDetail',
+      component: () => import('@/views/wallet/detail')
+    },
+    {
+      path: '/addCard', // 添加银行卡
+      name: 'addCard',
+      component: () => import('@/views/wallet/addBankCard')
+    },
+    {
+      path: '/validate', // 验证银行卡
+      name: 'validate',
+      component: () => import('@/views/wallet/validate')
     },
     {
       path: '/test',
