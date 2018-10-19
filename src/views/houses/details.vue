@@ -7,7 +7,7 @@
         </Swipe>
         <div class="tip" v-if="deatil.imageList&&deatil.imageList.length > 0">{{curImgidx}}/{{deatil.imageList.length}}</div>
       </div>
-      <div class="header">
+      <div class="header" :class="{scroll: !istop}">
         <i class="icon-back" @click="hiden"></i>
       </div>
     </div>
@@ -17,7 +17,7 @@
       </div>
       <div>
         <span class="price">{{deatil.rent}}元/月</span>
-        <!-- <span class="pay-way">押一付一</span> -->
+        <span class="pay-way">{{deatil.depositWay}}</span>
       </div>
       <div class="btns">
         <span class="btn" v-for="item in deatil.roomHotTagRespList" :key="item.id">{{item.name}}</span>
@@ -81,7 +81,7 @@
       <div class="bespoke" @click="appointment">预约看房</div>
       <div class="sign" @click="contract">立即签约</div>
     </div>
-    <login v-model="loginVisible"></login>
+    <!-- <login v-model="loginVisible"></login> -->
     <mypop v-model="appointmentVisible">
       <template slot="title">预约看房</template>
       <appointment v-model="deatil">
@@ -104,7 +104,7 @@ import appointment from './appointment'
 import contract from './contract'
 export default {
   computed: {
-    ...mapGetters(['token', 'collect'])
+    ...mapGetters(['token', 'collect', 'userData'])
   },
   props: {
     visible: {
@@ -129,7 +129,8 @@ export default {
       deatil: {},
       loginVisible: false,
       appointmentVisible: false,
-      contractVisible: false
+      contractVisible: false,
+      istop: true
     }
   },
   created () {
@@ -138,6 +139,14 @@ export default {
   },
   mounted () {
     this.querRoomDetail()
+    window.onscroll = (ev) => {
+      console.log('2123----------', window.pageYOffset)
+      if (window.pageYOffset < 10) {
+        this.istop = true
+      } else {
+        this.istop = false
+      }
+    }
   },
   methods: {
     handleChange (index) {
@@ -153,7 +162,7 @@ export default {
     querRoomDetail () {
       querRoomDetailList(this.roomId).then(res => {
         console.log(res)
-        if (res.code === 1) {
+        if (res.code === 1 && res.data) {
           this.deatil = res.data
           this.center = [res.data.longitude, res.data.latitude]
           this.initCollect()
@@ -171,7 +180,8 @@ export default {
         // console.log('ddd', s)
         if (s === 'confirm') {
           // this.appointmentVisible = true
-          this.loginVisible = true
+          // this.loginVisible = true
+          this.$router.push('/login')
           // console.log('ssd1')
         }
       })
@@ -181,7 +191,9 @@ export default {
       console.log('预约')
       if (!this.deatil.roomId) return
       if (this.token) {
-        this.appointmentVisible = true
+        // this.appointmentVisible = true
+        this.$store.dispatch('updateDetails', this.deatil)
+        this.$router.push('/appointment')
       } else {
         this.tips('预约房源')
       }
@@ -191,7 +203,22 @@ export default {
       console.log('签约')
       if (!this.deatil.roomId) return
       if (this.token) {
-        this.contractVisible = true
+        if (this.userData.auditing === 0) {
+          MessageBox({
+            title: '',
+            message: `实名后才能签约，请前往实名认证`,
+            showCancelButton: true,
+            confirmButtonText: '确认'
+          }).then(res => {
+            if (res === 'confirm') {
+              this.$router.push('/realname')
+            }
+          })
+        } else {
+          this.$store.dispatch('updateDetails', this.deatil)
+          // this.contractVisible = true
+          this.$router.push('/contract')
+        }
       } else {
         this.tips('签约房源')
       }
@@ -226,7 +253,6 @@ export default {
         }
       } else {
         // console.log('no')
-
         if (this.token) {
           delUsersFavorite(this.deatil.roomId).then(res => {
             if (res.code === 1) {
@@ -264,18 +290,24 @@ export default {
 .top{
   position: relative;
   .header{
-    position: absolute;
+    position: fixed;
     width: 100%;
     height: 44px;
     top: 0;
     padding-left: 15px;
+    border-bottom: 1px solid transparent;
     .icon-back{
       display: inline-block;
       width: 8px;
       height: 15px;
       background-image: url(./icon/icon_fanhui@2x.png);
       background-size: contain;
-      margin-top: 10px;
+      margin-top: 14px;
+    }
+    transition: all .3s;
+    &.scroll {
+      background-color: #fff;
+      border-bottom: 1px solid #f1f1f1;
     }
   }
 }

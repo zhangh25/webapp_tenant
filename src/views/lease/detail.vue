@@ -98,14 +98,15 @@ export default {
     }
   },
   mounted () {
-    this.setStep()
     this.leaseId = this.$route.params.id
+    this.getOrderDetail()
   },
   methods: {
     getOrderDetail () {
       queryLeaseOrderDetail(this.leaseId).then(res => {
         if (res.code === 1) {
           this.detail = res.data
+          this.setStep()
         }
       })
     },
@@ -113,6 +114,9 @@ export default {
       switch (this.detail.orderStatus) {
         case 6:
           this.step = 0
+          break
+        case 7:
+          this.step = 1
           break
         case 8:
           this.step = 1

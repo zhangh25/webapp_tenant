@@ -50,10 +50,10 @@ export default {
 </script>
 
 <style lang="less">
-.tabbar{
+.mint-tabbar.tabbar{
   // font-size: 20px;
   color: #929292;
-  background: #fff;
+  background-color: #fff;
   border-top: 1px solid #f1f1f1;
   .mint-tab-item-icon{
     width: auto;

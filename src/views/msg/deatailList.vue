@@ -11,7 +11,7 @@
       <div class="time">{{item.addTime}}</div>
       <div class="title">{{item.fileTitle}}</div>
       <div class="label">{{item.content}}</div>
-      <Cell title="查看详情" is-link @click="goDetail(item)"></Cell>
+      <Cell title="查看详情" is-link @click.native="goDetail(item)"></Cell>
     </div>
     <div class="nomsg" v-if="list.length===0">
       <img src="./icon/icon_wuxiaoxi@2x.png" alt="" width="132">
@@ -37,14 +37,14 @@
         <img src="./icon/icon_qingkong@2x.png" alt="" width="19" height="19"><span class="txt">清空</span>
       </div>
     </Popup>
-    <mypop v-model="detailVisible">
+    <!-- <mypop v-model="detailVisible" style="width:100%">
       <template slot="title">消息详情</template>
       <div class="list de">
         <div class="time">{{detail.addTime}}</div>
         <div class="title">{{detail.fileTitle}}</div>
         <div class="label">{{detail.content}}</div>
       </div>
-    </mypop>
+    </mypop> -->
   </div>
 </template>
 
@@ -73,7 +73,7 @@ export default {
       })
     },
     readMessage (item) {
-      usersReadMessage(item).then(res => {
+      usersReadMessage(item.id).then(res => {
         if (res.code === 1) {
           // console.log(res, '读取成功')
           // let idx = this.list.indexOf(item)
@@ -82,9 +82,11 @@ export default {
       })
     },
     goDetail (item) {
-      this.detail = item
-      this.readMessage(item)
-      this.detailVisible = true
+      // this.detail = item
+      // this.readMessage(item)
+      // this.detailVisible = true
+      this.$store.dispatch('setMsg', item)
+      this.$router.push(`/msgdetails/${item.id}`)
     },
     delMessage (id) {
       usersDelMessage(id).then(res => {

@@ -1,5 +1,6 @@
 <template>
   <div class="app">
+    <csheader>预约看房</csheader>
     <div class="banner-imgs">
         <Swipe class="swipe" @change="imgsChange">
           <SwipeItem style="background: #ff0000" v-for="item in house.imageList" :key="item.index"><img :src="item.url" alt="" width="100%"></SwipeItem>
@@ -12,7 +13,7 @@
     <div class="general">
       <div class="addr"><span class="address">{{house.areaName}}-{{house.roomTitle}}</span> <span class="date">6月19号可入住</span></div>
       <div>
-        <span class="price">{{house.rent}}元/月</span> <span class="pay-way">押一付一</span>
+        <span class="price">{{house.rent}}元/月</span> <span class="pay-way">{{house.depositWay}}</span>
       </div>
     </div>
     <Cell title="手机"><input type="text" v-model="phone" placeholder="请输入手机号" class="input"></Cell>
@@ -24,7 +25,7 @@
       <textarea class="area" v-model="formData.content" placeholder="添加留言"></textarea>
     </Cell>
     <div class="dec">信息确认后，我们将通知您看房，如有疑问，请及时联系管家</div>
-    <div style="padding: 0 15px"><Button type="primary" class="btn" style="margin-top: 20px" size="large" @click.native="submit">提交</Button></div>
+    <div style="padding: 15px"><Button type="primary" class="btn" size="large" @click.native="submit">提交</Button></div>
     <datetime-picker
       ref="picker"
       v-model="time"
@@ -35,10 +36,10 @@
       @visible-change="handleVisibleChange"
       @confirm="handleChange">
     </datetime-picker>
-    <mypop v-model="visible">
+    <!-- <mypop v-model="visible">
       <template slot="title">约看订单</template>
       <finish></finish>
-    </mypop>
+    </mypop> -->
   </div>
 </template>
 
@@ -46,13 +47,14 @@
 import {Cell, DatetimePicker, Button, Toast, Swipe, SwipeItem} from 'mint-ui'
 import mypop from '@/components/myPopup'
 import finish from './finsh'
+import csheader from '@/components/header'
 import {formatDate} from '@/utils/tool'
 // import {getOwnerInfo} from '@/api/user'
 import {saveOrderAppoint} from '@/api/appoint'
 import { mapGetters } from 'vuex'
 export default {
   computed: {
-    ...mapGetters(['userData'])
+    ...mapGetters(['userData', 'details'])
   },
   props: {
     value: Object
@@ -78,7 +80,7 @@ export default {
   },
   created () {
     console.log(this.value)
-    this.house = this.value
+    this.house = this.details
     this.startdata = new Date()
   },
   mounted () {
@@ -114,7 +116,8 @@ export default {
         console.log(res)
         if (res.code === 1) {
           Toast('提交成功')
-          this.visible = true
+          // this.visible = true
+          this.$router.push('/finsh')
         } else {
           Toast(res.msg)
         }
@@ -122,7 +125,7 @@ export default {
     }
   },
   components: {
-    Cell, DatetimePicker, Button, mypop, finish, Swipe, SwipeItem
+    Cell, DatetimePicker, Button, mypop, finish, Swipe, SwipeItem, csheader
   }
 }
 </script>
@@ -130,6 +133,7 @@ export default {
 <style lang="less" scoped>
 @import '../../styles/mixin.less';
 .app{
+  padding-top: 44px;
   .img {
     max-height: 150px;
     overflow: hidden;

@@ -1,7 +1,7 @@
 <template>
-  <div class="login" v-if="visible">
+  <div class="login">
     <div class="close">
-      <i class="icon-close" @click="hiden"></i>
+      <i class="icon-close" @click="$router.go(-1)"></i>
     </div>
     <div class="title">你好，</div>
     <div class="describe">欢迎来到城宿，让租房更简单</div>
@@ -51,12 +51,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { Button, Checklist, Toast, Popup, Header, Indicator } from 'mint-ui'
 // Indicator
 import { isMobile } from '@/utils/validate'
 import { sendSmsCode, userRegister, setPassword, udpatePassword } from '@/api/user'
 import mypop from '@/components/myPopup'
 export default {
+  computed: {
+    ...mapGetters(['loginedPath', 'token'])
+  },
   props: {
     value: {
       default: false,
@@ -65,7 +69,7 @@ export default {
   },
   data () {
     return {
-      visible: false,
+      visible: true,
       agree: [],
       formData: {
         phone: '',
@@ -90,12 +94,22 @@ export default {
   },
   created () {
     this.visible = this.value
+    if (this.token) { // 如果已经登陆就不能进入此页面
+      this.$router.go(-1)
+    }
     // this.popupVisible = true
   },
   methods: {
     hiden () {
-      this.visible = false
-      this.$emit('input', false)
+      // this.visible = false
+      // this.$emit('input', false)
+      // this.$router.go(-1)
+      if (this.loginedPath) {
+        this.$router.push(this.loginedPath)
+        this.$store.dispatch('setPath', '')
+      } else {
+        this.$router.go(-1)
+      }
     },
     login () {
       if (!this.validateMobile()) {
@@ -132,7 +146,7 @@ export default {
       udpatePassword(this.formData.phone, this.formData.code, this.formData.password).then(response => {
         if (response.code === 1) {
           Toast('密码设置成功')
-          this.visible = false
+          this.$router.go(-1)
         } else {
           Toast(response.msg)
         }

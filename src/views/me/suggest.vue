@@ -1,12 +1,16 @@
 <template>
   <div class="connent">
-    <textarea v-model="ideaString" class="textarea" placeholder="写下你对城宿租房建议或期待"></textarea>
-    <Button type="primary" class="btn" style="margin-top: 20px" @click.native="submit">提交</Button>
+    <csheader>意见提交</csheader>
+    <div style="padding: 15px">
+      <textarea v-model="ideaString" class="textarea" placeholder="写下你对城宿租房建议或期待"></textarea>
+      <Button type="primary" class="btn" style="margin-top: 20px" @click.native="submit">提交</Button>
+    </div>
   </div>
 </template>
 
 <script>
 import { Button, Toast } from 'mint-ui'
+import csheader from '@/components/header'
 import {saveSysFeedback} from '@/api/user'
 export default {
   data () {
@@ -29,7 +33,7 @@ export default {
     }
   },
   components: {
-    Button
+    Button, csheader
   }
 }
 </script>
@@ -37,7 +41,7 @@ export default {
 <style lang="less" scoped>
 @import '../../styles/mixin.less';
 .connent{
-  padding: 15px;
+  padding-top: 44px;
   .textarea{
     width: 100%;
     height: 200px;

@@ -1,5 +1,6 @@
 <template>
   <div class="confirm">
+    <csheader>信息确认</csheader>
     <div class="banner-imgs">
     <Swipe @change="handleChange">
         <SwipeItem style="background: #ff0000" v-for="item in house.imageList" :key="item.index"><img :src="item.url" alt="" width="100%"></SwipeItem>
@@ -18,13 +19,13 @@
       </div>
       <div class="right">
         <div class="title">{{house.areaName}}-{{house.roomTitle}}</div>
-        <div class="name">{{house.typeName}}</div>
+        <div class="name">{{house.typeName}}-{{house.roomArea}}㎡</div>
         <div v-if="house.rent" class="rent">{{house.rent}}元/月</div>
       </div>
     </div>
     <div class="info auth">
       <div class="title">签约信息</div>
-      <Field label="姓名" v-model="userData.username" @click.native="auth" disabled placeholder="请完成身份认证"></Field>
+      <Field label="姓名" v-model="userData.realname" @click.native="auth" disabled></Field>
       <template v-if="userData.auditing === 1">
         <Field label="身份证号" disabled v-model="userData.idNumber"></Field>
         <Field label="性别" disabled v-model="sex"></Field>
@@ -63,24 +64,25 @@
       @visible-change="endChange"
       @confirm="endConfirm">
     </datetime-picker>
-    <mypop v-model="authVisible">
+    <!-- <mypop v-model="authVisible">
       <template slot="title">实名认证</template>
       <realname></realname>
-    </mypop>
+    </mypop> -->
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { isNumber } from '@/utils/validate'
-import mypop from '@/components/myPopup'
-import realname from '@/views/me/realname/index'
+// import mypop from '@/components/myPopup'
+// import realname from '@/views/me/realname/index'
+import csheader from '@/components/header'
 import {Swipe, SwipeItem, Cell, Field, Button, DatetimePicker, Toast} from 'mint-ui'
 import {formatDate} from '@/utils/tool'
 import {contractApply} from '@/api/appoint'
 export default {
   computed: {
-    ...mapGetters(['userData'])
+    ...mapGetters(['userData', 'details'])
   },
   props: {
     value: Object
@@ -110,7 +112,7 @@ export default {
   created () {
     this.startdate = this.enddate = new Date()
     this.endTime = this.startTime = this.startdate
-    this.house = this.value
+    this.house = this.details
     console.log(this.house)
     console.log(this.userData)
     this.sex = this.sexName()
@@ -154,7 +156,8 @@ export default {
     },
     auth () {
       if (this.userData.auditing !== 1) {
-        this.authVisible = true
+        // this.authVisible = true
+        this.$router.push('/realname')
       }
     },
     validateNumber () {
@@ -186,6 +189,8 @@ export default {
       contractApply(this.formData).then(res => {
         if (res.code === 1) {
           Toast('提交成功')
+          // this.$router.push('/')
+          this.$router.push(`/leaseDetailStep/${res.data}`)
         } else {
           Toast(res.msg)
         }
@@ -193,7 +198,7 @@ export default {
     }
   },
   components: {
-    Swipe, SwipeItem, Cell, Field, Button, DatetimePicker, mypop, realname
+    Swipe, SwipeItem, Cell, Field, Button, DatetimePicker, csheader // mypop, realname,
   }
 }
 </script>

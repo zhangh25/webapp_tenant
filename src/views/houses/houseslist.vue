@@ -8,9 +8,9 @@
           <div v-if="dataList.length>0" class="item" v-for="(item, idx) in dataList" :key="idx" @click="houseDeatil(item.roomId)">
             <div class="left"><img :src="item.imageUrl" width="98"></div>
             <div class="right">
-              <div class="title">{{item.roomTitle}}</div>
-              <div class="dec">{{item.typeName}}</div>
-              <div class="dec"></div>
+              <div class="title">{{item.areaName}}-{{item.roomTitle}}</div>
+              <div class="dec">{{item.typeName}}-{{item.roomArea}}㎡</div>
+              <div class="dec"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template></div>
               <div class="price">{{item.rent}}元/月</div>
             </div>
           </div>
@@ -53,7 +53,8 @@ export default {
       bottomStatus: '',
       wrapperHeight: 0,
       curpage: 1,
-      loading: false
+      loading: false,
+      isFrist: true
     }
   },
   watch: {
@@ -81,6 +82,7 @@ export default {
     console.log('sssas')
     this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top
     // this._getHouseList()
+    this.isFrist = true
     // console.log(this.wrapperHeight)
   },
   methods: {
@@ -89,7 +91,10 @@ export default {
     },
     loadBottom () {
       console.log('loadbottom', this.wrapperHeight)
-      this.getHouseList()
+      if (!this.loading && !this.allLoaded && !this.isFrist) {
+        // console.log('ssss++++++++++', this.loading)
+        this.getHouseList()
+      }
       // setTimeout(() => {
       //   // let lastValue = this.list[this.list.length - 1]
       //   // if (lastValue < 40) {
@@ -109,6 +114,7 @@ export default {
       this.dataList = []
       this.fData.startRow = 1
       this.allLoaded = false
+      // console.log('ssssfit-------------')
       this.getHouseList(data)
     },
     getHouseList (data) {
@@ -118,7 +124,7 @@ export default {
       Object.assign(this.fData, data)
       queryRoomList(this.fData).then(res => {
         if (this.$refs.loadmore) { this.$refs.loadmore.onBottomLoaded() }
-        this.loading = false
+
         console.log(res)
         if (res.code === 1) {
           res.data.forEach(value => {
@@ -133,6 +139,8 @@ export default {
         } else {
           this.allLoaded = true
         }
+        this.loading = false
+        this.isFrist = false
       }, err => {
         console.log(err, 'list timeoutt')
         this.loading = false
@@ -161,6 +169,7 @@ export default {
       flex: 0 0 117px;
     }
     .right{
+      position: relative;
       flex: 1;
       padding-left: 11px;
       .title {
@@ -172,7 +181,10 @@ export default {
         line-height: 20px;
       }
       .price{
+        position: absolute;
         color: @pink;
+        right: 0;
+        top: 0;
       }
     }
   }
@@ -192,5 +204,17 @@ export default {
     color: @gray;
     margin: 20px 0;
   }
+}
+.icon-addr{
+  display: inline-block;
+  width: 9px;
+  height: 12px;
+  background-image: url(../home/icon/icon_weizhi@2x.png);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-right: 4px;
+  position: relative;
+  top: 1px;
 }
 </style>

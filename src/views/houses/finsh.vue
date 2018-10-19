@@ -1,5 +1,6 @@
 <template>
   <div class=" finish">
+    <csheader>约看订单</csheader>
     <img src="./icon/icon_yuekandingdan@2x.png" width="143" alt="">
     <div style="padding-top: 40px;padding-bottom: 12px">你的约看已成功提交</div>
     <div>你的管家会尽快联系您确认看房时间和地点</div>
@@ -9,10 +10,11 @@
 </template>
 
 <script>
+import csheader from '@/components/header'
 import {Button} from 'mint-ui'
 export default {
   components: {
-    Button
+    Button, csheader
   }
 }
 </script>

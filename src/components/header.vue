@@ -26,7 +26,9 @@ export default {
 <style lang="less" scoped>
 @import '../styles/mixin.less';
 .header{
+
   display: flex;
+  width: 100%;
   height: 44px;
   line-height: 44px;
   // padding: 0 15px;
@@ -56,5 +58,8 @@ export default {
     font-size: 13px;
     white-space: nowrap;
   }
+  position: fixed;
+  top: 0;
+  z-index: 1;
 }
 </style>

@@ -7,8 +7,8 @@
       <Button type="primary" size="large">充值</Button>
       <Button size="large" class="btn">提现</Button>
     </div>
-    <pw v-model="pws" style="margin-bottom: 10px"></pw>
-    <keyword v-model="pws"></keyword>
+    <!-- <pw v-model="pws" style="margin-bottom: 10px"></pw>
+    <keyword v-model="pws"></keyword> -->
   </div>
 
 </template>

@@ -131,7 +131,7 @@ export default {
       overflow-y: scroll;
     }
     .radio-list{
-      padding: 10px;
+      padding: 10px 4px;
     }
     .title {
       font-size: 14px;

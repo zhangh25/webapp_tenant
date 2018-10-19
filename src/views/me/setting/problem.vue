@@ -1,13 +1,17 @@
 <template>
-  <div class="proplem">
-    <div v-for="(item, i) in faq" :key="i" class="list">
-      <div class="title">{{item.title}}</div>
-      <div class="content">{{item.content}}</div>
+  <div style="padding-top: 44px">
+    <csheader>常见问题</csheader>
+    <div class="proplem">
+      <div v-for="(item, i) in faq" :key="i" class="list">
+        <div class="title">{{item.title}}</div>
+        <div class="content">{{item.content}}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import csheader from '@/components/header'
 export default {
   data () {
     return {
@@ -30,6 +34,9 @@ export default {
         }
       ]
     }
+  },
+  components: {
+    csheader
   }
 }
 </script>

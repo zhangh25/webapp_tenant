@@ -62,7 +62,7 @@
           <div class="val"></div>
         </div>
         <div class="btns">
-          <Button class="cancel-btn">取消签约</Button>
+          <Button class="cancel-btn" @click.native="$router.push(`/leaseCancel/${leaseId}`)">取消签约</Button>
           <Button class="btn" type="primary">去签字</Button>
         </div>
       </template>
@@ -101,7 +101,7 @@
         <!-- <img v-if="house.imageList" :src="house.imageList[0].url" alt=""> -->
       </div>
       <div class="right">
-        <div class="title">福田区-{{detail.roomTitle}}</div>
+        <div class="title">{{detail.roomTitle}}</div>
         <div class="name">{{detail.typeName}}-{{detail.roomArea}}㎡</div>
         <div class="rent">{{detail.rent}}元/月</div>
       </div>
@@ -118,7 +118,7 @@ import csheader from '@/components/header'
 import pro from './components/progress'
 import {queryLeaseOrderDetail} from '@/api/appoint'
 import {Button} from 'mint-ui'
-// import {countDown} from '@/utils/tool'
+import {countDown} from '@/utils/tool'
 export default {
   data () {
     return {
@@ -153,7 +153,8 @@ export default {
       step: 1,
       leaseId: null,
       time: '',
-      countdown: null
+      countdown: null,
+      timer: null
     }
   },
   created () {
@@ -165,12 +166,28 @@ export default {
     // }, 1000)
     // this.calcTime()
     this.setStep()
+    this.getOrderDetail()
   },
   methods: {
     getOrderDetail () {
       queryLeaseOrderDetail(this.leaseId).then(res => {
         if (res.code === 1) {
           this.detail = res.data
+          this.setStep()
+          if (this.step === 2) {
+            this.setCountDown(this.detail.ownerAgreeTime)
+          } else if (this.step === 3) {
+
+          }
+        }
+      })
+    },
+    setCountDown (time) {
+      if (this.timer) clearInterval(this.timer)
+      this.timer = setInterval(_ => {
+        this.countdown = countDown(time, 0.5)
+        if (this.countdown.minutes < 0) {
+          // this.getOrderDetail()
         }
       })
     },

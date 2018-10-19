@@ -28,7 +28,7 @@ export function userRegister (data) {
 export function Logout (token) {
   return request({
     url: '/sys/logout',
-    method: 'post',
+    method: 'get',
     params: {role: 1}
   })
 }
@@ -99,7 +99,7 @@ export function saveSysFeedback (content) {
   return request({
     url: '/common/saveSysFeedback',
     method: 'post',
-    params: {roleType: 0, content}
+    data: {roleType: 0, content}
   })
 }
 // POST
@@ -108,7 +108,7 @@ export function saveSysFeedback (content) {
 export function realName (data) {
   return request({
     url: '/common/RealName',
-    method: 'post',
+    method: 'get',
     params: data
   })
 }

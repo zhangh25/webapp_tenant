@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import {getQiniuToken} from '@/api/user'
+// import {getQiniuToken} from '@/api/user'
 import axios from 'axios'
 // import {} from '@/api/' headers:{'Content-Type':'multipart/form-data'}
 const axiosInstance = axios.create({
@@ -17,11 +17,16 @@ export default {
   },
   mounted () {
     const self = this
-    getQiniuToken().then(res => {
-      if (res.code === 1) {
-        console.log(res)
-        this.token = res.data
-      }
+    // getQiniuToken().then(res => {
+    //   if (res.code === 1) {
+    //     console.log(res)
+    //     this.token = res.data
+    //   }
+    // })
+    // console.log('dddd')
+    this.$store.dispatch('getQiniuToken').then(token => {
+      this.token = token
+      // console.log(token)
     })
     this.$refs.upload.addEventListener('change', function () {
       console.log(this.files)
@@ -44,8 +49,6 @@ export default {
       }).then(function (res) {
         console.log(res)
         self.$emit('changeFile', {code: 1, url: `http://pba3kbxrz.bkt.clouddn.com/${res.data.key}`})
-        // self.userInfo.imageurl =
-        // console.log('res', res)
       })
         .catch(function (err) {
           self.$emit('changeFile', {code: 0})

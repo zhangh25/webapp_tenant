@@ -5,6 +5,12 @@ const getters = {
   history: state => state.hourse.history,
   collect: state => state.hourse.collect,
   houselease: state => state.lease.houselease,
-  card: state => state.wallet.card
+  card: state => state.wallet.card,
+  qiniuToken: state => state.user.qiniuToken,
+  message: state => state.message.message,
+  allowBack: state => state.message.allowBack,
+  details: state => state.hourse.details,
+  condition: state => state.hourse.condition,
+  loginedPath: state => state.user.loginedPath
 }
 export default getters

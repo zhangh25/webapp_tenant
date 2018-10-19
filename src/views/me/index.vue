@@ -6,7 +6,7 @@
       <div class="box">
         <div class="himg" @click="personalShow"><img :src="headImg"></div>
         <div class="text" >
-          <div v-if="!token" @click="visibleLogin = true"> <span class="login">登录</span> / <span class="register">注册</span></div>
+          <div v-if="!token" @click="$router.push('/login')"> <span class="login">登录</span> / <span class="register">注册</span></div>
           <span v-else-if="userData">{{userData.phone}}</span>
         </div>
       </div>
@@ -24,45 +24,45 @@
       <cell title="客服电话" is-link @click.native="callPhone">
         <img slot="icon" src="./img/icon_kefu@2x.png" width="22" height="22" class="list-icon">
       </cell>
-      <cell title="意见提交" is-link @click.native="visibleIdea=true">
+      <cell title="意见提交" is-link to="/suggest">
         <img slot="icon" src="./img/icon_yijianfankui@2x.png" width="22" height="22" class="list-icon">
       </cell>
-      <cell title="关于城宿" is-link @click.native="visibleAbout=true">
+      <cell title="关于城宿" is-link to="/about">
         <img slot="icon" src="./img/icon_guanyuwumen@2x.png" width="22" height="22" class="list-icon">
       </cell>
-      <cell title="设置" is-link @click.native="visibleSetting=true">
+      <cell title="设置" is-link to="/setting">
         <img slot="icon" src="./img/icon_shezhi@2x.png" width="22" height="22" class="list-icon">
       </cell>
       <!-- <icon-svg icon-class="user"></icon-svg> -->
     </div>
-    <login v-model="visibleLogin"></login>
-    <mypop v-model="visibleIdea" class="idea">
+    <!-- <login v-model="visibleLogin"></login> -->
+    <!-- <mypop v-model="visibleIdea" class="idea">
       <span slot="title">意见提交</span>
       <suggest></suggest>
-    </mypop>
-    <mypop v-model="visibleAbout">
+    </mypop> -->
+    <!-- <mypop v-model="visibleAbout">
       <span slot="title">关于城宿</span>
       <about></about>
-    </mypop>
-    <mypop v-model="visibleSetting">
+    </mypop> -->
+    <!-- <mypop v-model="visibleSetting">
       <span slot="title">设置</span>
       <setting></setting>
-    </mypop>
-    <mypop v-model="visiblePersonal">
+    </mypop> -->
+    <!-- <mypop v-model="visiblePersonal">
       <template slot="title">个人资料</template>
       <personal></personal>
-    </mypop>
-    <mypop v-model="visibleReal">
+    </mypop> -->
+    <!-- <mypop v-model="visibleReal">
       <template slot="title">实名认证</template>
       <realname></realname>
-    </mypop>
+    </mypop> -->
     <tabbar></tabbar>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import {Cell, MessageBox, Toast} from 'mint-ui'
+import {Cell, MessageBox} from 'mint-ui'
 import login from './user/login'
 import mypop from '@/components/myPopup'
 import suggest from './suggest'
@@ -127,35 +127,45 @@ export default {
     /* 跳转实名认证 */
     real () {
       if (this.token) {
-        this.visibleReal = true
+        // this.visibleReal = true
+        this.$router.push('/realname')
       } else {
-        Toast('你还未登录')
+        // Toast('你还未登录')
+        this.$store.dispatch('setPath', '/realname')
+        this.$router.push('/login')
       }
     },
     goBill () {
       if (this.token) {
         this.$router.push('/bill')
       } else {
-        Toast('你还未登录')
+        // Toast('你还未登录')
+        this.$store.dispatch('setPath', '/bill')
+        this.$router.push('/login')
       }
     },
     goWallet () {
       if (this.token) {
         this.$router.push('/wallet')
       } else {
-        Toast('你还未登录')
+        // Toast('你还未登录')
+        this.$store.dispatch('setPath', '/wallet')
+        this.$router.push('/login')
       }
     },
     personalShow () {
       if (this.token) {
-        this.visiblePersonal = true
+        // this.visiblePersonal = true
+        this.$router.push('/personal')
       }
     },
     leaseClick () {
       if (this.token) {
         this.$router.push('/lease')
       } else {
-        Toast('你还未登录')
+        // Toast('你还未登录')
+        this.$store.dispatch('setPath', '/lease')
+        this.$router.push('/login')
       }
     }
     // personalShow () {}

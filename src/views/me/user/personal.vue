@@ -1,6 +1,7 @@
 <template>
   <div class="personal">
-    <div class="finsh" @click="finsh">完成</div>
+    <csheader>个人资料 <div slot="right" @click="finsh">完成</div></csheader>
+    <!-- <div class="finsh"></div> -->
     <Field class="head">
       <div class="flex">
         <div class="headImg"><div class="box"><img v-if="userInfo.imageurl" :src="userInfo.imageurl" width="60" height="60"><i v-else class="bg"></i></div></div>
@@ -20,6 +21,7 @@
 import { mapGetters } from 'vuex'
 import {Field, Toast, Actionsheet} from 'mint-ui'
 import {getUserInfo, updateCsUsers, getQiniuToken} from '@/api/user'
+import csheader from '@/components/header'
 import axios from 'axios'
 // import {} from '@/api/' headers:{'Content-Type':'multipart/form-data'}
 const axiosInstance = axios.create({
@@ -168,7 +170,7 @@ export default {
     }
   },
   components: {
-    Field, Toast, Actionsheet
+    Field, Toast, Actionsheet, csheader
   }
 }
 </script>
@@ -176,6 +178,7 @@ export default {
 <style lang="less" scoped>
 .personal {
   position: relative;
+  padding-top: 44px;
   .finsh {
     position: absolute;
     z-index: 1;

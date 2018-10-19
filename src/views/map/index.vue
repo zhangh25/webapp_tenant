@@ -49,8 +49,8 @@
       </div>
     </mypop>
     <Popup v-model="listShow" position="bottom" class="listpop">
-      <!-- <div>2344分</div>
-      <div>2344分</div> -->
+      <div class="top">{{stationName}}  {{stationNum}}套</div>
+
       <houseslist :filterData="filterData" ref="list"></houseslist>
     </Popup>
     <mypop v-model="searchVisible" :header="false">
@@ -77,11 +77,14 @@ export default {
     let startPosition = []
     return {
       zoom: 12,
+      toast: null,
       zooms: [12, 16],
       amapManager,
       center: [114.02597366, 22.54605355],
       localVisible: false,
       searchVisible: false,
+      stationName: '',
+      stationNum: 0,
       city: '深圳',
       cityId: '440300',
       isScale: false,
@@ -242,7 +245,8 @@ export default {
             this.filterData.latitude = result.position.lat
             this.setRegionLevel(16)
           } else {
-            Toast({message: '定位失败', position: 'top'})
+            if (this.toast) this.toast.close()
+            this.toast = Toast({message: '定位失败', position: 'top'})
           }
         })
       }
@@ -296,7 +300,8 @@ export default {
       if (data.length > 0) {
         num = data.map(item => +item.countNum).reduce((temp, next) => temp + next)
       }
-      Toast({
+      if (this.toast) this.toast.close()
+      this.toast = Toast({
         message: `找到${num}房源`,
         position: 'top'
       })
@@ -307,6 +312,7 @@ export default {
         this.listShow = true
         this.$refs.list.getHouseListFrist(this.filterData)
       } else {
+        this.$store.dispatch('setCondition', this.filterData)
         this.$router.push('/list')
       }
     },
@@ -316,6 +322,7 @@ export default {
       this.filterData.streetId = null
       this.filterData.lineId = null
       this.filterData.stationId = null
+      this.filterData.towerId = null
     },
     /* 设置区域级别 */
     setRegionLevel (zoom) {
@@ -369,7 +376,7 @@ export default {
       }
     },
     areaClick (data) {
-      console.log(data)
+      // console.log(data)
       this.setLnglat(null, null)
       if (this.level === 1) {
         // this.level++ // level=2 根据区或地铁线路找街道或地铁站点
@@ -394,7 +401,11 @@ export default {
       } else if (this.level === 3) { // 根据小区搜索列表
         // this.level++ // 4
         // if ()
-        this.setLnglat(data.longitude, data.latitude)
+        console.log('sclick-----', data)
+        this.stationName = data.name
+        this.stationNum = data.countNum
+        this.filterData.towerId = data.id
+        // this.setLnglat(data.longitude, data.latitude)
         this.showList()
       }
     },
@@ -416,6 +427,9 @@ export default {
           // this.topMarkers = res.data
           this.setTopMarker(res.data)
           this.csAlert(res.data)
+          if (res.data.length > 0) {
+            this.setCenterByData(res.data)
+          }
         }
       })
     },
@@ -429,12 +443,26 @@ export default {
           this.csAlert(res.data)
           if (res.data.length > 0 && this.level !== 1) {
             // console.log('center')
-            this.center = [res.data[0].longitude, res.data[0].latitude]
+            // this.center = [res.data[0].longitude, res.data[0].latitude]
+            this.setCenterByData(res.data)
             // this.center
           }
         }
       })
+    },
+    setCenterByData (data) {
+      if (this.localShow) return
+      for (let item of data) {
+        if (item.countNum > 0) {
+          this.center = [item.longitude, item.latitude]
+          break
+        }
+      }
     }
+  },
+  beforeDestroy () {
+    if (this.toast) this.toast.close()
+    console.log('beforeDestroy')
   },
   components: {
     mypop,
@@ -587,6 +615,9 @@ export default {
   width: 100%;
   height: 400px;
   overflow: scroll;
+  .top {
+    padding: 15px;
+  }
 }
 .circle-marker{
   width: 52px;

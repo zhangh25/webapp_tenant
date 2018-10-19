@@ -1,5 +1,6 @@
 <template>
   <div class="auth">
+    <csheader>实名认证</csheader>
     <template v-if="userData.auditing === 0">
       <div class="titile">身份认证</div>
       <div class="dec">您还没有进行身份认证， 认证通过后才能签约</div>
@@ -20,7 +21,7 @@
         </div>
         <div class="center"></div>
         <div class="item" @click="uploadCard(2)">
-          <i v-if="fdata.urlz" class="icon-close" @click.stop="imgClose('urlf')"></i>
+          <i v-if="fdata.urlf" class="icon-close" @click.stop="imgClose('urlf')"></i>
           <img v-if="fdata.urlf" :src="fdata.urlf">
           <template v-else>
             <icon-svg icon-class="add" class="icon"></icon-svg>
@@ -43,7 +44,7 @@
     </template>
     <template v-else-if="userData.auditing === 1">
       <div class="top"><img class="img" src="../img/icon_renzhengchenggong@2x.png" width="57" height="57"><div style="padding-bottom: 35px">认证成功</div></div>
-      <Cell title="姓名">{{userData.username}}</Cell>
+      <Cell title="姓名">{{userData.realname}}</Cell>
       <Cell title="性别">{{sexName}}</Cell>
       <Cell title="证件号">123456465454</Cell>
     </template>
@@ -56,6 +57,7 @@ import { mapGetters } from 'vuex'
 import {realName} from '@/api/user'
 import csupload from 'components/csupload'
 import {Field, Button, Cell, Picker, Toast, Popup} from 'mint-ui'
+import csheader from '@/components/header'
 export default {
   computed: {
     ...mapGetters(['userData']),
@@ -84,9 +86,9 @@ export default {
       fdata: {
         idCard: '',
         realName: '',
-        roleType: 1,
-        urlf: '', // 身份证反面
-        urlz: '' // 正面
+        role: 1,
+        urlf: 'http://pba3kbxrz.bkt.clouddn.com/FqbwtYjic8CucIA7jkFob8sxP-_q', // 身份证反面
+        urlz: 'http://pba3kbxrz.bkt.clouddn.com/FsDUUhnJDdjJG7u-3wJRmzS31GZ9' // 正面
       }
     }
   },
@@ -164,7 +166,7 @@ export default {
     }
   },
   components: {
-    Field, Button, Cell, Picker, Popup, csupload
+    Field, Button, Cell, Picker, Popup, csupload, csheader
   }
 }
 </script>
@@ -243,7 +245,7 @@ export default {
       }
       img {
         max-width: 100%;
-        max-height: 90px;
+        max-height: 100%;
       }
       .icon-close {
         position: absolute;

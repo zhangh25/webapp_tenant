@@ -12,7 +12,10 @@
           <ul class="one"><li v-for="(item, idx) in addrTypes" :key="idx" :class="{active: addrIdx=== idx}" @click="addrClick(idx)"><span class="txt">{{item}}</span></li></ul>
           <ul class="two">
             <li v-if="twoArr.length>0" @click="twoUnlimited">不限</li>
-            <li v-for="item in twoArr" :key="item.id" :class="{active: twoId===item.id}" @click="twoClick(item)">{{item.name}}</li>
+            <li v-for="item in twoArr" :key="item.id" :class="{active: twoId===item.id}" @click="twoClick(item)">
+              <template v-if="item.lineName">{{item.lineName}}({{item.name}})</template>
+              <template v-else>{{item.name}}</template>
+            </li>
           </ul>
           <ul class="three" :class="{active: threeArr.length>0}">
             <li v-if="threeArr.length>0" @click="threeUnlimited">不限</li>
@@ -68,6 +71,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import {queryRoomList, queryRegion, querySubwayLine, patSubwayLineQueryRoom, patQueryRoom} from '@/api/house'
 import { InfiniteScroll, Spinner } from 'mint-ui'
 import mypop from '@/components/myPopup'
@@ -77,6 +81,9 @@ import csfilter from './moreFilter'
 import houseslist from './houseslist'
 import searchPage from 'components/search'
 export default {
+  computed: {
+    ...mapGetters(['condition'])
+  },
   data () {
     return {
       searchVisible: false,
@@ -160,12 +167,12 @@ export default {
     // let content =
     // let menuResp = this.$route.query.menuResp
     console.log('mounted')
-    this.queryData.content = this.$route.query.content
-    this.queryData.menuResp = this.$route.query.menuResp
-
-    this.$refs.list.getHouseListFrist(JSON.parse(JSON.stringify(this.queryData)))
-    this.queryData.content = null
-    this.queryData.menuResp = null
+    // this.queryData.content = this.$route.query.content
+    // this.queryData.menuResp = this.$route.query.menuResp
+    // if ()
+    this.queryData = this.condition
+    this.$refs.list.getHouseListFrist(this.queryData)
+    // this.$store.dispatch('setCondition', {})
   },
   methods: {
     cssearch () {
@@ -228,7 +235,7 @@ export default {
     twoClick (data) {
       this.twoId = data.id
       this.threeId = -1
-      console.log(data)
+      // console.log(data)
       // this.addressIdsInit()
       if (this.addrIdx === 0) {
         this.threeArr = data.streetList

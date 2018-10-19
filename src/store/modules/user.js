@@ -1,10 +1,12 @@
-import {Logout} from '@/api/user'
+import {Logout, getQiniuToken} from '@/api/user'
 const user = {
   state: {
     token: localStorage.getItem('token'),
     user: '',
     phone: '13688886666',
-    userData: JSON.parse(localStorage.getItem('user'))
+    userData: JSON.parse(localStorage.getItem('user')),
+    qiniuToken: '',
+    loginedPath: ''
   },
   mutations: {
     SET_TOKEN: (state, token) => {
@@ -12,6 +14,12 @@ const user = {
     },
     SET_USER: (state, user) => {
       state.userData = user
+    },
+    SET_QINIUTOKEN (state, token) {
+      state.qiniuToken = token
+    },
+    SET_LOGINEDPATH (state, path) {
+      state.loginedPath = path
     }
   },
   actions: {
@@ -39,6 +47,27 @@ const user = {
           // reject
         })
       })
+    },
+    getQiniuToken ({state, commit}) {
+      let token = state.qiniuToken
+      // console.log('store', token)
+      return new Promise((resolve, reject) => {
+        if (token) {
+          resolve(token)
+        } else {
+          getQiniuToken().then(res => {
+            if (res.code === 1) {
+              commit('SET_QINIUTOKEN', res.data)
+              resolve(res.data)
+            } else {
+              reject(res.msg)
+            }
+          })
+        }
+      })
+    },
+    setPath ({commit}, path) {
+      commit('SET_LOGINEDPATH', path)
     }
   }
 }

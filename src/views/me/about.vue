@@ -1,5 +1,6 @@
 <template>
   <div class="about">
+    <csheader>关于城宿</csheader>
     <div class="content">
       <img src="./img/icon_logo2@2x.png" width="87" height="109" style="margin-top:48px">
       <div class="str">城宿租房V1.0.0</div>
@@ -12,6 +13,7 @@
 </template>
 
 <script>
+import csheader from '@/components/header'
 import {Cell} from 'mint-ui'
 export default {
   data () {
@@ -20,7 +22,7 @@ export default {
     }
   },
   components: {
-    Cell
+    Cell, csheader
   }
 }
 </script>
@@ -30,6 +32,7 @@ export default {
   height: 248px;
   background-color: #fff;
   text-align: center;
+  padding-top: 44px;
   .str{
     font-size: 13px;
     margin-top: 20px;

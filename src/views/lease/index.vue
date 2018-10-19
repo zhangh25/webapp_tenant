@@ -5,15 +5,15 @@
       <div slot="right" class="record" @click="record">签约记录</div>
     </csheader>
     <div v-if="list.length<1" class="nodata"><img src="./icon/zufang.png" alt=""></div>
-    <div class="list" v-for="item in list" :key="item.id">
+    <div class="list" v-for="item in list" :key="item.id" @click="goDetail(item)">
       <div class="up">
         <div class="left">
           <img :src="item.imageUrl" alt="">
         </div>
         <div class="right">
-          <div class="name">{{item.roomTitle}} <div class="state">{{status[item.orderStatus]}}</div></div>
+          <div class="name">{{item.roomTitle}} <div class="state" :class="{active: item.orderStatus==6, pink: item.orderStatus==5}">{{status[item.orderStatus]}}</div></div>
           <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
-          <div class="addr">{{iten.rent}}元/月</div>
+          <div class="addr">{{item.rent}}元/月</div>
         </div>
       </div>
       <div class="bt">看房时间：{{item.addTime}}</div> <!--暂时看房时间-->
@@ -31,7 +31,7 @@
           <Button @click="retireRoom(item)">申请退房</Button>
         </div>
         <div class="item" v-else-if="item.orderStatus==7||item.orderStatus==8">
-          <Button>取消申请</Button>
+          <Button @click="cancelApply(item)">取消申请</Button>
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@
 import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
 import {Button} from 'mint-ui'
-import {queryLeaseOrder} from '@/api/appoint'
+import {queryLeaseOrder, cancelApplyRetireRoom} from '@/api/appoint'
 import mypop from '@/components/myPopup'
 import checkout from './checkout'
 export default {
@@ -116,6 +116,21 @@ export default {
     retireRoom (item) {
       this.$store.dispatch('leaseHouse', item)
       this.$router.push('/checkout')
+    },
+    goDetail (item) {
+      this.$router.push(`/leaseDetail/${item.id}`) // leaseDetail
+      // this.$router.push(`/leaseDetailStep/${item.id}`) // leaseDetail
+    },
+    cancelApply (item) {
+      // MessageBox({
+
+      // })
+      cancelApplyRetireRoom(item.id).then(res => {
+        if (res.code === 1) {
+          // let idx = this.list.indexOf(item)
+          item.orderStatus = 6
+        }
+      })
     }
   },
   components: {
@@ -146,6 +161,9 @@ export default {
         flex: 0 0 98px;
         background-color: #222;
         margin-right: 18px;
+        img {
+          max-width: 100%;
+        }
       }
       .right{
         flex: 1;
@@ -156,6 +174,9 @@ export default {
             font-size: 14px;
             &.active{
               color: @themeColor;
+            }
+            &.pink {
+              color: @pink
             }
           }
         }

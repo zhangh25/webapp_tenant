@@ -1,16 +1,19 @@
 <template>
-  <div class="phone">
-    <img src="../img/icon_shouji@2x.png" width="63" height="100" style="margin-top:82px">
-    <div class="str">当前手机号：{{userData.phone}}</div>
-    <div class="tip">绑定新手机后，下次登录可以使用新手机号登录。</div>
-    <div class="form-item">
-      <input type="text" class="input" maxlength='11' v-model="formData.newPhone" placeholder="请输入新手机号">
+  <div>
+    <csheader>手机绑定</csheader>
+    <div class="phone">
+      <img src="../img/icon_shouji@2x.png" width="63" height="100" style="margin-top:82px">
+      <div class="str">当前手机号：{{userData.phone}}</div>
+      <div class="tip">绑定新手机后，下次登录可以使用新手机号登录。</div>
+      <div class="form-item">
+        <input type="text" class="input" maxlength='11' v-model="formData.newPhone" placeholder="请输入新手机号">
+      </div>
+      <div class="form-item cd">
+        <div class="code"><input type="text" class="input" v-model="formData.code" placeholder="请输入6位短信验证吗"></div>
+        <Button type="primary" class="btn" @click="getCode">{{btnText}}</Button>
+      </div>
+      <div class="confirm" @click="change">确定</div>
     </div>
-    <div class="form-item cd">
-      <div class="code"><input type="text" class="input" v-model="formData.code" placeholder="请输入6位短信验证吗"></div>
-      <Button type="primary" class="btn" @click="getCode">{{btnText}}</Button>
-    </div>
-    <div class="confirm" @click="change">确定</div>
   </div>
 </template>
 
@@ -19,6 +22,7 @@ import {Button, Toast} from 'mint-ui'
 import { mapGetters } from 'vuex'
 import { isMobile } from '@/utils/validate'
 import {sendSmsCode, replacePhone} from '@/api/user'
+import csheader from '@/components/header'
 export default {
   computed: {
     ...mapGetters(['userData'])
@@ -76,7 +80,8 @@ export default {
       replacePhone(this.formData).then(res => {
         if (res.code === 1) {
           Toast('更改成功')
-          this.$parent.back()
+          this.$router.go(-1)
+          // this.$parent.back()
         } else {
           Toast(res.msg)
         }
@@ -84,7 +89,7 @@ export default {
     }
   },
   components: {
-    Button
+    Button, csheader
   }
 }
 </script>

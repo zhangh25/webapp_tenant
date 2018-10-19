@@ -30,7 +30,7 @@
           <span class="price">{{parseInt(item.rent)}}元/月</span>
         </div>
         <div class="describe">{{item.typeName}}</div>
-        <!-- <div class="describe address-detail"><i class="icon-addr"></i></div> -->
+        <div class="describe address-detail"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template></div>
       </div>
       <!-- <div class="list-item">
         <div class="img"></div>
@@ -114,11 +114,12 @@ export default {
       this.$router.push('/list')
     },
     menuRespClick (item) {
+      this.$store.dispatch('setCondition', {menuResp: item.id})
       this.$router.push({
-        path: '/list',
-        query: {
-          menuResp: item.id
-        }
+        path: '/list'
+        // query: {
+        //   menuResp: item.id
+        // }
       })
     }
   },
