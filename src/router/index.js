@@ -16,10 +16,15 @@ export default new Router({
       component: HelloWorld
     },
     {
-      path: '/home',
+      path: '/home', // 首页
       name: 'home',
       meta: {quit: true},
       component: () => import('@/views/home/index')
+    },
+    {
+      path: '/location', // 定位
+      name: 'location',
+      component: () => import('@/views/home/location')
     },
     {
       path: '/houseDetails',
@@ -67,6 +72,16 @@ export default new Router({
       path: '/login', // 登录
       name: 'login',
       component: () => import('@/views/me/user/login')
+    },
+    {
+      path: '/protocol', // 协议 protocol
+      name: 'protocol',
+      component: () => import('@/views/me/user/protocol')
+    },
+    {
+      path: '/password', // 修改密码
+      name: 'password',
+      component: () => import('@/views/me/user/setPassword')
     },
     {
       path: '/personal', // 个人资料
@@ -156,6 +171,11 @@ export default new Router({
       component: () => import('@/views/lease/detail')
     },
     {
+      path: '/sign', // 租约签字
+      name: 'sign',
+      component: () => import('@/views/lease/sign')
+    },
+    {
       path: '/record', // 预约记录
       name: 'record',
       component: () => import('@/views/wish/record')
@@ -169,6 +189,16 @@ export default new Router({
       path: '/billDetail', // 账单详情
       name: 'billdetail',
       component: () => import('@/views/bill/billDetail')
+    },
+    {
+      path: '/payway', // 支付方式
+      name: 'payway',
+      component: () => import('@/views/bill/payWay')
+    },
+    {
+      path: '/paySuccess', // 支付成功
+      name: 'paySuccess',
+      component: () => import('@/views/bill/success')
     },
     {
       path: '/wallet', // 钱包
@@ -186,14 +216,39 @@ export default new Router({
       component: () => import('@/views/wallet/addBankCard')
     },
     {
+      path: '/cardDetail', // 银行卡详情
+      name: 'cardDetail',
+      component: () => import('@/views/wallet/cardDetails')
+    },
+    {
       path: '/validate', // 验证银行卡
       name: 'validate',
       component: () => import('@/views/wallet/validate')
     },
     {
+      path: '/cont', // 合同
+      name: 'cont',
+      component: () => import('@/views/lease/contract')
+    },
+    {
+      path: '/contdetail', // 合同详情
+      name: 'contdetail',
+      component: () => import('@/views/lease/contractDetail')
+    },
+    {
       path: '/test',
       name: 'test',
-      component: () => import('@/views/test11/loadmore')
+      component: () => import('@/views/test11/iframetest')
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: () => import('@/components/search')
+    },
+    {
+      path: '/guide',
+      name: 'guide',
+      component: () => import('@/views/map/guide')
     }
   ]
 })

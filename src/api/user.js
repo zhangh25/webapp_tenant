@@ -122,3 +122,14 @@ export function replacePhone (data) {
     params: data
   })
 }
+// GET
+// /common/app/version
+// 版本号判断更新
+export function getAppVersion () {
+  return request({
+    url: '/common/app/version',
+    method: 'get',
+    params: {appType: 2, device: 'android'}
+    // params: {appType: 2, device: 'android', version: '1.1.01'}
+  })
+}

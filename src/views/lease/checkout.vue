@@ -6,8 +6,8 @@
       </csheader>
     <template v-if="!isSubmit">
       <div class="title">租约记录</div>
-      <div class="cell"><div class="lab">姓名</div><div class="value">{{userData.username}}</div></div>
-      <div class="cell"><div class="lab">房源</div><div class="value">福田区</div></div>
+      <div class="cell"><div class="lab">姓名</div><div class="value">{{houselease.ownerName}}</div></div>
+      <div class="cell"><div class="lab">房源</div><div class="value">{{houselease.roomTitle}}</div></div>
       <div class="title" style="margin-top: 10px;">退房信息</div>
       <Cell title="退房时间" is-link @click.native="openDate"><input class="input" type="text" v-model="fData.retireTime" placeholder="必填（用于费用结算）"></Cell>
       <Cell title="退房原因" is-link @click.native="caseVisible=true"><input class="input" type="text" v-model="fData.retireRoomCause" placeholder="选填"></Cell>
@@ -90,7 +90,8 @@ export default {
       // this.$router.go(-1)
       // return
     }
-    // console.log(this.userData)
+    console.log(this.userData)
+    console.log(this.houselease)
     this.startdate = this.startTime = new Date()
     this.fData.userId = this.userData.id
   },

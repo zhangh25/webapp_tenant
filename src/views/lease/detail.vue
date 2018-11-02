@@ -3,16 +3,17 @@
     <csheader>
       租房详情
     </csheader>
-    <div class="state">{{status[step]}}</div>
+    <div class="content">
+    <div class="state" :class="{su: step==0, tui: step == 2 || step == 3}">{{status[step]}}</div>
     <div class="house">
       <div class="pic">
-        <img src="" alt="">
-        <!-- <img v-if="house.imageList" :src="house.imageList[0].url" alt=""> -->
+        <!-- <img src="" alt=""> -->
+        <img :src="detail.imageUrl" alt="">
       </div>
       <div class="right">
-        <div class="title">福田区-高达苑</div>
-        <div class="name">1室1厅1卫-20.0㎡</div>
-        <div class="rent">1234元/月</div>
+        <div class="title">{{detail.roomTitle}}</div>
+        <div class="name">{{detail.typeName}}-{{detail.roomArea}}㎡</div>
+        <div class="rent">{{detail.rent}}元/月</div>
         <div class="pact"><img src="./icon/icon_hetong@2x.png" width="12"> 电子合同</div>
       </div>
     </div>
@@ -24,7 +25,7 @@
     </div>
     <div class="wrapper">
       <div class="title">租房信息</div>
-      <div class="item"><label class="name">起止时间</label><div class="value">{{detail.startTime}}-{{detail.endTime}}</div></div>
+      <div class="item"><label class="name">起止时间</label><div class="value">{{detail.startTime}} ~ {{detail.endTime}}</div></div>
       <div class="item"><label class="name">付款方式</label><div class="value">押一付三</div></div>
       <div class="item"><label class="name">房屋租金</label><div class="value">{{detail.rent}}元/月</div></div>
       <div class="item"><label class="name">房屋押金</label><div class="value">{{detail.rent*detail.depositNumber}}元</div></div>
@@ -36,23 +37,25 @@
     <div class="wrapper">
       <div class="title">租客信息</div>
       <div class="item"><label class="name">姓名</label><div class="value">{{detail.userName}}</div></div>
-      <div class="item"><label class="name">姓别</label><div class="value">{{detail.userSex}}</div></div>
+      <div class="item"><label class="name">姓别</label><div class="value">{{detail.userSex|getSex}}</div></div>
       <div class="item"><label class="name">手机号</label><div class="value">{{detail.userPhone}}</div></div>
     </div>
     <div class="wrapper">
       <div class="title">房东信息</div>
-      <div class="item"><label class="name">姓名</label><div class="value">{{detail.ownerName}}</div></div>
+      <div class="item"><label class="name">姓名</label><div class="value">{{detail.ownerName|name}}</div></div>
     </div>
     <div class="wrapper">
       <div class="title">订单信息</div>
       <div class="item"><label class="name">订单号</label><div class="value">{{detail.orderNum}}</div></div>
       <div class="item"><label class="name">创建时间</label><div class="value">{{detail.addTime}}</div></div>
     </div>
+
     <div class="btns">
-      <Button class="btn" @click="$router.push('/bill')" type="primary">账单</Button>
-      <Button class="btn" type="primary">合同</Button>
+      <Button class="btn" @click="$router.push('/bill')" v-if="step!==1" type="primary">账单</Button>
+      <Button class="btn" @click="licences" type="primary" v-if="step!==1">合同</Button>
       <Button class="btn" @click="apply" type="primary" v-if="step==0">申请退房</Button>
-      <Button class="btn" @click="cancelApply" type="primary" v-else-if="step==1">取消申请</Button>
+      <Button class="btn" @click="cancelApply" type="primary" v-else-if="step==2">取消申请</Button>
+    </div>
     </div>
   </div>
 </template>
@@ -92,7 +95,7 @@ export default {
         rentDay: 2, // 收租日
         orderNum: '24234' // 订单号
       },
-      status: ['签约成功', '退房中', '已退房'],
+      status: ['签约成功', '已取消', '退房中', '已退房'],
       step: 0,
       leaseId: null
     }
@@ -115,14 +118,16 @@ export default {
         case 6:
           this.step = 0
           break
-        case 7:
+        case 1:
+        case 2:
           this.step = 1
           break
+        case 7:
         case 8:
-          this.step = 1
+          this.step = 2
           break
         case 9:
-          this.step = 2
+          this.step = 3
           break
         default:
           break
@@ -147,7 +152,16 @@ export default {
       })
     },
     apply () {
+      this.$store.dispatch('leaseHouse', this.detail)
       this.$router.push('/checkout')
+    },
+    licences () {
+      if (this.detail.licenceType === 1) {
+        window.location.href = this.detail.pactReviewUrl
+      } else if (this.detail.licenceType === 2) {
+        this.$store.dispatch('setlicence', this.detail.licences)
+        this.$router.push('/contdetail')
+      }
     }
   },
   components: {
@@ -159,13 +173,24 @@ export default {
 <style lang="less" scoped>
 @import '../../styles/mixin.less';
 .detail {
-  padding-bottom: 70px;
+  // padding-bottom: 70px;
 }
 .state{
   height: 44px;
   line-height: 44px;
   font-size: 16px;
   text-align: center;
+  &.su {
+    color: @themeColor;
+  }
+  &.tui {
+    color: @pink;
+  }
+}
+.content {
+  height: calc(100vh - 44px);
+  overflow: scroll;
+  padding-bottom: 70px;
 }
 .house{
     display: flex;
@@ -178,7 +203,8 @@ export default {
       padding: 15px 0;
       img {
         width: 100%;
-        height: 85px;
+          height: 100%;
+          object-fit:cover;
       }
     }
     .right{
@@ -190,6 +216,7 @@ export default {
       // height: 85px;
       .title{
         font-size: 14px;
+        font-weight: bold;
       }
       .name{
         color: @gray;

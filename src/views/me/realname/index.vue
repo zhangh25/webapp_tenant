@@ -4,18 +4,23 @@
     <template v-if="userData.auditing === 0">
       <div class="titile">身份认证</div>
       <div class="dec">您还没有进行身份认证， 认证通过后才能签约</div>
-      <Field label="姓名" placeholder="请填写真实姓名" v-model="fdata.realName"></Field>
-      <Field label="身份证号" placeholder="请填写并确认证件号" v-model="fdata.idCard"></Field>
-      <Field label="身份证照片">
-      </Field>
+      <field label="姓名" disabled>
+        <input type="text" class="input" slot="extra" placeholder="请填写真实姓名" v-model="fdata.realName">
+      </field>
+      <field label="身份证号" disabled>
+        <input type="text" class="input" slot="extra" placeholder="请填写并确认证件号" v-model="fdata.idCard">
+      </field>
+      <field label="身份证照片">
+      </field>
       <div class="idcard">
         <div class="item" @click="uploadCard(1)">
           <i v-if="fdata.urlz" class="icon-close"  @click.stop="imgClose('urlz')"></i>
           <img v-if="fdata.urlz" :src="fdata.urlz">
           <template v-else>
-            <icon-svg icon-class="add" class="icon"></icon-svg>
+            <!-- <icon-svg icon-class="add" class="icon"></icon-svg>
             <div class="str1">手持身份证正面照</div>
-            <div class="str2">（文字清晰，四角齐全）</div>
+            <div class="str2">（文字清晰，四角齐全）</div> -->
+            <img src="./img/icon_shenfenzhengzhengmian@2x.png" alt="">
             <csupload ref='idcard1' @changeFile="fileChange_1"></csupload>
           </template>
         </div>
@@ -24,9 +29,10 @@
           <i v-if="fdata.urlf" class="icon-close" @click.stop="imgClose('urlf')"></i>
           <img v-if="fdata.urlf" :src="fdata.urlf">
           <template v-else>
-            <icon-svg icon-class="add" class="icon"></icon-svg>
+            <!-- <icon-svg icon-class="add" class="icon"></icon-svg>
             <div class="str1">手持身份证反面照</div>
-            <div class="str2">（文字清晰，四角齐全）</div>
+            <div class="str2">（文字清晰，四角齐全）</div> -->
+            <img src="./img/icon_shenfenzhengfanmian@2x.png" alt="">
             <csupload ref='idcard2' @changeFile="fileChange_2"></csupload>
           </template>
         </div>
@@ -42,12 +48,12 @@
         <Picker :slots="credentials" @change="onChange" :visible-item-count="3"></Picker>
       </Popup>
     </template>
-    <template v-else-if="userData.auditing === 1">
+    <div v-else-if="userData.auditing === 1" class="wrapper border-1px">
       <div class="top"><img class="img" src="../img/icon_renzhengchenggong@2x.png" width="57" height="57"><div style="padding-bottom: 35px">认证成功</div></div>
-      <Cell title="姓名">{{userData.realname}}</Cell>
-      <Cell title="性别">{{sexName}}</Cell>
-      <Cell title="证件号">123456465454</Cell>
-    </template>
+      <mcell title="姓名">{{userData.realname|name}}</mcell>
+      <!-- <mcell title="性别">{{sexName}}</mcell> -->
+      <mcell title="证件号">{{userData.idNumber|idCard}}</mcell>
+    </div>
     <template v-else>认证失败</template>
   </div>
 </template>
@@ -56,8 +62,10 @@
 import { mapGetters } from 'vuex'
 import {realName} from '@/api/user'
 import csupload from 'components/csupload'
-import {Field, Button, Cell, Picker, Toast, Popup} from 'mint-ui'
+import {Button, Cell, Picker, Toast, Popup} from 'mint-ui'
+import field from 'components/field'
 import csheader from '@/components/header'
+import mcell from 'components/cell'
 export default {
   computed: {
     ...mapGetters(['userData']),
@@ -87,8 +95,8 @@ export default {
         idCard: '',
         realName: '',
         role: 1,
-        urlf: 'http://pba3kbxrz.bkt.clouddn.com/FqbwtYjic8CucIA7jkFob8sxP-_q', // 身份证反面
-        urlz: 'http://pba3kbxrz.bkt.clouddn.com/FsDUUhnJDdjJG7u-3wJRmzS31GZ9' // 正面
+        urlf: '', // 身份证反面
+        urlz: '' // 正面
       }
     }
   },
@@ -148,7 +156,7 @@ export default {
           if (res.code === 1) {
             Toast('提交成功')
             this.changeUserinfo()
-            this.$parent.back()
+            // this.$parent.back()
           } else {
             Toast(res.msg)
           }
@@ -157,7 +165,7 @@ export default {
     },
     changeUserinfo () {
       let data = JSON.parse(JSON.stringify(this.userData))
-      Object.assign(data, {username: this.fdata.realName, auditing: 1})
+      Object.assign(data, {realname: this.fdata.realName, auditing: 1, idNumber: this.fdata.idCard})
       this.$store.dispatch('setUser', data)
     },
     imgClose (type) {
@@ -166,7 +174,7 @@ export default {
     }
   },
   components: {
-    Field, Button, Cell, Picker, Popup, csupload, csheader
+    field, Button, Cell, Picker, Popup, csupload, csheader, mcell
   }
 }
 </script>
@@ -174,16 +182,22 @@ export default {
 <style lang="less" scoped>
 @import '../../../styles/mixin.less';
 .auth{
+  .wrapper {
+    .border-1px;
+  .border-top-1px;
+    font-size: 14px;
+  }
   .titile{
     font-size: 23px;
     padding: 15px;
-    background-color: #fff;
+    // background-color: #fff;
   }
   .dec{
     color: @gray;
     padding: 0 15px;
-    background-color: #fff;
-    padding-bottom: 40px;
+    // padding-bottom: 15px;
+    // background-color: #fff;
+    padding-bottom: 18px;
 
   }
   .bottom {
@@ -221,6 +235,14 @@ export default {
       color: @themeColor;
     }
   }
+  .input {
+    width: 100%;
+    padding-bottom: 15px;
+    border: none;
+    &::placeholder {
+      color: #848484;
+    }
+  }
   .idcard {
     display: flex;
     text-align: center;
@@ -230,8 +252,8 @@ export default {
     .item{
       position: relative;
       flex: 1;
-      border: 1px dashed @gray;
-      padding: 15px 0;
+      // border: 1px dashed @gray;
+      // padding: 15px 0;
       height: 90px;
       overflow: hidden;
       .str1{

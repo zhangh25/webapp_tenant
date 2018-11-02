@@ -2,9 +2,10 @@
   <div class="map">
     <div class="header">
       <div class="bg"></div>
-      <div class="left"></div>
+      <div class="left" @click="$router.push('/location')">深圳市 <icon-svg icon-class="back" class="icon"></icon-svg></div>
       <div class="center">
-        <span :class="{active: isArea}" style="margin-right: 30px;" @click="toggleWay(true)">区域</span>
+        <span :class="{active: isArea}" @click="toggleWay(true)">区域</span>
+        <i class="line"></i>
         <span :class="{active: !isArea}" @click="toggleWay(false)">地铁</span>
       </div>
       <div class="right" @click="searchVisible=true">
@@ -49,42 +50,53 @@
       </div>
     </mypop>
     <Popup v-model="listShow" position="bottom" class="listpop">
-      <div class="top">{{stationName}}  {{stationNum}}套</div>
+      <div class="top border-1px">
+        <div class="name">{{stationName}}  <span class="num">{{stationNum}}</span>套</div>
+        <div class="addr">{{adres}}</div>
+      </div>
 
-      <houseslist :filterData="filterData" ref="list"></houseslist>
+      <houseslist :filterData="filterData" height="333" :firstaddr.sync="adres" ref="list"></houseslist>
     </Popup>
     <mypop v-model="searchVisible" :header="false">
       <searchPage @csearch="search"></searchPage>
     </mypop>
+    <!-- <guide :tiyan="experience"></guide> -->
     <tabbar></tabbar>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import {patSubwayLineQueryRoom, patQueryRoom, patSubwayStationQueryRoom} from '@/api/house'
+// import {getAppVersion} from '@/api/user'
 import {Popup, Indicator, Toast} from 'mint-ui'
 import mypop from '@/components/myPopup'
 import tabbar from '@/components/tabbar/index'
 import csfilter from '../houses/moreFilter'
 import houseslist from '../houses/houseslist'
+import guide from './guide'
 // import searchPage from './search'
 import searchPage from 'components/search'
 import { AMapManager } from 'vue-amap'
 let amapManager = new AMapManager()
 export default {
+  computed: {
+    ...mapGetters(['isfirst'])
+  },
   data () {
     let self = this
     let startPosition = []
     return {
       zoom: 12,
       toast: null,
-      zooms: [12, 16],
+      zooms: [9, 20],
       amapManager,
       center: [114.02597366, 22.54605355],
       localVisible: false,
       searchVisible: false,
       stationName: '',
       stationNum: 0,
+      adres: '',
       city: '深圳',
       cityId: '440300',
       isScale: false,
@@ -187,6 +199,9 @@ export default {
     }
   },
   mounted () {
+    // getAppVersion().then(res => {
+    //   console.log(res)
+    // })
     this._patQueryRoom()
   },
   methods: {
@@ -198,6 +213,9 @@ export default {
       margin-left: -50%;
       white-space: nowrap; */
       return `<div class="markerTip">${str}<div class="buttom"></div></div>`
+    },
+    experience () {
+      console.log('qwdd')
     },
     search (val) {
       // this.initIds()
@@ -237,7 +255,7 @@ export default {
         Indicator.open('正在定位...')
         this.Geolocation.getCurrentPosition((status, result) => {
           Indicator.close()
-          console.log(status, result)
+          // console.log(status, result)
           if (result && result.position) {
             this.localShow = true
             this.localMaker.position = this.localCircles.center = [result.position.lng, result.position.lat]
@@ -260,8 +278,8 @@ export default {
       // this.hideModel()
       this.showFilter = false
       if (data.rent.id) {
-        this.filterData.maxRent = data.rent.maxRent
-        this.filterData.minRent = data.rent.minRent
+        this.filterData.maxRent = data.rent.max
+        this.filterData.minRent = data.rent.min
       }
       this.filterData.configResp = data.configResp.map(item => item.id).join(',')
       this.filterData.hotTagResp = data.hotTagResp.map(item => item.id).join(',')
@@ -270,6 +288,7 @@ export default {
       this.filterData.menuResp = data.menuResp.map(item => item.id).join(',')
       this.filterData.orientation = data.orientation.map(item => item.id).join(',')
       // this.$refs.list.getHouseListFrist(this.queryData)
+      // console.log(this.filterData)
       this.findHouses()
     },
     /* 根据经纬度获取两点距离 */
@@ -295,7 +314,7 @@ export default {
       }
     },
     csAlert (data) {
-      console.log(data, data.length, 'alert')
+      // console.log(data, data.length, 'alert')
       let num = 0
       if (data.length > 0) {
         num = data.map(item => +item.countNum).reduce((temp, next) => temp + next)
@@ -308,13 +327,13 @@ export default {
     },
     /* 显示列表 */
     showList () {
-      if (this.level === 3) {
-        this.listShow = true
-        this.$refs.list.getHouseListFrist(this.filterData)
-      } else {
-        this.$store.dispatch('setCondition', this.filterData)
-        this.$router.push('/list')
-      }
+      // if (this.level === 3) {
+      //   this.listShow = true
+      //   this.$refs.list.getHouseListFrist(this.filterData)
+      // } else {
+      this.$store.dispatch('setCondition', this.filterData)
+      this.$router.push('/list')
+      // }
     },
     /* 区域，街道等id设为null */
     initIds () {
@@ -362,10 +381,10 @@ export default {
     findHousesByDistance (data, distance) {
       console.log(this.level, 'level')
       if (this.level > 1 && data.length === 2) {
-        if (this.level === 2 && distance < 3000) {
+        if (this.level === 2 && distance < 200) {
           return
         }
-        if (this.level === 3 && distance < 500) {
+        if (this.level === 3 && distance < 200) {
           return
         }
         // this.initIds()
@@ -401,18 +420,20 @@ export default {
       } else if (this.level === 3) { // 根据小区搜索列表
         // this.level++ // 4
         // if ()
-        console.log('sclick-----', data)
+        // console.log('sclick-----', data)
         this.stationName = data.name
         this.stationNum = data.countNum
         this.filterData.towerId = data.id
         // this.setLnglat(data.longitude, data.latitude)
-        this.showList()
+        if (this.stationNum > 0) {
+          this.showList()
+        }
       }
     },
     /*  地铁找房 */
     _patSubwayLineQueryRoom () {
       patSubwayLineQueryRoom(this.filterData).then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 1) {
           // this.topMarkers = res.data
           this.setTopMarker(res.data)
@@ -428,7 +449,7 @@ export default {
           this.setTopMarker(res.data)
           this.csAlert(res.data)
           if (res.data.length > 0) {
-            this.setCenterByData(res.data)
+            // this.setCenterByData(res.data)
           }
         }
       })
@@ -436,15 +457,15 @@ export default {
     /* 区域找房 */
     _patQueryRoom () {
       patQueryRoom(this.filterData).then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.code === 1) {
           // this.topMarkers = res.data
           this.setTopMarker(res.data)
           this.csAlert(res.data)
-          if (res.data.length > 0 && this.level !== 1) {
+          if (res.data.length > 0 && this.level !== 1 && this.filterData.longitude === null) {
             // console.log('center')
             // this.center = [res.data[0].longitude, res.data[0].latitude]
-            this.setCenterByData(res.data)
+            // this.setCenterByData(res.data)
             // this.center
           }
         }
@@ -470,12 +491,14 @@ export default {
     csfilter,
     Popup,
     houseslist,
-    searchPage
+    searchPage,
+    guide
   }
 }
 </script>
 
 <style lang="less" scoped>
+@import '../../styles/mixin.less';
 .header{
   position: relative;
   display: flex;
@@ -483,15 +506,16 @@ export default {
   line-height: 44px;
   padding: 0 15px;
   font-size: 16px;
-  color: #fff;
+  // color: #fff;
+  // background-color: #fff;
   .bg{
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    background-color: #000;
-    opacity: 0.1;
+    background-color: #fff;
+    // opacity: 0.1;
     // z-index: 5;
   }
   .center{
@@ -508,13 +532,35 @@ export default {
       font-size: 16px;
       opacity: 1;
     }
+    .line {
+      display: inline-block;
+      width: 1px;
+      height: 8px;
+      background-color: #a0a0a0;
+      margin: 0 10px;
+      vertical-align: middle;
+      position: relative;
+      top: -2px;
+    }
   }
   .left, .right{
+
     flex: 0 0 60px;
     z-index: 11;
+    font-size: 14px;
+  }
+  .left {
+    position: relative;
+    .icon {
+      position: absolute;
+    transform: rotate(-90deg);
+    right: -4px;
+    top: 15px;
+    }
   }
   .right{
     text-align: right;
+    font-size: 15px;
   }
   z-index: 10;
 }
@@ -528,13 +574,13 @@ export default {
   .btns{
     position: absolute;
     right: 15px;
-    bottom: 60px;
+    bottom: 70px;
     .btn{
       width: 44px;
       height: 44px;
       background-size: contain;
       &+.btn{
-        margin-top: 10px;
+        margin-top: 30px;
       }
       &.icon-filter {
         background-image: url(./icon/icon_quyuzhaofang@2x.png);
@@ -617,20 +663,30 @@ export default {
   overflow: scroll;
   .top {
     padding: 15px;
+    .border-1px;
+    .addr {
+      color: @gray
+    }
+    .name {
+      font-size: 15px;
+      .num{
+        color: @pink;
+      }
+    }
   }
 }
 .circle-marker{
   width: 52px;
   height: 52px;
   background-color: #2175e3;
-  box-shadow: 0px 4px 8px 0px rgba(33, 117, 227, 0.51);
+  // box-shadow: 0px 4px 8px 0px rgba(33, 117, 227, 0.51);
   border-radius: 50%;
   color: #fff;
   text-align: center;
   padding-top: 15px;
   font-size: 11px;
-      position: relative;
-    z-index: 100;
+  position: relative;
+  z-index: 100;
 }
 .local-icon{
   display: inline-block;

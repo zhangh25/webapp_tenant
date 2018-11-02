@@ -36,3 +36,17 @@ export function countDown (lasttime, duration) {
   return {hours, minutes, seconds}
   // console.log('小时：', hours, '  分：', minutes, '  秒： ', seconds)
 }
+
+export function getIdCard (str) {
+  if (str) {
+    return str.substring(0, 6) + '********' + str.substring(14, 18)
+  }
+  return str
+}
+
+export function getFullname (str) {
+  if (str) {
+    return str.substring(0, 1) + '*'
+  }
+  return str
+}

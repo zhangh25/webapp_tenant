@@ -24,6 +24,8 @@ AMap.initAMapApiLoader({
   // AMap.Autocomplete,AMap.PlaceSearch,AMap.MarkerClusterer,AMap.Geocoder,AMap.addToolbar,AMap.Geolocation
 })
 
+window.eventBus = new Vue() // 注册全局事件对象
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

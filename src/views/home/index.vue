@@ -3,31 +3,32 @@
     <div class="top">
       <Swipe :auto="4000" class="swipe">
         <SwipeItem v-for="item in bannarList" :key="item.id" class="swipe-item">
-          <img :src="item.imageurl">
+          <img :src="`${item.imageurl}?imageMogr2/auto-orient`">
         </SwipeItem>
         <!-- <SwipeItem style="background: #00ff00">2</SwipeItem>
         <SwipeItem style="background: #0000ff">3</SwipeItem> -->
       </Swipe>
-      <div class="header">
-        <div class="city"><span class="icon">{{city}}</span> <i class=""></i> </div>
+      <div class="header" :class="{sc: !istop}">
+        <div class="city" @click="$router.replace('/location')"><span class="icon">{{city}}</span> <i class=""></i> </div>
         <span class="input" @click="showSearch"><icon-svg class="icon" icon-class="search"></icon-svg> 输入你想住的区域或小区</span>
       </div>
     </div>
-    <div class="bar">
-      <div class="bar-item" v-for="item in roomMenuRespList" :key="item.id" @click="menuRespClick(item)">
+    <div class="bar border-1px">
+      <div class="bar-item" v-for="(item, i) in roomMenuRespList" :key="item.id" @click="menuRespClick(item)" v-if="i<4">
         <img :src="item.url" width="40" height="40"><br> <span class="title">{{item.name}}</span>
       </div>
     </div>
-    <div class="house-title">
-      精选房源 <div class="more" @click="listMore">查看更多<i class="icon-more"></i></div>
+    <div class="house-title border-1px">
+      <span style="font-weight:bold">精选房源</span> <div class="more" @click="listMore">查看更多<i class="icon-more"></i></div>
     </div>
-      <div class="list-item" v-for="item in roomList" :key="item.roomId" @click="houseDeatils(item.roomId)">
+      <div class="list-item border-1px" v-for="item in roomList" :key="item.roomId" @click="houseDeatils(item.roomId)">
         <div class="img">
-          <img :src="item.imageUrl" alt="">
+          <img :src="`${item.imageUrl}?imageMogr2/auto-orient`" alt="">
         </div>
         <div class="addr">
-          <span class="address">{{item.areaName}}-{{item.roomTitle}}</span>
-          <span class="price">{{parseInt(item.rent)}}元/月</span>
+          <span class="address" v-if="item.roomTitle">{{item.areaName}}-{{item.roomTitle}}</span>
+          <span class="address" v-else>{{item.areaName}}-{{item.name}}-{{item.buildName}}</span>
+          <span class="price"><span class="num">{{parseInt(item.rent)}}</span>元/月</span>
         </div>
         <div class="describe">{{item.typeName}}</div>
         <div class="describe address-detail"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template></div>
@@ -75,13 +76,25 @@ export default {
       roomList: [],
       roomMenuRespList: [],
       city: '深圳',
-      searchVisible: false
+      searchVisible: false,
+      istop: true
       // listVisible: false
     }
   },
 
   created () {
     this._getHomeList()
+  },
+  mounted () {
+    window.onscroll = (ev) => {
+      // console.log('2123----------', window.pageYOffset)
+      if (window.pageYOffset < 10) {
+        this.istop = true
+      } else {
+        this.istop = false
+      }
+    }
+    console.log(this.$route)
   },
   methods: {
     houseDeatils (id) {
@@ -100,17 +113,18 @@ export default {
     },
     search (val) {
       // console.log(val)
-      this.$router.push({
-        path: '/list',
-        query: {
-          content: val
-        }
-      })
+      // this.$router.push({
+      //   path: '/list',
+      //   query: {
+      //     content: val
+      //   }
+      // })
     },
     showSearch () {
       this.searchVisible = true
     },
     listMore () {
+      this.$store.dispatch('setCondition', {})
       this.$router.push('/list')
     },
     menuRespClick (item) {
@@ -140,25 +154,37 @@ export default {
     overflow: hidden;
     img{
       width: 100%;
+      height: 100%;
+    object-fit: cover;
     }
   }
 }
 .top{
   position: relative;
   .header {
-    position: absolute;
+    position: fixed;
     width: 100%;
-    margin-top: 6px;
+    // margin-top: 6px;
+    padding: 7px 0;
     text-align: center;
     top: 0;
+    transition: all .3s;
+    z-index: 2;
+    border-bottom: 1px solid transparent;
+    // .border-1px(transparent);
+    &.sc {
+      // .border-1px;
+      border-color: #f1f1f1;
+      background-color: #fff ;
+    }
     .input{
       display: inline-block;
-      color: #c3c3c3;
+      color: #484848;
       width: 283px;
       height: 30px;
       line-height: 30px;
       border-radius: 15px;
-      background-color: #fff;
+      background-color: #ececec;
       font-size: 12px;
       .icon-search{
         display: inline-block;
@@ -175,7 +201,7 @@ export default {
       float: left;
       padding-left: 10px;
       font-size: 14px;
-      color: #fff;
+      color: #484848;
       line-height: 30px;
       .icon:after {
         content:" ";
@@ -183,7 +209,7 @@ export default {
         width: 0;
         height: 0;
         margin-left: 6px;
-        border-top: 6px solid #fff;
+        border-top: 6px solid #484848;
         border-left: 6px solid transparent;
         border-right: 6px solid transparent;
         margin-bottom: 1px;
@@ -197,6 +223,7 @@ export default {
   background-color: #fff;
   margin-top: 10px;
   padding: 32px 0;
+  .border-1px;
   .bar-item{
     flex: 1;
     text-align: center;
@@ -209,14 +236,17 @@ export default {
   }
 }
 .house-title{
-  padding: 10px 15px;
+  padding: 10px 15px 0 15px;
   font-size: 18px;
   color: #222222;
-  border-top: 1px solid #f1f1f1;
-  border-bottom: 1px solid #f1f1f1;
+  // border-top: 1px solid #f1f1f1;
+  // border-bottom: 1px solid #f1f1f1;
+  // .border-1px;
+  background-color: #fff;
+  margin-top: 10px;
   .more {
     float: right;
-    color: @themeColor;
+    color: #848484;
     font-size: 12px;
     line-height: 22px;
   }
@@ -227,12 +257,15 @@ export default {
 .list-item{
   background-color: #fff;
   padding: 15px;
-  border-bottom: 1px solid #f1f1f1;
+  // border-bottom: 1px solid #f1f1f1;
+  .border-1px;
   .img{
     height: 175px;
     overflow: hidden;
     img{
       width: 100%;
+      height: 100%;
+    object-fit: cover;
     }
   }
   .addr {
@@ -240,10 +273,16 @@ export default {
     padding-top: 10px;
     .address{
       color: #353535;
+      font-weight: bold;
     }
     .price{
       float: right;
       color: #f42574;
+      font-size: 13px;
+      .num {
+        font-size: 15px;
+        font-weight: bold;
+      }
     }
   }
   .describe{

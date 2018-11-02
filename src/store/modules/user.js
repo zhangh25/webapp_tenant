@@ -6,7 +6,8 @@ const user = {
     phone: '13688886666',
     userData: JSON.parse(localStorage.getItem('user')),
     qiniuToken: '',
-    loginedPath: ''
+    loginedPath: '',
+    isfirst: localStorage.getItem('first')
   },
   mutations: {
     SET_TOKEN: (state, token) => {
@@ -20,6 +21,9 @@ const user = {
     },
     SET_LOGINEDPATH (state, path) {
       state.loginedPath = path
+    },
+    SET_FIRST (state, first) {
+      state.isfirst = first
     }
   },
   actions: {
@@ -68,6 +72,11 @@ const user = {
     },
     setPath ({commit}, path) {
       commit('SET_LOGINEDPATH', path)
+    },
+    setFirst ({commit}) {
+      // console.log('set first')
+      commit('SET_FIRST', 'first')
+      localStorage.setItem('first', 'first')
     }
   }
 }

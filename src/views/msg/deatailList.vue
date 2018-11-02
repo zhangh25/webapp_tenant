@@ -6,29 +6,15 @@
       <div class="right"></div>
     </div> -->
     <csheader>系统消息 <span ref="edit" class="edit" slot="right" @click="edit">编辑</span></csheader>
-
+    <div class="content">
     <div class="list" v-for="item in list" :key="item.id" :class="{read: item.status==1}">
       <div class="time">{{item.addTime}}</div>
       <div class="title">{{item.fileTitle}}</div>
       <div class="label">{{item.content}}</div>
       <Cell title="查看详情" is-link @click.native="goDetail(item)"></Cell>
     </div>
-    <div class="nomsg" v-if="list.length===0">
-      <img src="./icon/icon_wuxiaoxi@2x.png" alt="" width="132">
-      <div style="padding-top: 10px">暂无消息</div>
+    <nodata v-if="list.length===0" imgSrc="wuxiaoxitongzhi" text="暂无消息"></nodata>
     </div>
-    <!-- <div class="list read">
-      <div class="time">2012-12-12</div>
-      <div class="title">温馨提示：城宿免押金活动即将结束！</div>
-      <div class="label">活动于2018年9月14日18：00截止，活动结束后权益将自动失效......</div>
-      <Cell title="查看详情" is-link></Cell>
-    </div> -->
-    <!-- <div class="list">
-      <div class="time">2012-12-12</div>
-      <div class="title">温馨提示：城宿免押金活动即将结束！</div>
-      <div class="label">活动于2018年9月14日18：00截止，活动结束后权益将自动失效......</div>
-      <Cell title="查看详情" is-link></Cell>
-    </div> -->
     <Popup v-model="pupvisible" popup-transition="popup-fade" class="pop" :style="{ top: buttonBottom + 0 + 'px' }">
       <div class="item" @click="allRead">
         <img src="./icon/icon_yidu@2x.png" alt="" width="19" height="19"><span class="txt">全部已读</span>
@@ -37,14 +23,6 @@
         <img src="./icon/icon_qingkong@2x.png" alt="" width="19" height="19"><span class="txt">清空</span>
       </div>
     </Popup>
-    <!-- <mypop v-model="detailVisible" style="width:100%">
-      <template slot="title">消息详情</template>
-      <div class="list de">
-        <div class="time">{{detail.addTime}}</div>
-        <div class="title">{{detail.fileTitle}}</div>
-        <div class="label">{{detail.content}}</div>
-      </div>
-    </mypop> -->
   </div>
 </template>
 
@@ -53,6 +31,7 @@ import {queryUsersMessageDetails, usersReadMessage, usersDelMessage} from '@/api
 import csheader from '@/components/header'
 import {Cell, Popup} from 'mint-ui'
 import mypop from '@/components/myPopup'
+import nodata from 'components/nodata/index'
 export default {
   data () {
     return {
@@ -121,7 +100,7 @@ export default {
     this.getDetailiList()
   },
   components: {
-    csheader, Cell, Popup, mypop
+    csheader, Cell, Popup, mypop, nodata
   }
 }
 </script>
@@ -139,6 +118,10 @@ export default {
   .edit {
     display: inline-block;
   }
+}
+.content {
+  height: calc(100vh - 44px);
+  overflow: scroll;
 }
 .list {
   background-color: #ffffff;

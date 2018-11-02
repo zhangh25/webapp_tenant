@@ -3,21 +3,21 @@
     <div class="row">
       <Button class="btn" @click="clickNum(1)">1</Button>
       <Button class="btn" @click="clickNum(2)">2</Button>
-      <Button class="btn" @click="clickNum(2)">3</Button>
+      <Button class="btn" @click="clickNum(3)">3</Button>
     </div>
     <div class="row">
-      <Button class="btn" @click="clickNum(2)">4</Button>
-      <Button class="btn" @click="clickNum(2)">5</Button>
-      <Button class="btn" @click="clickNum(2)">6</Button>
+      <Button class="btn" @click="clickNum(4)">4</Button>
+      <Button class="btn" @click="clickNum(5)">5</Button>
+      <Button class="btn" @click="clickNum(6)">6</Button>
     </div>
     <div class="row">
-      <Button class="btn" @click="clickNum(2)">7</Button>
-      <Button class="btn" @click="clickNum(2)">8</Button>
-      <Button class="btn" @click="clickNum(2)">9</Button>
+      <Button class="btn" @click="clickNum(7)">7</Button>
+      <Button class="btn" @click="clickNum(8)">8</Button>
+      <Button class="btn" @click="clickNum(9)">9</Button>
     </div>
     <div class="row">
       <Button class="btn" disabled></Button>
-      <Button class="btn" @click="clickNum(2)">0</Button>
+      <Button class="btn" @click="clickNum(0)">0</Button>
       <Button class="btn" @click="delNum">x</Button>
     </div>
   </div>

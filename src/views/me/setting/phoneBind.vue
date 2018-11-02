@@ -6,10 +6,10 @@
       <div class="str">当前手机号：{{userData.phone}}</div>
       <div class="tip">绑定新手机后，下次登录可以使用新手机号登录。</div>
       <div class="form-item">
-        <input type="text" class="input" maxlength='11' v-model="formData.newPhone" placeholder="请输入新手机号">
+        <input type="number" class="input" maxlength='11' v-model="formData.newPhone" placeholder="请输入新手机号">
       </div>
       <div class="form-item cd">
-        <div class="code"><input type="text" class="input" v-model="formData.code" placeholder="请输入6位短信验证吗"></div>
+        <div class="code"><input type="number" class="input" v-model="formData.code" placeholder="请输入6位短信验证吗"></div>
         <Button type="primary" class="btn" @click="getCode">{{btnText}}</Button>
       </div>
       <div class="confirm" @click="change">确定</div>

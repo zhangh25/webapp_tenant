@@ -13,9 +13,9 @@ const service = axios.create({
 
 service.interceptors.request.use(
   config => {
-    if (store.getters.token) {
-      config.headers['token'] = store.getters.token
-    }
+    // if (store.getters.token) {
+    config.headers['token'] = store.getters.token
+    // }
     // console.log(config.path)
     if (debug) {
       config.url = `/api${config.url}`

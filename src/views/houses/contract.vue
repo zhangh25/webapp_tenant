@@ -1,9 +1,10 @@
 <template>
   <div class="confirm">
     <csheader>信息确认</csheader>
+    <div class="content">
     <div class="banner-imgs">
     <Swipe @change="handleChange">
-        <SwipeItem style="background: #ff0000" v-for="item in house.imageList" :key="item.index"><img :src="item.url" alt="" width="100%"></SwipeItem>
+        <SwipeItem style="background: #ff0000" v-for="item in house.imageList" :key="item.index"><img :src="item.url" alt="" class="img"></SwipeItem>
         <!-- <SwipeItem style="background: #120050">2</SwipeItem>
         <SwipeItem style="background: #af0000">3</SwipeItem> -->
       </Swipe>
@@ -11,40 +12,44 @@
     </div>
     <!-- <div class="ad"><img src="" alt=""></div> -->
     <div class="landlord">
-      <img class="img" :src="house.ownerUrl" width="27" height="27"> <span class="txt"> 房东 {{house.ownerName}}</span>
+      <img class="img" :src="house.ownerUrl" width="27" height="27"> <span class="txt"> 房东 {{house.ownerName|name}}</span>
     </div>
     <div class="house">
       <div class="pic">
         <img v-if="house.imageList" :src="house.imageList[0].url" alt="">
       </div>
       <div class="right">
-        <div class="title">{{house.areaName}}-{{house.roomTitle}}</div>
+        <div class="title">{{house.areaName}}-<template v-if="house.roomTitle">{{house.roomTitle}}</template><template v-else>{{house.name}}</template></div>
         <div class="name">{{house.typeName}}-{{house.roomArea}}㎡</div>
         <div v-if="house.rent" class="rent">{{house.rent}}元/月</div>
       </div>
     </div>
     <div class="info auth">
       <div class="title">签约信息</div>
-      <Field label="姓名" v-model="userData.realname" @click.native="auth" disabled></Field>
+      <mfield label="姓名" v-model="name" @click.native="auth" :font-size="14" disabled></mfield>
       <template v-if="userData.auditing === 1">
-        <Field label="身份证号" disabled v-model="userData.idNumber"></Field>
-        <Field label="性别" disabled v-model="sex"></Field>
+        <mfield label="身份证号" disabled v-model="idcard" :font-size="14"></mfield>
+        <mfield label="性别" disabled v-model="sex" :font-size="14"></mfield>
       </template>
-      <Field label="手机号" disabled v-model="userData.phone"></Field>
+      <mfield label="手机号" disabled v-model="userData.phone" :font-size="14"></mfield>
+      <!-- <mmfield label="手机号" v-model="userData.phone" :font-size="14"></mmfield> -->
       <template v-if="userData.auditing === 1">
-        <Field label="入住人数" v-model="formData.occupantNum" placeholder="请输入人数"></Field>
-        <Field label="租约起始日" v-model="formData.startTime" @click.native="openDate('pickerstart')" disabled placeholder="请选择日期"></Field>
-        <Field label="租约结束日" v-model="formData.endTime" @click.native="openDate('pickerend')" disabled placeholder="请选择日期"></Field>
-        <Field label="留言" type="textarea" placeholder="请输入留言" v-model="formData.content"></Field>
+        <mfield label="入住人数" v-model="formData.occupantNum" :font-size="14" placeholder="请输入人数"></mfield>
+        <mfield label="租约起始日" v-model="formData.startTime" @click.native="openDate('pickerstart')" :font-size="14" disabled placeholder="请选择日期" allow></mfield>
+        <mfield label="租约结束日" v-model="formData.endTime" @click.native="openDate('pickerend')" :font-size="14" disabled placeholder="请选择日期" allow></mfield>
+        <mfield label="留言" type="textarea" placeholder="请输入留言" v-model="formData.content" :font-size="14"></mfield>
       </template>
+      </div>
       <div class="dec">房屋租金、付款周期等信息，将由房东填写后发送给您，在您确认无误后即可签约。</div>
       <div class="btn"><Button class="" type="primary" size="large" :disabled="userData.auditing !== 1" @click="submit">确认信息，去签合同</Button></div>
+
     </div>
     <datetime-picker
       ref="pickerstart"
       v-model="startTime"
       type="date"
       :startDate="startdate"
+      :endDate="enddate"
       yearFormat="{value}年"
       month-format="{value}月"
       date-format="{value}日"
@@ -55,7 +60,8 @@
     <datetime-picker
       ref="pickerend"
       v-model="endTime"
-      :startDate="enddate"
+      :startDate="startdate2"
+      :endDate="enddate2"
       type="date"
       yearFormat="{value}年"
       month-format="{value}月"
@@ -77,8 +83,9 @@ import { isNumber } from '@/utils/validate'
 // import mypop from '@/components/myPopup'
 // import realname from '@/views/me/realname/index'
 import csheader from '@/components/header'
-import {Swipe, SwipeItem, Cell, Field, Button, DatetimePicker, Toast} from 'mint-ui'
-import {formatDate} from '@/utils/tool'
+import mfield from 'components/field'
+import {Swipe, SwipeItem, Cell, Button, DatetimePicker, Toast} from 'mint-ui'
+import {formatDate, getIdCard, getFullname} from '@/utils/tool'
 import {contractApply} from '@/api/appoint'
 export default {
   computed: {
@@ -90,8 +97,11 @@ export default {
   data () {
     return {
       startdate: null,
+      startdate2: null,
       startTime: null,
+      // startTime2: null,
       enddate: null,
+      enddate2: null,
       endTime: null,
       authVisible: false,
       curImgidx: 1,
@@ -106,20 +116,25 @@ export default {
         userName: null, // 用户
         startTime: null, // 开始时间
         endTime: null // 结束时间
-      }
+      },
+      name: null,
+      idcard: null
     }
   },
   created () {
-    this.startdate = this.enddate = new Date()
-    this.endTime = this.startTime = this.startdate
+    this.startTime = this.startdate = new Date()
+    this.enddate = new Date()
+    this.startdate2 = new Date()
+    this.endTime = this.enddate2 = new Date()
+    this.enddate.setDate(this.enddate.getDate() + 30)
     this.house = this.details
-    console.log(this.house)
-    console.log(this.userData)
     this.sex = this.sexName()
     this.formData.ownerId = this.house.ownerId
     this.formData.roomId = this.house.roomId
     this.formData.userId = this.userData.id
     this.formData.userName = this.userData.username
+    this.name = getFullname(this.userData.realname)
+    this.idcard = getIdCard(this.userData.idNumber)
   },
   methods: {
     sexName () {
@@ -139,10 +154,14 @@ export default {
     startChange (val) {
       // formatDate(, 'yyyy')
       // console.log(val)
-      this.enddate = new Date(this.startTime)
+      this.startdate2 = new Date(this.startTime)
+      // this.startTime2
     },
     startConfirm () {
       this.formData.startTime = formatDate(new Date(this.startTime), 'yyyy-MM-dd')
+      // this.enddate = new Date(this.startTime)
+      // this.startdate2 = this.startdate2.setDate(this.startTime.getDate())
+      this.enddate2.setDate(this.startdate2.getDate() + 30 * 3)
     },
     endChange (val) {
       // console.log(val)
@@ -198,7 +217,7 @@ export default {
     }
   },
   components: {
-    Swipe, SwipeItem, Cell, Field, Button, DatetimePicker, csheader // mypop, realname,
+    Swipe, SwipeItem, Cell, Button, DatetimePicker, csheader, mfield // mypop, realname,
   }
 }
 </script>
@@ -206,6 +225,17 @@ export default {
 <style lang="less" scoped>
 @import '../../styles/mixin.less';
 .confirm{
+  .content {
+    height: calc(100vh - 44px);
+    overflow: scroll;
+    .banner-imgs {
+      .img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
   .ad{
     height: 150px;
     background-color: aqua;
@@ -215,6 +245,8 @@ export default {
     background-color: #fff;
     .img{
       border-radius: 50%;
+      margin-right: 10px;
+      object-fit: cover;
     }
     .txt{
       font-size: 15px;
@@ -229,10 +261,11 @@ export default {
     .pic{
       flex: 0 0 98px;
       overflow: hidden;
-
+      height: 88px;
       img {
         width: 100%;
-        height: 85px;
+        height: 100%;
+        object-fit: cover;
       }
     }
     .right{
@@ -241,8 +274,10 @@ export default {
       padding-top: 12px;
       padding-bottom: 12px;
       background-color: #f1f1f1;
+      height: 88px;
       .title{
         font-size: 14px;
+        font-weight: bold;
       }
       .name{
         color: @gray;
@@ -261,7 +296,9 @@ export default {
       font-size: 15px;
       padding: 15px;
     }
-    .dec{
+
+  }
+}.dec{
       font-size: 12px;
       color: @gray;
       padding: 15px;
@@ -269,6 +306,4 @@ export default {
     .btn{
       padding: 15px;
     }
-  }
-}
 </style>

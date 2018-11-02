@@ -5,18 +5,18 @@
           <Spinner class="spi" type="fading-circle" :size="20">ggg</Spinner><span>加载中...</span>
         </div>
         <template v-else>
-          <div v-if="dataList.length>0" class="item" v-for="(item, idx) in dataList" :key="idx" @click="houseDeatil(item.roomId)">
-            <div class="left"><img :src="item.imageUrl" width="98"></div>
+          <div v-if="dataList.length>0" class="item border-1px" v-for="(item, idx) in dataList" :key="idx" @click="houseDeatil(item.roomId)">
+            <div class="left"><img :src="`${item.imageUrl}?imageMogr2/auto-orient`" width="98" class='img'></div>
             <div class="right">
               <div class="title">{{item.areaName}}-{{item.roomTitle}}</div>
               <div class="dec">{{item.typeName}}-{{item.roomArea}}㎡</div>
               <div class="dec"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template></div>
-              <div class="price">{{item.rent}}元/月</div>
+              <div class="price"><span class="num">{{parseInt(item.rent)}}</span>元/月</div>
             </div>
           </div>
-          <div class="null" v-if="dataList.length>4&&allLoaded">无更多数据了</div>
+          <div class="null" v-if="dataList.length>1&&allLoaded">已经全部加载完毕</div>
         </template>
-        <div v-if="!loading&&dataList.length===0" class="null">暂无房源数据</div>
+        <div v-if="!loading&&dataList.length===0" class="null">未搜到对应房源，以下是推荐房源</div>
       </Loadmore>
     </div>
     <!-- <div class="con-list">
@@ -40,6 +40,14 @@ export default {
     filterData: {
       default: () => {},
       type: Object
+    },
+    firstaddr: {
+      type: String,
+      default: ''
+    },
+    height: {
+      default: null,
+      type: [String, Number]
     }
   },
   data () {
@@ -80,7 +88,11 @@ export default {
   },
   mounted () {
     console.log('sssas')
-    this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top
+    if (this.height) {
+      this.wrapperHeight = this.height
+    } else {
+      this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top
+    }
     // this._getHouseList()
     this.isFrist = true
     // console.log(this.wrapperHeight)
@@ -102,7 +114,7 @@ export default {
       //   //     this.list.push(lastValue + i)
       //   //   }
       //   // } else {
-      //   //   this.allLoaded = true
+      //   //   this.allLoaded = true 400-67px = 333
       //   // }
       //   if (this.$refs.loadmore) { this.$refs.loadmore.onBottomLoaded() }
       // }, 15000)
@@ -130,6 +142,11 @@ export default {
           res.data.forEach(value => {
             this.dataList.push(value)
           })
+          let addr = ''
+          if (this.dataList.length > 0) {
+            addr = this.dataList[0].metroIfo ? this.dataList[0].metroIfo : this.dataList[0].streetName
+            this.$emit('update:firstaddr', addr)
+          }
           if (res.data.length === this.fData.rows) {
             this.fData.startRow++
           } else {
@@ -158,15 +175,21 @@ export default {
 @import '../../styles/mixin.less';
 .con-list{
   overflow: scroll;
-  border-top: 1px solid #f1f1f1;
+  // border-top: 1px solid #f1f1f1;
+  // .border-1px;
   .item{
     display: flex;
     background-color: #fff;
     padding: 15px;
     // border-bottom: 1px solid #ccc;
-    .border-1px(#f1f1f1);
+    // .border-top-1px;
+    .border-1px;
     .left{
       flex: 0 0 117px;
+      .img {
+        height: 65px;
+        object-fit: cover;
+      }
     }
     .right{
       position: relative;
@@ -174,6 +197,7 @@ export default {
       padding-left: 11px;
       .title {
         font-size: 14px;
+        font-weight: bold;
       }
       .dec{
         color: @gray;
@@ -185,6 +209,10 @@ export default {
         color: @pink;
         right: 0;
         top: 0;
+        .num {
+          font-size: 15px;
+          font-weight: 600;
+        }
       }
     }
   }
@@ -201,7 +229,7 @@ export default {
   }
   .null {
     text-align: center;
-    color: @gray;
+    // color: @gray;
     margin: 20px 0;
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-top: 44px">
+  <div>
     <csheader>常见问题</csheader>
     <div class="proplem">
       <div v-for="(item, i) in faq" :key="i" class="list">
@@ -22,7 +22,7 @@ export default {
         },
         {
           title: 'Q : 请问预约看房的流程是怎么样的？',
-          content: 'A : 在房源页点击预约看房，选择房型与时间后,预约信息会被推送给公寓、物业管理员或房东。对方会尽快与您联系，确认看房时间后,按约定的时间去看房就可以。预约后关注城宿网微信公众号可以查看公寓、物管理员或房东联系方式，并实时接收预约确认通知，点击预约通知或房源页的地图链接，还可以直接导航。预约和看房的过程中有任何问题，都可以拨打服务热线(0755-82462229)与我们的客服联系。'
+          content: 'A : 在房源页点击预约看房，选择房型与时间后,预约信息会被推送给公寓、物业管理员或房东。对方会尽快与您联系，确认看房时间后,按约定的时间去看房就可以。预约后关注城宿网微信公众号可以查看公寓、物管理员或房东联系方式，并实时接收预约确认通知，点击预约通知或房源页的地图链接，还可以直接导航。预约和看房的过程中有任何问题，都可以拨打服务热线(0755-82462123)与我们的客服联系。'
         },
         {
           title: 'Q : 请问通过你们城宿租房会收取中介费吗？',
@@ -44,10 +44,13 @@ export default {
 <style lang="less" scoped>
 @import '../../../styles/mixin.less';
 .proplem{
+  height: calc(100vh - 44px);
   padding: 0 15px;
+  overflow: scroll;
 }
 .list{
-  padding-top: 30px;
+  padding-top: 20px;
+  padding-bottom: 10px;
   .title{
     font-size: 15px;
     color: @themeColor;

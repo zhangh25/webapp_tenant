@@ -41,7 +41,6 @@ export default {
 <style lang="less" scoped>
 @import '../../styles/mixin.less';
 .connent{
-  padding-top: 44px;
   .textarea{
     width: 100%;
     height: 200px;

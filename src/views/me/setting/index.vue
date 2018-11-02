@@ -1,12 +1,13 @@
 <template>
   <div class="setting">
     <csheader>设置</csheader>
-    <div>
-      <Cell title="手机号" is-link @click.native="bindPhone"></Cell>
-      <Cell title="常见问题" is-link to="/problem"></Cell>
+    <div class="cell-wrapper border-1px">
+      <cell title="手机号" is-link @click.native="bindPhone"></cell>
+      <cell title="修改登录密码" is-link @click.native="updatePassword"></cell>
+      <cell title="常见问题" is-link to="/problem"></cell>
     </div>
-    <div style="margin-top: 20px;">
-      <Cell title="清除缓存" is-link></Cell>
+    <div style="margin-top: 20px;" class="cell-wrapper border-1px cl">
+      <cell title="清除缓存" is-link></cell>
     </div>
     <!-- <Button size="large">退出登录</Button> -->
     <div class="quit" @click="quit" v-if="token">退出登录</div>
@@ -23,7 +24,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import {Cell, Toast} from 'mint-ui'
+import {Toast} from 'mint-ui'
+import cell from 'components/cell'
 import mypop from '@/components/myPopup'
 import phone from './phoneBind'
 import problem from './problem'
@@ -57,12 +59,21 @@ export default {
         this.$router.push('/phone')
       } else {
         // Toast('您未登录')
+        this.$store.dispatch('setPath', '/phone')
+        this.$router.push('/login')
+      }
+    },
+    updatePassword () {
+      if (this.token) {
+        this.$router.push('/password')
+      } else {
+        this.$store.dispatch('setPath', '/password')
         this.$router.push('/login')
       }
     }
   },
   components: {
-    Cell,
+    cell,
     mypop,
     phone,
     problem,
@@ -73,9 +84,8 @@ export default {
 
 <style lang="less" scoped>
 @import '../../../styles/mixin.less';
-.setting {
-  padding-top: 44px;
-}
+// .setting {
+// }
 .quit{
   margin: 15px;
   margin-top: 40px;
@@ -86,5 +96,12 @@ export default {
   text-align: center;
   height: 40px;
   line-height: 40px;
+  // .border-top-1px;
+}
+.cl {
+  .border-1px;
+}
+.cell-wrapper {
+  .border-1px;
 }
 </style>

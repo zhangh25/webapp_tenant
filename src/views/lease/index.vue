@@ -2,38 +2,43 @@
   <div>
     <csheader>
       <div class="t">租约管理</div>
-      <div slot="right" class="record" @click="record">签约记录</div>
+      <div slot="right" class="record" @click="record">租约记录 <icon-svg icon-class="back" class="icon"></icon-svg></div>
     </csheader>
-    <div v-if="list.length<1" class="nodata"><img src="./icon/zufang.png" alt=""></div>
+    <div class="content">
+      <nodata v-if="list.length<1" imgSrc="wuzuyuejilu" text="暂无租约记录"></nodata>
     <div class="list" v-for="item in list" :key="item.id" @click="goDetail(item)">
       <div class="up">
         <div class="left">
           <img :src="item.imageUrl" alt="">
         </div>
         <div class="right">
-          <div class="name">{{item.roomTitle}} <div class="state" :class="{active: item.orderStatus==6, pink: item.orderStatus==5}">{{status[item.orderStatus]}}</div></div>
+          <div class="name">
+            <div class="txt" v-if="item.roomTitle">{{item.roomTitle}} </div>
+            <div class="txt" v-else>{{item.name}} </div>
+            <div class="state" :class="{active: item.orderStatus==6, pink: item.orderStatus==5}">{{status[item.orderStatus]}}</div></div>
           <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
-          <div class="addr">{{item.rent}}元/月</div>
+          <div class="addr"><span class="num">{{item.rent}}</span>元/月</div>
         </div>
       </div>
       <div class="bt">看房时间：{{item.addTime}}</div> <!--暂时看房时间-->
       <div class="btns">
         <div class="item">
-          <Button @click="call(item.phone)">联系房东</Button>
+          <Button @click.stop="call(item.ownerPhone)">联系房东</Button>
         </div>
         <div class="item">
-          <Button>合 同</Button>
+          <Button @click.stop="">合 同</Button>
         </div>
         <div class="item">
-          <Button>账 单</Button>
+          <Button @click.stop="$router.push('/bill')">账 单</Button>
         </div>
         <div class="item" v-if="item.orderStatus==6">
-          <Button @click="retireRoom(item)">申请退房</Button>
+          <Button @click.stop="retireRoom(item)">申请退房</Button>
         </div>
         <div class="item" v-else-if="item.orderStatus==7||item.orderStatus==8">
-          <Button @click="cancelApply(item)">取消申请</Button>
+          <Button @click.stop="cancelApply(item)">取消申请</Button>
         </div>
       </div>
+    </div>
     </div>
     <!-- <div class="list" >
       <div class="up">
@@ -66,16 +71,18 @@
       <template slot="title">申请退房</template>
 
     </mypop> -->
+    <iframe style="display: none" ref="iframe" src="" frameborder="0"></iframe>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
-import {Button} from 'mint-ui'
+import {Button, MessageBox} from 'mint-ui'
 import {queryLeaseOrder, cancelApplyRetireRoom} from '@/api/appoint'
 import mypop from '@/components/myPopup'
 import checkout from './checkout'
+import nodata from 'components/nodata/index'
 export default {
   computed: {
     ...mapGetters(['houselease'])
@@ -109,7 +116,22 @@ export default {
     })
   },
   methods: {
-    call (phone) {},
+    call (phone) {
+      if (phone) {
+        MessageBox({
+          title: '',
+          message: phone,
+          showCancelButton: true,
+          confirmButtonText: '呼叫'
+        }).then(s => {
+        // console.log('ddd', s)
+          if (s === 'confirm') {
+          // console.log('ssd1')
+            this.$refs.iframe.src = `tel:${phone}`
+          }
+        })
+      }
+    },
     record () {
       this.$router.push('/leaseRecord')
     },
@@ -134,7 +156,7 @@ export default {
     }
   },
   components: {
-    csheader, Button, mypop, checkout
+    csheader, Button, mypop, checkout, nodata
   }
 }
 </script>
@@ -149,12 +171,20 @@ export default {
   position: absolute;
   color: @gray;
   right: 10px;
+  .icon {
+    transform: rotate(180deg)
+  }
+}
+.content{
+  height: calc(100vh - 44px);
+  overflow: scroll;
 }
 .list{
     padding: 15px;
     overflow: hidden;
     background-color: #fff;
     margin-bottom: 10px;
+    // .border-1px;
     .up{
       display: flex;
       .left{
@@ -162,15 +192,31 @@ export default {
         background-color: #222;
         margin-right: 18px;
         img {
-          max-width: 100%;
+          width: 100%;
+          height: 100%;
+          object-fit:cover;
         }
       }
       .right{
         flex: 1;
+        min-width:0;
         .name {
+          position: relative;
           font-size: 15px;
+          font-weight: bold;
+          .txt {
+            padding-right: 70px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
           .state{
-            float: right;
+            position: absolute;
+
+            font-weight: normal;
+            // float: right;
+            top: 0;
+            right: 0;
             font-size: 14px;
             &.active{
               color: @themeColor;
@@ -191,10 +237,11 @@ export default {
         .addr{
           padding-top: 10px;
           font-size: 12px;
-          color: @gray;
-          // overflow: hidden;
-          // text-overflow: ellipsis;
-          // white-space: nowrap;
+          color: @pink;
+          .num{
+            font-size: 15px;
+            font-weight: bold;
+          }
         }
       }
     }
@@ -217,10 +264,19 @@ export default {
     }
   }
   .nodata{
-    text-align: center;
-    padding-top: 60px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .box{
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      color: @gray;
+    }
     img{
-      width: 150px;
+      width: 114px;
+      margin-bottom: 30px;
     }
   }
 </style>

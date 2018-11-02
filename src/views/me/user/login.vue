@@ -1,30 +1,34 @@
 <template>
-  <div class="login">
+  <div class="login" @keyup.enter="login">
     <div class="close">
       <i class="icon-close" @click="$router.go(-1)"></i>
     </div>
-    <div class="title">你好，</div>
+    <div class="title">您好，</div>
     <div class="describe">欢迎来到城宿，让租房更简单</div>
     <div style="margin-top: 30px">
       <div class="form-item">
         <i class="icon icon-phone"></i>
         <input class="input" type="text" maxlength='11' v-model="formData.phone" placeholder="请输入手机号码" style="">
+        <div class="border-1px"></div>
       </div>
       <div class="form-item" v-if="loginType === 1 || loginType === 3">
         <i class="icon icon-code"></i>
         <input class="input" type="text" maxlength='6' ref="code" v-model="formData.code" placeholder="输入验证码">
         <div class="code" @click="getCode">{{btnTxt}}</div>
+        <div class="border-1px"></div>
       </div>
       <div class="form-item" v-if="loginType === 2">
         <i class="icon icon-pwd"></i>
         <input class="input" type="password" v-model="formData.password" placeholder="输入密码">
+        <div class="border-1px"></div>
       </div>
       <div class="form-item" v-if="loginType === 3">
         <i class="icon icon-pwd"></i>
         <input class="input" type="password" v-model="formData.password" placeholder="输入密码">
+        <div class="border-1px"></div>
       </div>
       <div class="btns">
-        <template v-if="loginType !== 3"> <checklist v-model="agree" :options='["同意"]' class="login-check"></checklist> <span class="clause" @click="visibleProtocol=true">《城宿租房条款》</span>
+        <template v-if="loginType !== 3"> <checklist v-model="agree" :options='["同意"]' class="login-check"></checklist> <span class="clause" @click="$router.push('/protocol')">《城宿租房条款》</span>
         <div class="forget" @click="forgetPwd" v-if="loginType === 2">忘记密码?</div></template>
         <Button type="primary" class="btn" style="margin-top: 20px" @click.native="login">{{loginType !== 3 ? '登录' : '确认'}}</Button>
         <div class="btn-pwd" @click="switchType" v-if="loginType !== 3">使用{{ loginType === 1 ? '密码' : '验证码'}}登录</div>
@@ -306,7 +310,7 @@ export default {
   bottom: 0;
   left: 0;
   background-color: #fff;
-  z-index: 10;
+  // z-index: 10;
 }
 .close {
   padding: 15px;
@@ -339,7 +343,11 @@ input::placeholder {
     border: none;
     padding: 20px 30px;
     outline:none;
-    border-bottom: 1px solid #eee;
+    // border-bottom: 1px solid #eee;
+    // .border-1px;
+  }
+  .border-1px {
+    .border-1px;
   }
   &.pwd{
     padding: 0;

@@ -11,6 +11,12 @@ const getters = {
   allowBack: state => state.message.allowBack,
   details: state => state.hourse.details,
   condition: state => state.hourse.condition,
-  loginedPath: state => state.user.loginedPath
+  loginedPath: state => state.user.loginedPath,
+  pacturl: state => state.lease.pacturl,
+  leaseId: state => state.lease.leaseId,
+  pay: state => state.wallet.pay,
+  licence: state => state.lease.licence,
+  billdetail: state => state.wallet.billdetail,
+  isfirst: state => state.user.isfirst
 }
 export default getters

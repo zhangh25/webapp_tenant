@@ -1,25 +1,27 @@
 <template>
   <div class="record">
     <csheader></csheader>
+    <div class="content">
     <div class="title">租约记录</div>
-    <div class="tab"><span class="tab-item" v-for="item in tabs" :key="item.id" :class="{active: item.id === active}" @click="active=item.id">{{item.name}}</span></div>
+    <div class="tab border-1px"><span class="tab-item" v-for="item in tabs" :key="item.id" :class="{active: item.id === active}" @click="active=item.id">{{item.name}}</span></div>
     <TabContainer v-model="active" swipeable>
       <TabContainerItem id="unfinished">
-        <div class="list" v-for="item in unfinishList" :key="item.id" @click="goDetailStep(item)">
+        <div class="list border-1px" v-for="item in unfinishList" :key="item.id" @click="goDetailStep(item)">
           <div class="up">
             <div class="left"><img :src="item.imageUrl" alt=""></div>
             <div class="right">
-              <div class="name">{{item.roomTitle}} <div class="state" :class="{active: item.orderStatus==6, pink: item.orderStatus==3||item.orderStatus==7}">{{status[item.orderStatus]}}</div></div>
+              <div class="name"><template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.areaName}}-{{item.name}}</template> <div class="state" :class="{active: item.orderStatus==0, pink: item.orderStatus==3||item.orderStatus==7 || item.orderStatus == 4}">{{status[item.orderStatus]}}</div></div>
               <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
-              <div class="addr">{{item.rent}}元/月</div>
+              <div class="addr"><span class="num">{{item.rent}}</span>元/月</div>
             </div>
           </div>
           <div class="bt">看房时间：</div>
           <div class="btns">
-            <div class="item"><Button @click="call(item.ownerPhone)">联系房东</Button></div>
+            <div class="item"><Button @click.stop="call(item.ownerPhone)">联系房东</Button></div>
             <div class="item"><Button @click.stop="cancel(item.id)">取消签约</Button></div>
           </div>
         </div>
+        <nodata v-if="unfinishList.length<1&&active==='unfinished'" imgSrc="wuzuyuejilu" text="暂无租约记录"></nodata>
         <!-- <div class="list" >
           <div class="up">
             <div class="left"><img alt=""></div>
@@ -36,21 +38,22 @@
         </div> -->
       </TabContainerItem>
       <TabContainerItem id="finished">
-        <div class="list" v-for="item in finishList" :key="item.id" @click="goDetail(item)">
+        <div class="list border-1px" v-for="item in finishList" :key="item.id" @click="goDetail(item)">
           <div class="up">
             <div class="left"><img :src="item.imageUrl" alt=""></div>
             <div class="right">
-              <div class="name">{{item.roomTitle}} <div class="state">{{status[item.orderStatus]}}</div></div>
+              <div class="name"><template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.areaName}}-{{item.name}}</template> <div class="state">{{status[item.orderStatus]}}</div></div>
               <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
-              <div class="addr">{{item.rent}}元/月</div>
+              <div class="addr"><span class="num">{{item.rent}}</span>元/月</div>
             </div>
           </div>
           <div class="bt">看房时间：</div>
           <div class="btns">
-            <div class="item"><Button @click="call(item.ownerPhone)">联系房东</Button></div>
+            <div class="item"><Button @click.stop="call(item.ownerPhone)">联系房东</Button></div>
             <!-- <div class="item"><Button @click.stop="cancel(item.id)">取消签约</Button></div> -->
           </div>
         </div>
+        <nodata v-if="finishList.length<1&&active==='finished'" imgSrc="wuzuyuejilu" text="暂无租约记录"></nodata>
         <!-- <div class="list">
           <div class="up">
             <div class="left">
@@ -85,20 +88,23 @@
         </div> -->
       </TabContainerItem>
     </TabContainer>
+    </div>
+    <iframe style="display: none" ref="iframe" src="" frameborder="0"></iframe>
   </div>
 </template>
 
 <script>
 import csheader from '@/components/header'
-import {TabContainer, TabContainerItem, Button, Toast} from 'mint-ui'
+import {TabContainer, TabContainerItem, Button, Toast, MessageBox} from 'mint-ui'
 import {queryLeaseOrder} from '@/api/appoint'
+import nodata from 'components/nodata/index'
 export default {
   data () {
     return {
       active: 'unfinished',
       tabs: [
-        {id: 'unfinished', name: '未完成签约'},
-        {id: 'finished', name: '已完成签约'}
+        {id: 'unfinished', name: '未完成租约'},
+        {id: 'finished', name: '已完成租约'}
       ],
       unfinishList: [],
       finishList: [],
@@ -136,6 +142,22 @@ export default {
       //   }
       // })
     },
+    call (phone) {
+      if (phone) {
+        MessageBox({
+          title: '',
+          message: phone,
+          showCancelButton: true,
+          confirmButtonText: '呼叫'
+        }).then(s => {
+        // console.log('ddd', s)
+          if (s === 'confirm') {
+          // console.log('ssd1')
+            this.$refs.iframe.src = `tel:${phone}`
+          }
+        })
+      }
+    },
     goDetail (item) {
       this.$router.push(`/leaseDetail/${item.id}`) // leaseDetail
     },
@@ -144,7 +166,7 @@ export default {
     }
   },
   components: {
-    csheader, TabContainer, TabContainerItem, Button, Toast
+    csheader, TabContainer, TabContainerItem, Button, Toast, nodata
   }
 }
 </script>
@@ -152,47 +174,65 @@ export default {
 <style lang="less" scoped>
 @import '../../styles/mixin.less';
 .record {
-  background-color: #fff;
+  // background-color: #fff;
   .title{
     padding: 15px;
     font-size: 17px;
+    background-color: #fff;
+  }
+  .content {
+    height: calc(100vh - 44px);
+    overflow: scroll;
   }
   .tab {
     font-size: 15px;
     line-height: 30px;
     padding: 0 15px;
     color: @gray;
+    background-color: #fff;
+    // border-bottom: 1px solid #f1f1f1;
+    .border-1px;
     .tab-item{
       display: inline-block;
       margin-right: 50px;
-      border-bottom: 2.5px solid transparent;
+      border-bottom: 2px solid transparent;
       padding: 8px 0;
+      position: relative;
+      z-index: 2;
       &.active{
         color: #353535;
-        border-bottom: 2.5px solid @themeColor;
+        border-bottom: 2px solid @themeColor;
       }
     }
   }
   .list{
     padding: 15px;
     overflow: hidden;
+    background-color: #fff;
+    margin-bottom: 10px;
+    // border-bottom: 1px solid #f1f1f1;
+    .border-1px;
     .up{
       display: flex;
       .left{
         flex: 0 0 98px;
-        background-color: #222;
+        // background-color: #222;
         margin-right: 18px;
         img{
-          max-width: 100%;
+          height: 100%;
+          width: 100%;
+          object-fit: cover;
         }
       }
       .right{
         flex: 1;
         .name {
           font-size: 15px;
+          font-weight: bold;
           .state{
             float: right;
             font-size: 14px;
+            font-weight: normal;
             &.active{
               color: @themeColor;
             }
@@ -210,9 +250,13 @@ export default {
           // white-space: nowrap;
         }
         .addr{
-          padding-top: 10px;
+          padding-top: 8px;
           font-size: 12px;
-          color: @gray;
+          color: @pink;
+          .num{
+            font-size: 15px;
+            font-weight: bold;
+          }
           // overflow: hidden;
           // text-overflow: ellipsis;
           // white-space: nowrap;
@@ -220,7 +264,8 @@ export default {
       }
     }
     .bt{
-      padding-top: 15px;
+      padding: 15px 0;
+      border-bottom: 1px dashed #e5e5e5;
       &.leavemsg{
         padding-bottom: 15px;
         border-bottom: 1px dashed #e5e5e5;

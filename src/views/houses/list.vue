@@ -1,15 +1,15 @@
 <template>
   <div>
     <csheader class="top">
-      <!-- <div class="mid" @click="searchVisible=true"><icon-svg class="icon" icon-class="search"></icon-svg> 输入你想住的区域或小区</div> -->
-      <input class="mid" type="text" placeholder="输入你想住的区域或小区" v-model="keyword" @keyup.enter="cssearch">
+      <div class="mid" @click="$router.push('/search')"><icon-svg class="icon" icon-class="search"></icon-svg> 输入你想住的区域或小区</div>
+      <!-- <input class="mid" type="text" placeholder="输入你想住的区域或小区" v-model="keyword" @keyup.enter="cssearch"> -->
       <i slot="right" @click="$router.push('/map')" class="addr-icon"></i>
     </csheader>
-    <div class="bar">
+    <div class="bar border-1px">
       <div class="item" v-for="(item, idx) in barTitile" :class="{active: idx===openType}" :key="idx" @click="open(idx)">{{item}}<icon-svg class="icon" icon-class="triangle"></icon-svg></div>
-      <div class="model" v-show="showModel">
+      <div class="model border-1px" v-show="showModel">
         <div class="address" v-show="openType===0">
-          <ul class="one"><li v-for="(item, idx) in addrTypes" :key="idx" :class="{active: addrIdx=== idx}" @click="addrClick(idx)"><span class="txt">{{item}}</span></li></ul>
+          <ul class="one"><li v-for="(item, idx) in addrTypes" :key="idx" :class="{active: addrIdx=== idx}" @click="addrClick(idx)"><span class="txt">{{item}}<i class="blank"></i></span></li></ul>
           <ul class="two">
             <li v-if="twoArr.length>0" @click="twoUnlimited">不限</li>
             <li v-for="item in twoArr" :key="item.id" :class="{active: twoId===item.id}" @click="twoClick(item)">
@@ -23,7 +23,7 @@
           </ul>
         </div>
         <ul class="sort" v-show="openType===1">
-          <li v-for="item in sortType" :key="item.id" @click="orderClick(item)" :class="{active: item.id===order.id}">{{item.name}}</li>
+          <li v-for="item in sortType" :key="item.id" @click="orderClick(item)" class="border-1px" :class="{active: item.id===order.id}">{{item.name}}</li>
         </ul>
         <csfilter v-show="openType===2" v-model="filterData" height="340px"></csfilter>
         <!-- <div class="morefilter" v-if="openType===2">
@@ -172,7 +172,8 @@ export default {
     // if ()
     this.queryData = this.condition
     this.$refs.list.getHouseListFrist(this.queryData)
-    // this.$store.dispatch('setCondition', {})
+    this.queryData.content = ''
+    this.$store.dispatch('setCondition', this.queryData)
   },
   methods: {
     cssearch () {
@@ -197,8 +198,8 @@ export default {
       // this.showModel = false
       this.hideModel()
       if (data.rent.id) {
-        this.queryData.maxRent = data.rent.maxRent
-        this.queryData.minRent = data.rent.minRent
+        this.queryData.maxRent = data.rent.max
+        this.queryData.minRent = data.rent.min
       }
       this.queryData.configResp = data.configResp.map(item => item.id).join(',')
       this.queryData.hotTagResp = data.hotTagResp.map(item => item.id).join(',')
@@ -396,7 +397,7 @@ ul {
   display: flex;
   padding: 15px 0;
   background-color: #fff;
-
+  .border-1px;
   z-index: 10;
   >.item{
     flex: 1;
@@ -413,6 +414,7 @@ ul {
   }
 }
 .model{
+  .border-top-1px;
   position: absolute;
   width: 100%;
   top: 47px;
@@ -420,7 +422,7 @@ ul {
   max-height: 400px;
   background-color: #fff;
   // overflow-y: scroll;
-  border-top: 1px solid #f1f1f1;
+  // border-top: 1px solid #f1f1f1;
   .address {
     display: flex;
     text-align: center;
@@ -439,11 +441,18 @@ ul {
       }
     }
     .one{
+      background-color: #fff;
       .active .txt{
         display: inline-block;
-        padding: 0 20px;
+        // width: 66px;
+        padding: 0 17px;
         border-left: 3px solid @themeColor;
         border-right: 3px solid transparent;
+      }
+      .blank {
+        display: inline-block;
+        width: 17px;
+        height: 1px;
       }
     }
     .two {
@@ -460,7 +469,8 @@ ul {
     text-align: center;
     li{
       padding: 15px;
-      border-bottom: 1px solid #f1f1f1;
+      // border-bottom: 1px solid #f1f1f1;
+      .border-1px;
       color: @gray;
       &.active {
         color: @themeColor;
@@ -504,17 +514,26 @@ ul {
   }
 }
 .mid{
-  width: 100%;
-  text-align: center;
-  border: none;
-  box-shadow: 0px 1px 5px 0px #eceaea;
-  border-radius: 5px;
+  // width: 100%;
+  // text-align: center;
+  // border: none;
+  // box-shadow: 0px 1px 5px 0px #eceaea;
+  // border-radius: 5px;
+  // height: 30px;
+  // margin-top: 5px;
+  // line-height: 30px;
+  // &::placeholder{
+  //   color: @gray;
+  // }
+  // display: inline-block;
+  color: #484848;
+  width: 283px;
   height: 30px;
-  margin-top: 5px;
+  margin: 7px auto;
   line-height: 30px;
-  &::placeholder{
-    color: @gray;
-  }
+  border-radius: 15px;
+  background-color: #ececec;
+  font-size: 12px;
 }
 .model-bg {
   position: fixed;
@@ -524,6 +543,7 @@ ul {
   left: 0;
   background-color: #313131;
   opacity: .3;
+  z-index: 4;
 }
 .top {
   z-index: 10;

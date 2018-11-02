@@ -1,22 +1,28 @@
 <template>
-  <div class="details" >
+  <div class="details">
+    <template v-if="deatil.roomId&&!loading">
     <div class="top">
       <div class="banner-imgs">
         <Swipe class="swipe" @change="handleChange">
-          <SwipeItem style="background: #ff0000" v-for="item in deatil.imageList" :key="item.index"><img :src="item.url" alt="" width="100%"></SwipeItem>
+          <SwipeItem v-for="item in deatil.imageList" :key="item.index"><img :src="`${item.url}?imageMogr2/auto-orient`" alt="" class="img"></SwipeItem>
         </Swipe>
         <div class="tip" v-if="deatil.imageList&&deatil.imageList.length > 0">{{curImgidx}}/{{deatil.imageList.length}}</div>
       </div>
-      <div class="header" :class="{scroll: !istop}">
-        <i class="icon-back" @click="hiden"></i>
+      <!-- <csheader >{{deatil.areaName}}{{deatil.roomTitle}}</csheader> -->
+      <div class="header border-1px" :class="{scroll: !istop}">
+        <!-- <i class="icon-back"></i> -->
+        <div class="left" @click="hiden"><icon-svg icon-class="back" class="icon"></icon-svg></div>
+        <div class="center">{{deatil.areaName}}{{hourseTitle}}</div>
+        <div class="right"></div>
       </div>
     </div>
-    <div class="general">
-      <div class="addr"><span class="address">{{deatil.areaName}}-{{deatil.roomTitle}}</span>
+    <div class="content">
+    <div class="general border-1px">
+      <div class="addr"><span class="address">{{deatil.areaName}}-{{hourseTitle}}</span>
       <!-- <span class="date">6月19号可入住</span> -->
       </div>
-      <div>
-        <span class="price">{{deatil.rent}}元/月</span>
+      <div style="font-size: 12px">
+        <span class="price"><span class="num">{{deatil.rent}}</span>元/月</span>
         <span class="pay-way">{{deatil.depositWay}}</span>
       </div>
       <div class="btns">
@@ -29,51 +35,55 @@
       </div>
 
     </div>
-    <div class="desc">
+    <div class="desc border-1px">
         <div class="item" v-if="deatil.roomArea">{{deatil.roomArea?deatil.roomArea:0}}㎡</div>
         <div class="item" v-if="deatil.typeName">{{deatil.typeName}}</div>
         <div class="item" v-if="deatil.floorNumber">{{deatil.floorNumber}}/{{deatil.floorTotal}}层</div>
         <div class="item" v-if="deatil.orientation">{{deatil.orientation}}</div>
     </div>
-    <div class="addr-detail" v-if="deatil.address">
-      <i class="icon-addr"></i>{{deatil.address}}
+    <div class="addr-detail border-1px" v-if="deatil.metroIfo">
+      <i class="icon-addr"></i>{{deatil.metroIfo}}
     </div>
-    <div class="box  device" v-if="deatil.roomConfigRespList&&deatil.roomConfigRespList.length>0">
+    <div class="box border-1px device" v-if="deatil.roomConfigRespList&&deatil.roomConfigRespList.length>0">
       <div class="title">配置设备</div>
       <div class="clearfix" style="margin-top: 15px;">
         <div class="item" v-for="item in deatil.roomConfigRespList" :key="item.id"><img :src="item.url" alt="" height="18" style="margin-bottom: 10px"><br><span>{{item.name}}</span></div>
-        <!-- <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
-        <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
-        <div class="item"><i class="icon icon-kt"></i><span>空调</span></div>
-        <div class="item"><i class="icon icon-kt"></i><span>空调</span></div> -->
       </div>
     </div>
-    <div class="box around">
+    <div class="box around border-1px">
       <div class="title">周边及交通</div>
       <div class="amap">
-        <el-amap vid="amapDemo" :zoom="zoom" :center="center" class=""></el-amap>
+        <el-amap vid="amapDemo" :zoom="zoom" :center="center" class="" :zoomEnable="false" :dragEnable="false" :doubleClickZoom="false">
+          <el-amap-marker :position="center" class="csmarker" :offset=[-7,-12]>
+          <i class="local-icon"></i>
+        </el-amap-marker>
+        </el-amap>
       </div>
-      <div class="title" style="padding: 20px 15px">房源介绍</div>
+      <div class="title" style="padding: 20px 0">房源介绍</div>
       <div class="introduce">
         {{deatil.content}}
       </div>
         <!-- <el-amap-marker vid="component-marker" :position="componentMarker.position" :content-render="componentMarker.contentRender" ></el-amap-marker> -->
 
     </div>
-    <div class="box butler">
+    <div class="box butler border-1px">
       <div class="title">您的管家</div>
       <div class="butler-info clearfix">
         <div class="head">
-          <img :src="deatil.ownerUrl">
+          <img v-if="deatil.managerImageUrl" :src="deatil.managerImageUrl">
+          <img v-else src="./icon/icon_guanjia@2x.png">
         </div>
-        <span class="name">{{deatil.ownerName}}</span>
-        <div class="btn" @click="phone">联系电话</div>
+        <span class="name">{{deatil.managerName|name}}</span>
+        <div class="btn">联系电话</div>
+        <!-- <div class="btn" @click="phone">联系电话</div> -->
       </div>
       <div class="text">
-        您好，我是城宿管家，期待为您服务。有任何问题可致电咨询，城宿公寓欢迎您的入住。
+        {{deatil.managerInfo}}
+        <!-- 您好，我是城宿管家，期待为您服务。有任何问题可致电咨询，城宿公寓欢迎您的入住。 -->
       </div>
     </div>
-    <div class="bottom">
+    </div>
+    <div class="bottom border-1px">
       <div class="store" @click="toggleStore">
         <i class="icon" :class="{'icon-store': isStore}"></i><br>
         <span :class="{word: isStore}">收藏</span>
@@ -81,16 +91,19 @@
       <div class="bespoke" @click="appointment">预约看房</div>
       <div class="sign" @click="contract">立即签约</div>
     </div>
-    <!-- <login v-model="loginVisible"></login> -->
-    <mypop v-model="appointmentVisible">
-      <template slot="title">预约看房</template>
-      <appointment v-model="deatil">
-      </appointment>
-    </mypop>
-    <mypop v-model="contractVisible">
-      <template slot="title">信息确认</template>
-      <contract v-model="deatil"></contract>
-    </mypop>
+    </template>
+    <div v-else-if="!loading">
+      <!-- <div class="header scroll">
+        <i class="icon-back" @click="hiden"></i>
+      </div> -->
+      <div class="header scroll border-1px" :class="{scroll: !istop}">
+        <!-- <i class="icon-back"></i> -->
+        <div class="left" @click="hiden"><icon-svg icon-class="back" class="icon"></icon-svg></div>
+        <div class="center">无数据</div>
+        <div class="right"></div>
+      </div>
+    </div>
+    <iframe style="display: none" ref="iframe" src="" frameborder="0"></iframe>
   </div>
 </template>
 
@@ -99,12 +112,17 @@ import { mapGetters } from 'vuex'
 import {querRoomDetailList, saveUsersFavorite, delUsersFavorite} from '@/api/house'
 import {Swipe, SwipeItem, MessageBox} from 'mint-ui'
 import login from '@/views/me/user/login'
-import mypop from '@/components/myPopup'
-import appointment from './appointment'
 import contract from './contract'
+import csheader from '@/components/header'
 export default {
   computed: {
-    ...mapGetters(['token', 'collect', 'userData'])
+    ...mapGetters(['token', 'collect', 'userData']),
+    hourseTitle () {
+      if (this.deatil.roomTitle) {
+        return this.deatil.roomTitle
+      }
+      return this.deatil.name
+    }
   },
   props: {
     visible: {
@@ -130,7 +148,8 @@ export default {
       loginVisible: false,
       appointmentVisible: false,
       contractVisible: false,
-      istop: true
+      istop: true,
+      loading: true
     }
   },
   created () {
@@ -140,7 +159,7 @@ export default {
   mounted () {
     this.querRoomDetail()
     window.onscroll = (ev) => {
-      console.log('2123----------', window.pageYOffset)
+      // console.log('2123----------', window.pageYOffset)
       if (window.pageYOffset < 10) {
         this.istop = true
       } else {
@@ -161,6 +180,7 @@ export default {
     },
     querRoomDetail () {
       querRoomDetailList(this.roomId).then(res => {
+        this.loading = false
         console.log(res)
         if (res.code === 1 && res.data) {
           this.deatil = res.data
@@ -266,21 +286,24 @@ export default {
       // console.log(this.collect)
     },
     phone () {
-      MessageBox({
-        title: '提示',
-        message: '130000084',
-        showCancelButton: true,
-        confirmButtonText: '拨打'
-      }).then(s => {
+      if (this.deatil.managerPhone) {
+        MessageBox({
+          title: '提示',
+          message: this.deatil.managerPhone,
+          showCancelButton: true,
+          confirmButtonText: '呼叫'
+        }).then(s => {
         // console.log('ddd', s)
-        if (s === 'confirm') {
-          console.log('ssd1')
-        }
-      })
+          if (s === 'confirm') {
+          // console.log('ssd1')
+            this.$refs.iframe.src = `tel:${this.deatil.managerPhone}`
+          }
+        })
+      }
     }
   },
   components: {
-    Swipe, SwipeItem, login, mypop, appointment, contract
+    Swipe, SwipeItem, login, contract, csheader
   }
 }
 </script>
@@ -289,41 +312,71 @@ export default {
 @import '../../styles/mixin.less';
 .top{
   position: relative;
-  .header{
+
+}.header{
     position: fixed;
+    display: flex;
     width: 100%;
     height: 44px;
+    line-height: 44px;
     top: 0;
-    padding-left: 15px;
     border-bottom: 1px solid transparent;
-    .icon-back{
-      display: inline-block;
-      width: 8px;
-      height: 15px;
-      background-image: url(./icon/icon_fanhui@2x.png);
-      background-size: contain;
-      margin-top: 14px;
+    // .border-1px(transparent);
+    z-index: 1;
+    text-align: center;
+    .icon{
+      font-size: 20px;
+      color: #fff;
+    }
+    .left {
+      flex: 0 0 30px;
+    }
+    .center{
+      flex: 1;
+      font-size: 15px;
+      color: transparent;
+    }
+    .right {
+      flex: 0 0 30px;
     }
     transition: all .3s;
     &.scroll {
       background-color: #fff;
       border-bottom: 1px solid #f1f1f1;
+      // .border-1px;
+      .icon{
+        color: #8b8b8b;
+      }
+      .center{
+        color: #353535
+      }
     }
   }
-}
 .details {
-  padding-bottom: 56px;
-  // .swipe {
-  //   height: 200px;
-  // }
-  .general {
-    padding: 15px;
+  // padding-bottom: 56px;
+  // background-color: #fff;
+  .swipe {
+    // height: 200px;
+    .img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    }
+  }
+  .content {
+    padding: 0 15px;
     background-color: #fff;
-    box-shadow: 0px 1px 0px 0px #ebeaea;
+  }
+  .general {
+    padding: 15px 0;
+    // background-color: #fff;
+    // border-bottom: 1px solid #f1f1f1;
+    .border-1px;
     .addr {
       margin-bottom: 15px;
       .address {
         font-size: 16px;
+        font-weight: bold;
       }
       .date{
         float: right;
@@ -333,11 +386,13 @@ export default {
       }
     }
     .price{
-      font-size: 14px;
       line-height: 20px;
+      color: @pink;
+      .num{
+        font-size: 18px;
+      }
     }
     .pay-way{
-      font-size: 12px;
       line-height: 20px;
       color: @gray;
     }
@@ -368,9 +423,10 @@ export default {
   .desc {
     display: flex;
     padding: 10px 0;
-    margin-top: 10px;
-    background-color: #fff;
-    border-bottom: 1px solid #e5e5e5;
+    // margin-top: 10px;
+    // background-color: #fff;
+    // border-bottom: 1px solid #e5e5e5;
+    .border-1px;
     .item{
       flex: 1;
       text-align: center;
@@ -380,11 +436,12 @@ export default {
     }
   }
   .addr-detail{
-    padding: 10px 15px;
-    margin-top: 10px;
-    background-color: #fff;
-    border-bottom: 1px solid #e5e5e5;
+    padding: 10px 0;
+    // margin-top: 10px;
+    // background-color: #fff;
+    // border-bottom: 1px solid #e5e5e5;
     color: @gray;
+    .border-1px;
   }
 }
 .icon-addr{
@@ -401,15 +458,16 @@ export default {
 }
 .box{
   padding: 20px 0;
-  background: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  // background: #fff;
+  .border-1px;
   .title{
     font-size: 16px;
-    padding: 0 15px;
+    font-weight: 600;
+    // padding: 0 15px;
   }
 }
 .device {
-  margin: 10px 0;
+  // margin: 10px 0;
   .item{
     float: left;
     width: 25%;
@@ -434,15 +492,25 @@ export default {
 .amap{
   height: 150px;
   margin-top: 20px;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+.local-icon{
+  display: inline-block;
+  width: 15px;
+  height: 24px;
+  background-image: url(./icon/icon_weizhi@3x.png);
+  background-size: contain;
 }
 .introduce{
   color: @gray;
   padding: 0 15px;
 }
 .butler{
-  margin-top: 10px;
+  // margin-top: 10px;
+  padding-bottom: 100px;
   .butler-info{
-    padding: 0 15px;
+    // padding: 0 15px;
     margin-top: 20px;
   }
   .head {
@@ -451,7 +519,7 @@ export default {
     height: 40px;
     overflow: hidden;
     border-radius: 50%;
-    background: @themeColor;
+    // background: @themeColor;
     margin-right: 8px;
     img{
       width: 100%;
@@ -470,9 +538,10 @@ export default {
     color: @themeColor;
     border-color: @themeColor;
     margin-top: 8px;
+    border-radius: 4px;
   }
   .text{
-    padding: 15px;
+    padding: 15px 0;
     padding-bottom: 0;
     color: @gray;
     text-indent:2em;
@@ -481,12 +550,16 @@ export default {
 }
 .bottom{
   // height: 46px;
+  .border-top-1px;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   height: 46px;
   display: flex;
+  // .border-top-1px;
+  // border-top: 1px solid #f1f1f1;
+  z-index: 3;
   >div{
     height: 46px;
     text-align: center;
@@ -517,6 +590,8 @@ export default {
     background-color: @pink;
     color: #fff;
     font-size: 15px;
+    position: relative;
+    z-index: 2;
   }
   .sign{
     flex: 1;
@@ -524,6 +599,8 @@ export default {
     background-color: @themeColor;
     color: #fff;
     font-size: 15px;
+    position: relative;
+    z-index: 2;
   }
 }
 </style>

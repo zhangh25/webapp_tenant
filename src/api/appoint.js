@@ -92,12 +92,12 @@ export function cancelApply (id, cancelCause) {
   return request({
     url: '/cancelApply',
     method: 'get',
-    params: {id, cancelCause, role: 1}
+    params: {cancelCause, id, role: 1}
   })
 }
 // GET
 // /queryCauseConfigure
-// 取消签约订单原因
+// 获取取消签约订单原因
 export function queryCauseConfigure () {
   return request({
     url: '/queryCauseConfigure',
@@ -113,5 +113,35 @@ export function cancelApplyRetireRoom (id) {
     url: '/cancelApplyRetireRoom',
     method: 'post',
     params: {id}
+  })
+}
+
+// POST
+// /userPaySuccess
+// 用戶支付
+export function userPaySuccess (id) {
+  return request({
+    url: '/userPaySuccess',
+    method: 'post',
+    params: {id}
+  })
+}
+// POST
+// /userLeaseConfirm
+// 租客同意纸质合同，param是租约id
+export function userLeaseConfirm (id) {
+  return request({
+    url: '/userLeaseConfirm',
+    method: 'post',
+    data: {param: id}
+  })
+}
+// GET
+// /userLeaseViews
+// 合同
+export function userLeaseViews () {
+  return request({
+    url: '/userLeaseViews',
+    method: 'get'
   })
 }

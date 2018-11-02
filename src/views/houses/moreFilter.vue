@@ -135,8 +135,9 @@ export default {
     }
     .title {
       font-size: 14px;
-      text-align: center;
+      // text-align: center;
       line-height: 24px;
+      padding: 0 15px;
       // padding: 10px;
     }
     .bottom{

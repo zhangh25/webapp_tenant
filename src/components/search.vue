@@ -41,17 +41,17 @@ export default {
   methods: {
     cancel () {
       this.$parent.$parent.searchVisible = false
+      // if ()
+      this.$router.go(-1)
     },
     search (val) {
       console.log(val)
       this.addHistory(val)
-      this.$emit('csearch', val)
-      // this.$router.push({
-      //   path: '/list',
-      //   query: {
-      //     content: val
-      //   }
-      // })
+      // this.$emit('csearch', val)
+      this.$store.dispatch('setCondition', {content: val})
+      this.$router.push({
+        path: '/list'
+      })
       // this.$store.dispatch('addHistory', val)
     },
     submit () {

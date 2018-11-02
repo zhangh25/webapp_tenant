@@ -9,3 +9,44 @@ export function queryUserBill (type) {
     params: {type}
   })
 }
+
+// GET
+// /createBankPreOrder
+// 银行卡支付生成待支付訂單
+export function createBankPreOrder (data) {
+  return request({
+    url: '/createBankPreOrder',
+    method: 'get',
+    params: data
+  })
+}
+// POST
+// /fastPayAuthorize
+// 快捷支付授权
+export function fastPayAuthorize (data) {
+  return request({
+    url: '/fastPayAuthorize',
+    method: 'post',
+    data
+  })
+}
+// GET
+// /newGetAuthorizeCode
+// 快捷重新获取授权码
+export function newGetAuthorizeCode (no) {
+  return request({
+    url: '/newGetAuthorizeCode',
+    method: 'get',
+    params: {'out_trade_no': no}
+  })
+}
+// POST
+// /inPayStatus
+// 前端支付成功调用该接口,将子账单状态设置为支付中
+export function inPayStatus (no) {
+  return request({
+    url: '/inPayStatus',
+    method: 'get',
+    params: {'out_trade_no': no, role: 1}
+  })
+}

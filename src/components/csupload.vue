@@ -38,6 +38,7 @@ export default {
       // data.
       axiosInstance({
         method: 'POST',
+        // url: 'https://img.chengsu.vip/',
         url: 'http://upload-z2.qiniup.com/',
         data: data,
         onUploadProgress: function (progressEvent) {
@@ -48,7 +49,7 @@ export default {
         }
       }).then(function (res) {
         console.log(res)
-        self.$emit('changeFile', {code: 1, url: `http://pba3kbxrz.bkt.clouddn.com/${res.data.key}`})
+        self.$emit('changeFile', {code: 1, url: `https://img.chengsu.vip/${res.data.key}`})
       })
         .catch(function (err) {
           self.$emit('changeFile', {code: 0})

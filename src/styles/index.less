@@ -21,8 +21,13 @@ input{
 .mint-button--primary{
   background-color: #2175e3;
 }
+.mint-button--default{
+  background-color: #fff;
+}
 .mint-button{
   font-size: 15px;
+  white-space: nowrap;
+  padding: 0 8px;
 }
 .mint-cell-allow-right::after {
   border: solid 1px #848484;
@@ -172,6 +177,9 @@ input:disabled {
     color: #d9d9d9;
   }
 }
+.mint-cell-wrapper {
+  padding: 0 15px;
+}
 /* 图片轮播 */
 .banner-imgs {
   position: relative;
@@ -194,10 +202,24 @@ input:disabled {
     display: none;
   }
 }
-
+.personal {
+  .field.head .content .input{display: none}
+  .field.head .content > .ri{flex: 1}
+}
+.auth .mint-cell-value{
+  font-size: 14px;
+  color: #353535;
+}
+.mint-indicator-mask {
+  z-index: 2020;
+}
+.mint-indicator {
+  position: relative;
+  z-index: 2020;
+}
 @media (-webkit-min-device-pixel-ratio: 1.5),(min-device-pixel-ratio: 1.5) {
   .border-1px {
-    &::after {
+    &::after, &::before {
       -webkit-transform: scaleY(0.7);
       transform: scaleY(0.7);
     }
@@ -206,9 +228,16 @@ input:disabled {
 
 @media (-webkit-min-device-pixel-ratio: 2),(min-device-pixel-ratio: 2) {
   .border-1px {
-    &::after {
+    &::after, &::before {
       -webkit-transform: scaleY(0.5);
       transform: scaleY(0.5);
     }
   }
+}
+
+div.picker-slot-center:last-child {
+  // color: red;
+  //  {
+  //   display: none;
+  // }
 }

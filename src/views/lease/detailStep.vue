@@ -3,17 +3,18 @@
     <csheader>
       签约详情
     </csheader>
+    <div class="content">
     <div class="top">
       <div class="title"><icon-svg icon-class="time" class="icon"></icon-svg>{{status[step-1]}}</div>
       <div class="dec"><template v-if="countdown">{{countdown.minutes}}分{{countdown.seconds}}秒</template>  {{txts[step-1]}}</div>
     </div>
     <pro :idx="step"></pro>
     <div class="info">
-      <div class="title">{{step==3?'费用信息':'签约信息'}}</div>
+      <div class="title border-1px">{{step==3?'费用信息':'签约信息'}} <a class="pact" v-if="step===2" :href='detail.pactReviewUrl'>查看完整合同</a></div>
       <template v-if="step==1">
         <div class="item">
           <label class="lab">姓名</label>
-          <div class="val">{{detail.userName}}</div>
+          <div class="val">{{userData.realname}}</div>
         </div>
         <div class="item">
           <label class="lab">身份证号</label>
@@ -21,7 +22,7 @@
         </div>
         <div class="item">
           <label class="lab">性别</label>
-          <div class="val">{{detail.userSex}}</div>
+          <div class="val">{{detail.userSex | getSex}}</div>
         </div>
       </template>
       <template v-else-if="step==2">
@@ -61,9 +62,9 @@
           <label class="lab">家具清单</label>
           <div class="val"></div>
         </div>
-        <div class="btns">
+        <div class="btns border-1px">
           <Button class="cancel-btn" @click.native="$router.push(`/leaseCancel/${leaseId}`)">取消签约</Button>
-          <Button class="btn" type="primary">去签字</Button>
+          <Button class="btn" type="primary" @click="sign">{{detail.licenceType==1?'去签字': '确认租约'}}</Button>
         </div>
       </template>
       <template v-if="step==3">
@@ -87,13 +88,13 @@
           <label class="lab">起止时间</label>
           <div class="val">{{detail.startTime}}-{{detail.endTime}}</div>
         </div>
-        <div class="btns">
-          <Button type="primary" class="btn">去支付</Button>
+        <div class="btns border-1px">
+          <Button type="primary" class="btn" @click="goPay">去支付</Button>
         </div>
       </template>
     </div>
     <div class="landlord">
-      <img class="img" :src="detail.ownerImageUrl" width="27" height="27"> <span class="txt"> 房东 {{detail.ownerName}}</span>
+      <img class="img" :src="detail.ownerImageUrl" width="27" height="27"> <span class="txt"> 房东 {{detail.ownerName|name}}</span>
     </div>
     <div class="house">
       <div class="pic">
@@ -110,16 +111,21 @@
     <div class="time">签约申请时间：{{detail.addTime}}</div>
     <div class="time" v-if="step==2">房东确认时间：{{detail.ownerAgreeTime}}</div>
     <div class="time"></div>
+    </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
 import pro from './components/progress'
-import {queryLeaseOrderDetail} from '@/api/appoint'
+import {queryLeaseOrderDetail, userLeaseConfirm, userPaySuccess} from '@/api/appoint'
 import {Button} from 'mint-ui'
 import {countDown} from '@/utils/tool'
 export default {
+  computed: {
+    ...mapGetters(['userData'])
+  },
   data () {
     return {
       detail: { // 缺少 家具清单 合同编号 押金方式
@@ -146,7 +152,9 @@ export default {
         address: '深圳市福田区上梅林卓越城1期3栋', // 房产地址
         depositNumber: 2, // 押金期数
         paymentNumber: 1, // 付款周期
-        ownerAgreeTime: '23333' // 房东确认时间
+        ownerAgreeTime: '23333', // 房东确认时间
+        pactReviewUrl: '', // 合同预览地址
+        pactSignUrl: '' // 合同签名地址
       },
       status: ['等待确认', '待签字', '待支付', '签约成功'],
       txts: ['若您尚未看房，请及明联系房东看房', '请您在规定时间内完成签字，超时系统将自动取消', '请您在规定时间内完成支付，超时系统将自动取消'],
@@ -154,7 +162,9 @@ export default {
       leaseId: null,
       time: '',
       countdown: null,
-      timer: null
+      timer: null,
+      licenceType: null,
+      licences: []
     }
   },
   created () {
@@ -165,29 +175,35 @@ export default {
     //   console.log(countDown('2018-10-16 11:10:11', 0.5))
     // }, 1000)
     // this.calcTime()
-    this.setStep()
+    // this.setStep()
     this.getOrderDetail()
   },
   methods: {
     getOrderDetail () {
       queryLeaseOrderDetail(this.leaseId).then(res => {
+        console.log(res)
         if (res.code === 1) {
           this.detail = res.data
           this.setStep()
           if (this.step === 2) {
             this.setCountDown(this.detail.ownerAgreeTime)
-          } else if (this.step === 3) {
-
+          } else if (this.step === 3) { // stayPaytime
+            this.setCountDown(this.detail.stayPaytime)
           }
         }
       })
     },
     setCountDown (time) {
       if (this.timer) clearInterval(this.timer)
+      // this.countdown
+      if (!time) return
+      console.log('tirm', time)
       this.timer = setInterval(_ => {
         this.countdown = countDown(time, 0.5)
-        if (this.countdown.minutes < 0) {
-          // this.getOrderDetail()
+        // console.log(this.countdown)
+        if (this.countdown.minutes <= 0) {
+          clearInterval(this.timer)
+          this.getOrderDetail()
         }
       })
     },
@@ -223,6 +239,28 @@ export default {
       var leave3 = leave2 % (60 * 1000) // 计算分钟数后剩余的毫秒数
       var seconds = Math.round(leave3 / 1000)
       console.log('小时：', hours, '  分：', minutes, '  秒： ', seconds)
+    },
+    sign () {
+      if (this.detail.licenceType === 1) {
+        this.$store.dispatch('setPacturl', this.detail.pactSignUrl)
+        this.$store.dispatch('setLeaseId', this.leaseId)
+        // this.$router.push('/sign')
+        window.location.href = this.detail.pactSignUrl
+      } else {
+        userLeaseConfirm(this.leaseId).then(res => {
+          if (res.code === 1) {
+            this.getOrderDetail()
+          }
+        })
+      }
+    },
+    goPay () {
+      userPaySuccess(this.leaseId).then(res => {
+        console.log(res)
+        if (res.code === 1) {
+          this.$router.push('/bill')
+        }
+      })
     }
   },
   components: {
@@ -253,16 +291,28 @@ export default {
       padding: 10px 0;
     }
   }
+  .content {
+    height: calc(100vh - 44px);
+    overflow: scroll;
+  }
   .info {
     margin-top: 10px;
+    padding: 0 15px;
     background-color: #fff;
     .title{
       font-size: 15px;
-      padding: 15px;
+      padding: 15px 0;
+      .border-1px;
+      .pact {
+        float: right;
+        font-size: 12px;
+        color: @themeColor;
+        text-decoration: none;
+      }
     }
     .item {
       display: flex;
-      padding: 14px 15px;
+      padding: 14px 0;
       font-family: 'PingFang-SC-Regular';
       .lab{
         flex: 0 0 100px;
@@ -278,11 +328,12 @@ export default {
     background-color: #fff;
     .img{
       border-radius: 50%;
+      margin-right: 10px;
     }
     .txt{
       font-size: 15px;
-    line-height: 27px;
-    vertical-align: top;
+      line-height: 27px;
+      vertical-align: top;
     }
   }
   .house{
@@ -292,7 +343,6 @@ export default {
     .pic{
       flex: 0 0 98px;
       overflow: hidden;
-
       img {
         width: 100%;
         height: 85px;
@@ -307,6 +357,7 @@ export default {
       height: 85px;
       .title{
         font-size: 14px;
+        font-weight: bold;
       }
       .name{
         color: @gray;
@@ -318,13 +369,14 @@ export default {
       }
     }
   }
-  >.time{
+  .content>.time{
     padding: 15px 0 0 15px;
     font-size: 12px;
   }
   .btns {
     text-align: center;
     padding: 15px;
+    .border-top-1px;
     .cancel-btn {
       opacity: .5;
       background-color: #fff;

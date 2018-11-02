@@ -2,20 +2,21 @@
   <div>
     <csheader>账单详情</csheader>
     <div class="detail">
-      <div class="title"><div class="name">房屋租金</div></div>
-      <div class="price">￥900</div>
-      <div class="tip">请在2018-08--1前完成支付</div>
+      <div class="title"><div class="name">{{billdetail.name}}</div></div>
+      <div class="price">￥{{billdetail.price}}</div>
+      <div class="tip">请在{{billdetail.payLimit}}前完成支付</div>
       <div class="cell">
-        <label class="name">创建时间</label><div class="value">2013</div>
+        <label class="name">创建时间</label><div class="value"></div>
       </div>
       <div class="cell">
-        <label class="name">账单号</label><div class="value">2013</div>
+        <label class="name">账单号</label><div class="value">{{billdetail.orderNum}}</div>
       </div>
       <div class="cell" style="padding-bottom: 30px">
-        <label class="name">账单备注</label><div class="value">2013</div>
+        <label class="name">账单备注</label><div class="value"></div>
       </div>
       <div class="qus" @click="problem">对此账单有疑问？</div>
     </div>
+    <iframe style="display: none" ref="iframe" src="" frameborder="0"></iframe>
     <div class="bottom">
       <Button type="primary" size="large">立即支付</Button>
     </div>
@@ -23,9 +24,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
 import {Button, MessageBox} from 'mint-ui'
 export default {
+  computed: {
+    ...mapGetters(['billdetail'])
+  },
   methods: {
     problem () {
       MessageBox({
@@ -33,6 +38,12 @@ export default {
         message: '若对当前账单有疑问，你可以选择联系房东进行沟通',
         showCancelButton: true,
         confirmButtonText: '确认'
+      }).then(s => {
+        // console.log('ddd', s)
+        if (s === 'confirm') {
+          // console.log('ssd1')
+          this.$refs.iframe.src = `tel:${this.billdetail.ownerPhone}`
+        }
       })
     }
   },

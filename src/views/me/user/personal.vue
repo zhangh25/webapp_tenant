@@ -2,27 +2,28 @@
   <div class="personal">
     <csheader>个人资料 <div slot="right" @click="finsh">完成</div></csheader>
     <!-- <div class="finsh"></div> -->
-    <Field class="head">
+    <field class="head" placeholder="修改头像">
       <div class="flex">
-        <div class="headImg"><div class="box"><img v-if="userInfo.imageurl" :src="userInfo.imageurl" width="60" height="60"><i v-else class="bg"></i></div></div>
+        <div class="headImg" slot="label"><div class="box"><img v-if="userInfo.imageurl" :src="`${userInfo.imageurl}?imageMogr2/auto-orient`" width="60" height="60"><i v-else class="bg"></i></div></div>
         <div class="btn" @click="uploadImg">修改头像
           <input ref="upload" id="upload" type="file" class="realfilebt" style="display: none;">
         </div>
       </div>
-    </Field>
-    <Field label="昵称" placeholder="" v-model="userInfo.nickname" disableClear></Field>
-    <Field label="性别" placeholder="" v-model="sex" disableClear @click.native="sexClick"></Field>
-    <Field label="手机号" placeholder="" v-model="phone" disableClear></Field>
-    <Actionsheet :actions="action" v-model="sexVisible" cancel-text=""></Actionsheet>
+    </field>
+    <field label="昵称" placeholder="请输入昵称" v-model="userInfo.nickname" disableClear :font-size="14"></field>
+    <!-- <field label="性别" placeholder="" v-model="sex" disabled @click.native="sexClick" :font-size="14"></field> -->
+    <field label="手机号" placeholder="" v-model="phone" disabled :font-size="14"></field>
+    <Actionsheet :actions="action" v-model="sexVisible" cancel-text="" :font-size="14"></Actionsheet>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import {Field, Toast, Actionsheet} from 'mint-ui'
+import {Toast, Actionsheet} from 'mint-ui'
 import {getUserInfo, updateCsUsers, getQiniuToken} from '@/api/user'
 import csheader from '@/components/header'
 import axios from 'axios'
+import field from 'components/field'
 // import {} from '@/api/' headers:{'Content-Type':'multipart/form-data'}
 const axiosInstance = axios.create({
   'Content-Type': 'multipart/form-data'
@@ -73,7 +74,7 @@ export default {
         }
       }).then(function (res) {
         console.log(res)
-        self.userInfo.imageurl = `http://pba3kbxrz.bkt.clouddn.com/${res.data.key}`
+        self.userInfo.imageurl = `https://img.chengsu.vip/${res.data.key}`
         console.log('res', res)
       })
         .catch(function (err) {
@@ -96,6 +97,8 @@ export default {
           this.userInfo.nickname = res.data.nickname
           this.phone = res.data.phone
           this.setSex()
+        } else if (res.code === 2) {
+          this.$router.push('/login')
         }
       })
     },
@@ -149,7 +152,9 @@ export default {
       this.sex = value
     },
     sexClick () {
-      this.sexVisible = true
+      if (this.userData.auditing === 0) {
+        this.sexVisible = true
+      }
     },
     setMale () {
       this.sex = '男'
@@ -170,7 +175,7 @@ export default {
     }
   },
   components: {
-    Field, Toast, Actionsheet, csheader
+    field, Toast, Actionsheet, csheader
   }
 }
 </script>
@@ -178,7 +183,6 @@ export default {
 <style lang="less" scoped>
 .personal {
   position: relative;
-  padding-top: 44px;
   .finsh {
     position: absolute;
     z-index: 1;
@@ -198,6 +202,7 @@ export default {
     img{
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
     .bg{
       display: inline-block;
@@ -213,7 +218,7 @@ export default {
     display: flex;
     .headImg{
       margin-top: 50px;
-      flex: 0 0 105px;
+      flex: 0 0 100px;
       margin-bottom: 15px;
     }
     .btn{
