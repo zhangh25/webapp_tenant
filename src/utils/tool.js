@@ -45,8 +45,52 @@ export function getIdCard (str) {
 }
 
 export function getFullname (str) {
-  if (str) {
-    return str.substring(0, 1) + '*'
-  }
+  // if (str) {
+  //   return str.substring(0, 1) + '*'
+  // }
   return str
 }
+
+export function dataURLtoFile (dataurl, filename) { // 将base64转换为文件
+  let arr = dataurl.split(',')
+  let mime = arr[0].match(/:(.*?);/)[1]
+  let bstr = atob(arr[1])
+  let n = bstr.length
+  let u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], filename, {type: mime})
+}
+
+export function getImgToBase64 (url, callback) {
+  var canvas = document.createElement('canvas')
+  let ctx = canvas.getContext('2d')
+  let img = new Image()
+  img.crossOrigin = 'Anonymous'
+  img.onload = function () {
+    canvas.height = img.height
+    canvas.width = img.width
+    ctx.drawImage(img, 0, 0)
+    var dataURL = canvas.toDataURL('image/png')
+    callback(dataURL)
+    canvas = null
+  }
+  img.src = url
+}
+
+export function isWeiXin () {
+  // window.navigator.userAgent属性包含了浏览器类型、版本、操作系统类型、浏览器引擎类型等信息，这个属性可以用来判断浏览器类型
+  var ua = window.navigator.userAgent.toLowerCase()
+  // 通过正则表达式匹配ua中是否含有MicroMessenger字符串
+  if (ua.match(/MicroMessenger/i) === 'micromessenger') {
+    return true
+  } else {
+    return false
+  }
+}
+// 将图片转换为base64
+// getImgToBase64('images/ruoshui.png', function (data) {
+//   var myFile = dataURLtoFile(data, 'testimgtestimgtestimg')
+//   console.log(myFile)
+// })

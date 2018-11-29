@@ -33,7 +33,7 @@ export default {
   },
   data () {
     return {
-      tagList: ['明治', '坂田', '杨美'],
+      tagList: ['民治', '坂田', '杨美'],
       keyWord: ''
       // history: ['xx', 'sae']
     }

@@ -8,6 +8,7 @@ Router.prototype.goBack = function (a) {
   window.history.go(-1)
 }
 export default new Router({
+  // mode: 'history',
   routes: [
     {
       path: '/',
@@ -84,6 +85,11 @@ export default new Router({
       component: () => import('@/views/me/user/setPassword')
     },
     {
+      path: '/setpwd', // 设置密码
+      name: 'setpwd',
+      component: () => import('@/views/me/user/setpwd')
+    },
+    {
       path: '/personal', // 个人资料
       name: 'personal',
       component: () => import('@/views/me/user/personal')
@@ -149,6 +155,11 @@ export default new Router({
       path: '/leaseRecord', // 租约记录
       name: 'leaserecord',
       component: () => import('@/views/lease/record')
+    },
+    {
+      path: '/imgbox',
+      name: 'imgbox',
+      component: () => import('@/views/houses/img')
     },
     {
       path: '/checkout', // 退房
@@ -226,6 +237,11 @@ export default new Router({
       component: () => import('@/views/wallet/validate')
     },
     {
+      path: '/alipay', // 支付宝
+      name: 'alipay',
+      component: () => import('@/views/bill/alipay')
+    },
+    {
       path: '/cont', // 合同
       name: 'cont',
       component: () => import('@/views/lease/contract')
@@ -236,7 +252,7 @@ export default new Router({
       component: () => import('@/views/lease/contractDetail')
     },
     {
-      path: '/test',
+      path: '/test1',
       name: 'test',
       component: () => import('@/views/test11/iframetest')
     },

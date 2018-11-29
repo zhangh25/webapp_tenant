@@ -11,9 +11,9 @@ export function getSex (sex) {
 }
 
 export function name (str) {
-  if (str) {
-    return str.substring(0, 1) + '*'
-  }
+  // if (str) {
+  //   return str.substring(0, 1) + '*'
+  // }
   return str
 }
 

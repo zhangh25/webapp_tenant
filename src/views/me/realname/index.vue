@@ -16,25 +16,25 @@
         <div class="item" @click="uploadCard(1)">
           <i v-if="fdata.urlz" class="icon-close"  @click.stop="imgClose('urlz')"></i>
           <img v-if="fdata.urlz" :src="fdata.urlz">
-          <template v-else>
-            <!-- <icon-svg icon-class="add" class="icon"></icon-svg>
-            <div class="str1">手持身份证正面照</div>
-            <div class="str2">（文字清晰，四角齐全）</div> -->
-            <img src="./img/icon_shenfenzhengzhengmian@2x.png" alt="">
+          <div v-else>
+            <icon-svg icon-class="add" class="icon"></icon-svg>
+            <div class="str1">身份证正面照</div>
+            <div class="str2">（文字清晰，四角齐全）</div>
+            <!-- <img src="./img/icon_shenfenzhengzhengmian@2x.png" alt=""> -->
             <csupload ref='idcard1' @changeFile="fileChange_1"></csupload>
-          </template>
+          </div>
         </div>
         <div class="center"></div>
         <div class="item" @click="uploadCard(2)">
           <i v-if="fdata.urlf" class="icon-close" @click.stop="imgClose('urlf')"></i>
           <img v-if="fdata.urlf" :src="fdata.urlf">
-          <template v-else>
-            <!-- <icon-svg icon-class="add" class="icon"></icon-svg>
-            <div class="str1">手持身份证反面照</div>
-            <div class="str2">（文字清晰，四角齐全）</div> -->
-            <img src="./img/icon_shenfenzhengfanmian@2x.png" alt="">
+          <div v-else>
+            <icon-svg icon-class="add" class="icon"></icon-svg>
+            <div class="str1">身份证反面照</div>
+            <div class="str2">（文字清晰，四角齐全）</div>
+            <!-- <img src="./img/icon_shenfenzhengfanmian@2x.png" alt=""> -->
             <csupload ref='idcard2' @changeFile="fileChange_2"></csupload>
-          </template>
+          </div>
         </div>
       </div>
       <div class="bottom">
@@ -49,12 +49,14 @@
       </Popup>
     </template>
     <div v-else-if="userData.auditing === 1" class="wrapper border-1px">
-      <div class="top"><img class="img" src="../img/icon_renzhengchenggong@2x.png" width="57" height="57"><div style="padding-bottom: 35px">认证成功</div></div>
+      <div class="top">
+        <img class="img" src="../img/icon_renzhengchenggong@2x.png" width="57" height="57"><div style="padding-bottom: 35px">认证成功</div></div>
       <mcell title="姓名">{{userData.realname|name}}</mcell>
       <!-- <mcell title="性别">{{sexName}}</mcell> -->
       <mcell title="证件号">{{userData.idNumber|idCard}}</mcell>
     </div>
-    <template v-else>认证失败</template>
+    <!-- <Actionsheet :actions="photoActions" v-model="photoVisible" :font-size="14"></Actionsheet> -->
+    <!-- <template v-else>认证失败</template> -->
   </div>
 </template>
 
@@ -142,10 +144,10 @@ export default {
         Toast('请输入证件号')
       } else if (this.fdata.urlz.trim() === '') {
         pass = false
-        Toast('请输入身份证正面')
+        Toast('请上传身份证正面')
       } else if (this.fdata.urlf.trim() === '') {
         pass = false
-        Toast('请输入身份证反面')
+        Toast('请上传身份证反面')
       }
       return pass
     },
@@ -249,21 +251,28 @@ export default {
     color: @gray;
     background-color: #fff;
     padding: 0 15px 15px 15px;
+
     .item{
+      display: flex;
       position: relative;
       flex: 1;
-      // border: 1px dashed @gray;
+      border: 1px solid #ccc;
       // padding: 15px 0;
       height: 90px;
       overflow: hidden;
+      align-items: center;
+      justify-content: center;
       .str1{
         font-size: 10px;
+        padding-top: 4px;
       }
       .str2{
         font-size: 8px;
       }
       .icon{
-        font-size: 26px;
+        // font-size: 26px;
+        font-size: 12px;
+        color: @themeColor;
       }
       img {
         max-width: 100%;

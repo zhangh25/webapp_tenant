@@ -1,14 +1,15 @@
 <template>
     <div class="con-list" ref="wrapper" :style="{ height: wrapperHeight + 'px' }">
+      <!-- <button @click="top">顶部</button> -->
       <Loadmore :bottom-method="loadBottom" @bottom-status-change="handleBottomChange" :bottom-all-loaded="allLoaded" ref="loadmore">
         <div class="load" v-if="loading&&dataList.length===0">
-          <Spinner class="spi" type="fading-circle" :size="20">ggg</Spinner><span>加载中...</span>
+          <Spinner class="spi" type="fading-circle" :size="20"></Spinner><span>加载中...</span>
         </div>
         <template v-else>
           <div v-if="dataList.length>0" class="item border-1px" v-for="(item, idx) in dataList" :key="idx" @click="houseDeatil(item.roomId)">
             <div class="left"><img :src="`${item.imageUrl}?imageMogr2/auto-orient`" width="98" class='img'></div>
             <div class="right">
-              <div class="title">{{item.areaName}}-{{item.roomTitle}}</div>
+              <div class="title">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template></div>
               <div class="dec">{{item.typeName}}-{{item.roomArea}}㎡</div>
               <div class="dec"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template></div>
               <div class="price"><span class="num">{{parseInt(item.rent)}}</span>元/月</div>
@@ -16,7 +17,18 @@
           </div>
           <div class="null" v-if="dataList.length>1&&allLoaded">已经全部加载完毕</div>
         </template>
-        <div v-if="!loading&&dataList.length===0" class="null">未搜到对应房源，以下是推荐房源</div>
+        <div v-if="!loading&&dataList.length===0" class="res">
+          <div class="txt">{{ismap?'':'未搜到对应房源，以下是推荐房源'}}</div>
+          <div v-if="resList.length>0" class="item border-1px" v-for="(item, idx) in resList" :key="idx" @click="houseDeatil(item.roomId)">
+            <div class="left"><img :src="`${item.imageUrl}?imageMogr2/auto-orient`" width="98" class='img'></div>
+            <div class="right">
+              <div class="title">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template></div>
+              <div class="dec">{{item.typeName}}-{{item.roomArea}}㎡</div>
+              <div class="dec"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template></div>
+              <div class="price"><span class="num">{{parseInt(item.rent)}}</span>元/月</div>
+            </div>
+          </div>
+        </div>
       </Loadmore>
     </div>
     <!-- <div class="con-list">
@@ -48,6 +60,10 @@ export default {
     height: {
       default: null,
       type: [String, Number]
+    },
+    ismap: {
+      default: false,
+      type: Boolean
     }
   },
   data () {
@@ -62,7 +78,8 @@ export default {
       wrapperHeight: 0,
       curpage: 1,
       loading: false,
-      isFrist: true
+      isFrist: true,
+      resList: []
     }
   },
   watch: {
@@ -82,17 +99,35 @@ export default {
     // }
   },
   created () {
-    console.log('sssas')
+    // console.log('sssas')
     // this.fData = this.filterData
     Object.assign(this.fData, this.filterData)
   },
   mounted () {
-    console.log('sssas')
+    // console.log('sssas')
+
+    // this.$refs.loadmore.$el.onscroll = function () {
+    //   console.log('scroll')
+    // }
+    // let _this = this
+    // this.$refs.wrapper.onscroll = function (e) {
+    //   // console.log('scroll wrapper', e)
+    //   console.log(_this.$refs.wrapper.scrollTop)
+    // }
+    // this.$refs.wrapper.scrollTop = this.$refs.wrapper.scrollHeight
     if (this.height) {
       this.wrapperHeight = this.height
     } else {
+      console.log(document.documentElement.clientHeight)
+      console.log(this.$refs.wrapper.getBoundingClientRect().top)
       this.wrapperHeight = document.documentElement.clientHeight - this.$refs.wrapper.getBoundingClientRect().top
     }
+    this.$nextTick(_ => {
+      // console.log(this.$refs.loadmore.$el.getBoundingClientRect().top)
+      // this.$refs.loadmore.$el..top
+      console.log(this.$refs.wrapper.scrollTop)
+      this.$refs.wrapper.scrollTop = 0
+    })
     // this._getHouseList()
     this.isFrist = true
     // console.log(this.wrapperHeight)
@@ -100,6 +135,10 @@ export default {
   methods: {
     handleBottomChange (status) {
       this.bottomStatus = status
+    },
+    top () {
+      this.$refs.wrapper.scrollTop = 60
+      // console.log('top')
     },
     loadBottom () {
       console.log('loadbottom', this.wrapperHeight)
@@ -146,6 +185,13 @@ export default {
           if (this.dataList.length > 0) {
             addr = this.dataList[0].metroIfo ? this.dataList[0].metroIfo : this.dataList[0].streetName
             this.$emit('update:firstaddr', addr)
+          } else if (!this.ismap) {
+            this.getRecommend()
+          }
+          if (this.fData.startRow === 1) {
+            this.$nextTick(_ => {
+              this.$refs.wrapper.scrollTop = 0
+            })
           }
           if (res.data.length === this.fData.rows) {
             this.fData.startRow++
@@ -162,6 +208,13 @@ export default {
         console.log(err, 'list timeoutt')
         this.loading = false
         this.allLoaded = true
+      })
+    },
+    getRecommend () {
+      queryRoomList({cityId: 440300, startRow: 1, rows: 10}).then(res => {
+        if (res.code === 1) {
+          this.resList = res.data
+        }
       })
     }
   },
@@ -183,11 +236,12 @@ export default {
     padding: 15px;
     // border-bottom: 1px solid #ccc;
     // .border-top-1px;
+
     .border-1px;
     .left{
-      flex: 0 0 117px;
+      flex: 0 0 100px;
       .img {
-        height: 65px;
+        height: 70px;
         object-fit: cover;
       }
     }
@@ -195,9 +249,14 @@ export default {
       position: relative;
       flex: 1;
       padding-left: 11px;
+      min-width: 0;
       .title {
         font-size: 14px;
         font-weight: bold;
+        padding-right: 70px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .dec{
         color: @gray;
@@ -244,5 +303,11 @@ export default {
   margin-right: 4px;
   position: relative;
   top: 1px;
+}
+.res {
+  .txt {
+    text-align: center;
+    padding: 15px;
+  }
 }
 </style>

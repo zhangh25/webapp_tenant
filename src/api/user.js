@@ -125,11 +125,11 @@ export function replacePhone (data) {
 // GET
 // /common/app/version
 // 版本号判断更新
-export function getAppVersion () {
+export function getAppVersion (version) {
   return request({
     url: '/common/app/version',
     method: 'get',
-    params: {appType: 2, device: 'android'}
+    params: {appType: 2, device: 'android', version}
     // params: {appType: 2, device: 'android', version: '1.1.01'}
   })
 }

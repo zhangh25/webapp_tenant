@@ -1,11 +1,13 @@
 import router from '@/router'
 import store from '@/store'
+import {isWeiXin} from '@/utils/tool'
 router.beforeEach((to, from, next) => {
   // alert('36632')
   // console.log('to:', to)
   // console.log('from:', from)
   let allowback = true
-  if (!store.getters.isfirst) {
+  /* eslint-disable */ 
+  if (!isWeiXin && !store.getters.isfirst) {
     store.dispatch('setFirst')
     next('/guide')
   }

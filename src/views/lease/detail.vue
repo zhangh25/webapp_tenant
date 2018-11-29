@@ -11,34 +11,34 @@
         <img :src="detail.imageUrl" alt="">
       </div>
       <div class="right">
-        <div class="title">{{detail.roomTitle}}</div>
+        <div class="title">{{detail.areaName}}-<template v-if="detail.roomTitle">{{detail.roomTitle}}</template><template v-else>{{detail.name}}-{{detail.buildName}}</template>-{{detail.roomNumber}}</div>
         <div class="name">{{detail.typeName}}-{{detail.roomArea}}㎡</div>
-        <div class="rent">{{detail.rent}}元/月</div>
+        <div class="rent"><span class="num">{{detail.rent}}</span>元/月</div>
         <div class="pact"><img src="./icon/icon_hetong@2x.png" width="12"> 电子合同</div>
       </div>
     </div>
-    <div class="wrapper" v-if="step!==0">
+    <div class="wrapper" v-if="step===2">
       <div class="title">退房信息</div>
-      <div class="item"><label class="name">提交时间</label><div class="value">{{detail.userName}}</div></div>
-      <div class="item"><label class="name">退房时间</label><div class="value">{{detail.userSex}}</div></div>
-      <div class="item"><label class="name">备注</label><div class="value">{{detail.userPhone}}</div></div>
+      <div class="item"><label class="name">提交时间</label><div class="value">{{detail.retireApplyTime}}</div></div>
+      <div class="item"><label class="name">退房时间</label><div class="value">{{detail.retireTime}}</div></div>
+      <div class="item"><label class="name">备注</label><div class="value"></div></div>
     </div>
     <div class="wrapper">
       <div class="title">租房信息</div>
       <div class="item"><label class="name">起止时间</label><div class="value">{{detail.startTime}} ~ {{detail.endTime}}</div></div>
-      <div class="item"><label class="name">付款方式</label><div class="value">押一付三</div></div>
+      <div class="item"><label class="name">付款方式</label><div class="value"></div>押{{detail.depositNumber}}付{{detail.paymentNumber}}</div>
       <div class="item"><label class="name">房屋租金</label><div class="value">{{detail.rent}}元/月</div></div>
       <div class="item"><label class="name">房屋押金</label><div class="value">{{detail.rent*detail.depositNumber}}元</div></div>
-      <div class="item"><label class="name">门卡押金</label><div class="value">20元</div></div>
-      <div class="item"><label class="name">管理费</label><div class="value">20元</div></div>
-      <div class="item"><label class="name">收租日</label><div class="value">每月{{detail.rentDay}}日</div></div>
-      <div class="item"><label class="name">家具清单</label><div class="value"></div></div>
+      <!-- <div class="item"><label class="name">门卡押金</label><div class="value"></div></div>
+      <div class="item"><label class="name">管理费</label><div class="value"></div></div> -->
+      <div class="item"><label class="name">收租日</label><div class="value">每月{{detail.rentDay}}号</div></div>
+      <!-- <div class="item"><label class="name">家具清单</label><div class="value"></div></div> -->
     </div>
     <div class="wrapper">
       <div class="title">租客信息</div>
-      <div class="item"><label class="name">姓名</label><div class="value">{{detail.userName}}</div></div>
+      <div class="item"><label class="name">姓名</label><div class="value">{{detail.userName|name}}</div></div>
       <div class="item"><label class="name">姓别</label><div class="value">{{detail.userSex|getSex}}</div></div>
-      <div class="item"><label class="name">手机号</label><div class="value">{{detail.userPhone}}</div></div>
+      <div class="item"><label class="name">手机号</label><div class="value">{{detail.userPhone|phone}}</div></div>
     </div>
     <div class="wrapper">
       <div class="title">房东信息</div>
@@ -93,7 +93,9 @@ export default {
         paymentNumber: 1, // 付款周期
         ownerAgreeTime: '23333', // 房东确认时间
         rentDay: 2, // 收租日
-        orderNum: '24234' // 订单号
+        orderNum: '24234', // 订单号
+        retireApplyTime: '',
+        retireTime: ''
       },
       status: ['签约成功', '已取消', '退房中', '已退房'],
       step: 0,
@@ -110,6 +112,7 @@ export default {
         if (res.code === 1) {
           this.detail = res.data
           this.setStep()
+          this.goDetailsStep()
         }
       })
     },
@@ -131,6 +134,12 @@ export default {
           break
         default:
           break
+      }
+    },
+    goDetailsStep () {
+      let status = this.detail.orderStatus
+      if (status === 4 || status === 5) {
+        this.$router.replace(`/leaseDetailStep/${this.leaseId}`)
       }
     },
     cancelApply () {
@@ -203,7 +212,7 @@ export default {
       padding: 15px 0;
       img {
         width: 100%;
-          height: 100%;
+          height: 75px;
           object-fit:cover;
       }
     }
@@ -224,7 +233,10 @@ export default {
       }
       .rent{
         color: @gray;
-        padding-top: 4px
+        padding-top: 4px;
+        .num {
+          color: @pink;
+        }
       }
       .pact {
         padding-top: 6px;

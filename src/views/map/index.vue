@@ -8,14 +8,14 @@
         <i class="line"></i>
         <span :class="{active: !isArea}" @click="toggleWay(false)">地铁</span>
       </div>
-      <div class="right" @click="searchVisible=true">
+      <div class="right" @click="$router.push('/search')">
         <icon-svg icon-class="search"></icon-svg>
       </div>
     </div>
     <div class="map">
       <el-amap vid="amap" class="" ref="map" :center="center" :zoom="zoom" :plugin="plugin" :zooms="zooms" :events="events">
         <el-amap-marker v-for="marker in topMarkers" :key="marker.id" :position="marker.position" :vid="marker.id" :events="marker.events" class="csmarker" v-if="level!==3||marker.countNum">
-          <div class="circle-marker" v-if="level<3" @click="areaClick(marker)"><div style="white-space:nowrap;">{{marker.name}}</div>{{marker.countNum?marker.countNum:0}}套</div>
+          <div class="circle-marker" v-if="level<3" @click="areaClick(marker)"><div><div style="white-space:nowrap;">{{marker.name}}</div>{{marker.countNum?marker.countNum:0}}套</div></div>
           <div class="markerTip" v-else>{{marker.name}} {{marker.countNum?marker.countNum:0}}套<div class="buttom"></div></div>
         </el-amap-marker>
         <!-- 定位点 -->
@@ -33,7 +33,7 @@
       </el-amap>
       <div class="btns">
         <div class="btn icon-filter" @click="showFilter=true"></div>
-        <div class="btn icon-list" @click="showList"></div>
+        <div class="btn icon-list" @click="showList(true)"></div>
         <div class="btn icon-location" @click="location"></div>
       </div>
     </div>
@@ -51,11 +51,11 @@
     </mypop>
     <Popup v-model="listShow" position="bottom" class="listpop">
       <div class="top border-1px">
-        <div class="name">{{stationName}}  <span class="num">{{stationNum}}</span>套</div>
+        <div class="name">{{stationName}}  <span class="num">{{stationNum}}</span>套<div class="close" @click="listShow=false"><img width="14" height="14" src="../me/img/icon_quxiao@3x.png" alt=""></div></div>
         <div class="addr">{{adres}}</div>
       </div>
 
-      <houseslist :filterData="filterData" height="333" :firstaddr.sync="adres" ref="list"></houseslist>
+      <houseslist :filterData="filterData" height="333" :firstaddr.sync="adres" ref="list" ismap></houseslist>
     </Popup>
     <mypop v-model="searchVisible" :header="false">
       <searchPage @csearch="search"></searchPage>
@@ -321,19 +321,24 @@ export default {
       }
       if (this.toast) this.toast.close()
       this.toast = Toast({
-        message: `找到${num}房源`,
+        message: `共找到${num}套房源`,
         position: 'top'
       })
     },
     /* 显示列表 */
-    showList () {
-      // if (this.level === 3) {
-      //   this.listShow = true
-      //   this.$refs.list.getHouseListFrist(this.filterData)
-      // } else {
-      this.$store.dispatch('setCondition', this.filterData)
-      this.$router.push('/list')
-      // }
+    showList (islist) {
+      if (islist) {
+        this.$store.dispatch('setCondition', {cityId: 440300})
+        this.$router.push('/list')
+        return
+      }
+      if (this.level === 3) {
+        this.listShow = true
+        this.$refs.list.getHouseListFrist(this.filterData, false)
+      } else {
+        this.$store.dispatch('setCondition', {cityId: 440300})
+        this.$router.push('/list')
+      }
     },
     /* 区域，街道等id设为null */
     initIds () {
@@ -427,6 +432,7 @@ export default {
         // this.setLnglat(data.longitude, data.latitude)
         if (this.stationNum > 0) {
           this.showList()
+          // this.listShow = true
         }
       }
     },
@@ -438,6 +444,9 @@ export default {
           // this.topMarkers = res.data
           this.setTopMarker(res.data)
           this.csAlert(res.data)
+          if (res.data.length > 0 && this.filterData.longitude === null) {
+            this.setCenterByData(res.data)
+          }
         }
       })
     },
@@ -448,8 +457,8 @@ export default {
           // this.topMarkers = res.data
           this.setTopMarker(res.data)
           this.csAlert(res.data)
-          if (res.data.length > 0) {
-            // this.setCenterByData(res.data)
+          if (res.data.length > 0 && this.filterData.longitude === null) {
+            this.setCenterByData(res.data)
           }
         }
       })
@@ -462,10 +471,10 @@ export default {
           // this.topMarkers = res.data
           this.setTopMarker(res.data)
           this.csAlert(res.data)
-          if (res.data.length > 0 && this.level !== 1 && this.filterData.longitude === null) {
+          if (this.isArea && res.data.length > 0 && this.level !== 1 && this.filterData.longitude === null) {
             // console.log('center')
             // this.center = [res.data[0].longitude, res.data[0].latitude]
-            // this.setCenterByData(res.data)
+            this.setCenterByData(res.data)
             // this.center
           }
         }
@@ -665,28 +674,38 @@ export default {
     padding: 15px;
     .border-1px;
     .addr {
-      color: @gray
+      color: @gray;
+      padding-top: 4px;
     }
     .name {
       font-size: 15px;
+      position: relative;
       .num{
         color: @pink;
+      }
+      .close {
+        position: absolute;
+        top: 0;
+        right: 0;
       }
     }
   }
 }
 .circle-marker{
-  width: 52px;
-  height: 52px;
+  width: 70px;
+  height: 70px;
   background-color: #2175e3;
   // box-shadow: 0px 4px 8px 0px rgba(33, 117, 227, 0.51);
   border-radius: 50%;
   color: #fff;
   text-align: center;
-  padding-top: 15px;
+  padding-top: 4px;
   font-size: 11px;
   position: relative;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .local-icon{
   display: inline-block;

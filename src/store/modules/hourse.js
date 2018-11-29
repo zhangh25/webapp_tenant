@@ -28,7 +28,6 @@ const hourse = {
       let idx = state.history.indexOf(history)
       // console.log(idx, '3233')
       if (idx > -1) {
-        // console.log(idx, '3231123')
         state.history.splice(idx, 1)
       }
       state.history.push(history)

@@ -10,7 +10,6 @@
         <div class="load" v-if="loading&&list.length===0&&curPage==1">
           <Spinner class="spi" type="fading-circle" :size="20"></Spinner><span>加载中...</span>
         </div>
-
         <template v-else>
           <div class="list-item border-1px" v-for="(item, idx) in list" :key="item.roomId" @click="goDetail(item)" >
             <icon-svg v-if="item.status != 1" @click.native.stop="storeRoom(item, idx)" icon-class="closeCircle" class="icon"></icon-svg>
@@ -23,11 +22,14 @@
                 <span class="address">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template></span>
                 <span class="price"><span class="num">{{parseInt(item.rent)}}</span>元/月</span>
               </div>
-              <div class="describe">{{item.typeName}}</div>
+              <div class="describe">{{item.typeName}}-{{item.roomArea}}㎡</div>
               <div class="describe address-detail"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template><div class="invalid" v-if="item.status != 1">已失效</div></div>
             </div>
+
           </div>
           <div class="null" v-if="list.length>4&&allLoaded">已全部加载完毕</div>
+          <div v-if="list.length>4&&allLoaded" style="height: 20px"></div>
+          <!--  -->
         </template>
       </Loadmore>
       </div>
@@ -294,5 +296,6 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-top: 15px;
     }
 </style>

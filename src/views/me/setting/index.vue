@@ -6,9 +6,9 @@
       <cell title="修改登录密码" is-link @click.native="updatePassword"></cell>
       <cell title="常见问题" is-link to="/problem"></cell>
     </div>
-    <div style="margin-top: 20px;" class="cell-wrapper border-1px cl">
+    <!-- <div style="margin-top: 20px;" class="cell-wrapper border-1px cl">
       <cell title="清除缓存" is-link></cell>
-    </div>
+    </div> -->
     <!-- <Button size="large">退出登录</Button> -->
     <div class="quit" @click="quit" v-if="token">退出登录</div>
     <!-- <mypop v-model="visiblePhone">

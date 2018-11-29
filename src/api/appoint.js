@@ -56,8 +56,8 @@ export function contractApply (data) {
 // /queryLeaseOrder
 // 查询租约记录
 export function queryLeaseOrder (queryType, startRow, rows) {
-  startRow = startRow | 1
-  rows = rows | 10
+  startRow = startRow || 1
+  rows = rows || 10
   return request({
     url: '/queryLeaseOrder',
     method: 'get',
@@ -113,6 +113,16 @@ export function cancelApplyRetireRoom (id) {
     url: '/cancelApplyRetireRoom',
     method: 'post',
     params: {id}
+  })
+}
+
+// GET
+// /retireRoomCause
+// 用户申请退房原因
+export function retireRoomCause () {
+  return request({
+    url: '/retireRoomCause',
+    method: 'get'
   })
 }
 

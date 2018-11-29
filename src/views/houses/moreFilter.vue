@@ -1,6 +1,6 @@
 <template>
   <div class="morefilter">
-    <div class="box" :style="{height}">
+    <div class="box" :style="{height}" :class="{cn: tcenter}">
     <!-- <div>帅选</div> -->
       <div class="list">
         <div class="title">租金</div>
@@ -51,6 +51,10 @@ export default {
     height: {
       default: 'auto',
       type: String
+    },
+    tcenter: {
+      default: false,
+      type: Boolean
     }
   },
   watch: {
@@ -67,11 +71,11 @@ export default {
       rentList: [
         {id: 1, min: 0, max: 1000, name: '≤1000元'},
         {id: 2, min: 1000, max: 1500, name: '1000-1500元'},
-        {id: 3, min: 1000, max: 1500, name: '1500-2000元'},
-        {id: 4, min: 1000, max: 1500, name: '2000-3000元'},
-        {id: 5, min: 1000, max: 1500, name: '3000-5000元'},
-        {id: 6, min: 1000, max: 1500, name: '5000-8000元'},
-        {id: 7, min: 1000, max: 1500, name: '≥8000元'}
+        {id: 3, min: 1500, max: 2000, name: '1500-2000元'},
+        {id: 4, min: 2000, max: 3000, name: '2000-3000元'},
+        {id: 5, min: 3000, max: 5000, name: '3000-5000元'},
+        {id: 6, min: 5000, max: 8000, name: '5000-8000元'},
+        {id: 7, min: 8000, max: 1500000, name: '≥8000元'}
       ],
       configRespList: [], // 房间配置
       hotTagRespList: [], // 房间特色
@@ -129,6 +133,11 @@ export default {
     .box {
       // height: 340px;
       overflow-y: scroll;
+      &.cn {
+        .title {
+          text-align: center;
+        }
+      }
     }
     .radio-list{
       padding: 10px 4px;

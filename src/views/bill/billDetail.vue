@@ -6,7 +6,7 @@
       <div class="price">￥{{billdetail.price}}</div>
       <div class="tip">请在{{billdetail.payLimit}}前完成支付</div>
       <div class="cell">
-        <label class="name">创建时间</label><div class="value"></div>
+        <label class="name">创建时间</label><div class="value">{{billdetail.startDate}}</div>
       </div>
       <div class="cell">
         <label class="name">账单号</label><div class="value">{{billdetail.orderNum}}</div>
@@ -17,9 +17,9 @@
       <div class="qus" @click="problem">对此账单有疑问？</div>
     </div>
     <iframe style="display: none" ref="iframe" src="" frameborder="0"></iframe>
-    <div class="bottom">
+    <!-- <div class="bottom">
       <Button type="primary" size="large">立即支付</Button>
-    </div>
+    </div> -->
   </div>
 </template>
 

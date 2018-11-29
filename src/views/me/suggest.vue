@@ -2,7 +2,10 @@
   <div class="connent">
     <csheader>意见提交</csheader>
     <div style="padding: 15px">
-      <textarea v-model="ideaString" class="textarea" placeholder="写下你对城宿租房建议或期待"></textarea>
+      <div class="box">
+        <textarea v-model="ideaString" class="textarea" placeholder="写下你对城宿租房建议或期待" maxlength="200" @input="changeTxt"></textarea>
+        <div class="num">{{num}}/{{total}}</div>
+      </div>
       <Button type="primary" class="btn" style="margin-top: 20px" @click.native="submit">提交</Button>
     </div>
   </div>
@@ -15,7 +18,9 @@ import {saveSysFeedback} from '@/api/user'
 export default {
   data () {
     return {
-      ideaString: ''
+      ideaString: '',
+      total: 200,
+      num: 0
     }
   },
   methods: {
@@ -30,6 +35,13 @@ export default {
           Toast(res.msg)
         }
       })
+    },
+    changeTxt () {
+      this.num = this.ideaString.length
+      if (this.num >= this.total) {
+        this.ideaString.substring(0, 200)
+      }
+      console.log(this.ideaString.length)
     }
   },
   components: {
@@ -56,6 +68,14 @@ export default {
   .btn{
     width: 100%;
     background-color: @themeColor;
+  }
+  .box {
+    position: relative;
+    .num {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+    }
   }
 }
 </style>

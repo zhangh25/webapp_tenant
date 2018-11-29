@@ -10,7 +10,8 @@
       <div class="cell"><div class="lab">房源</div><div class="value">{{houselease.roomTitle}}</div></div>
       <div class="title" style="margin-top: 10px;">退房信息</div>
       <Cell title="退房时间" is-link @click.native="openDate"><input class="input" type="text" v-model="fData.retireTime" placeholder="必填（用于费用结算）"></Cell>
-      <Cell title="退房原因" is-link @click.native="caseVisible=true"><input class="input" type="text" v-model="fData.retireRoomCause" placeholder="选填"></Cell>
+      <Cell title="退款卡号" is-link @click.native="bankVisible=true"><input class="input" type="text" v-model="bankName" placeholder="请选择"></Cell>
+      <Cell title="退房原因" is-link @click.native="caseVisible=true"><input class="input" type="text" v-model="caseName" placeholder="选填"></Cell>
       <div class="remark"><textarea class="area" v-model="fData.retireRoomRemark" placeholder="备注信息（选填）"></textarea></div>
       <div class="tip">
         <div class="label">温馨提示：</div>
@@ -49,7 +50,14 @@
           <div class="left" @click="caseVisible=false">取消</div>
           <div class="right" @click="caseConfirm">确定</div>
         </div>
-        <Picker :slots="options" @change="onChange" ></Picker>
+        <Picker :slots="options" valueKey="cfgValue" @change="onChange" ></Picker>
+      </Popup>
+      <Popup v-model="bankVisible" position="bottom" class="pop" pop-transition="popup-fade">
+        <div class="bar">
+          <div class="left" @click="bankVisible=false">取消</div>
+          <div class="right" @click="bankConfirm">确定</div>
+        </div>
+        <Picker :slots="bankOptions" valueKey="value" @change="onBankChange" ></Picker>
       </Popup>
   </div>
 </template>
@@ -59,7 +67,8 @@ import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
 import {Cell, Button, DatetimePicker, Picker, Toast, Popup} from 'mint-ui'
 import {formatDate} from '@/utils/tool'
-import {applyRetireRoom} from '@/api/appoint'
+import {applyRetireRoom, retireRoomCause} from '@/api/appoint'
+import {getUserBankList} from '@/api/wallet'
 export default {
   computed: {
     ...mapGetters(['userData', 'houselease'])
@@ -69,19 +78,28 @@ export default {
       startTime: '',
       startdate: '',
       caseArr: [],
+      bankArr: [],
       isSubmit: false,
+      bankName: '',
+      caseName: '',
       fData: {
+        bankId: null,
         id: null, // *
         retireApplyTime: null, //
         retireRoomCause: null, // 原因
         retireRoomRemark: null, // 备注
-        retireTime: null, // * 退房时间
-        userId: null
+        retireTime: null // * 退房时间
+        // userId: null
       },
       caseVisible: false,
+      bankVisible: false,
       options: [{
         flex: 1,
-        values: ['换城市了', '换工作了', '换个房间', '服务不满意', '其他']
+        values: []
+      }],
+      bankOptions: [{
+        flex: 1,
+        values: []
       }]
     }
   },
@@ -93,7 +111,12 @@ export default {
     console.log(this.userData)
     console.log(this.houselease)
     this.startdate = this.startTime = new Date()
-    this.fData.userId = this.userData.id
+    // this.fData.userId = this.userData.id
+    this.fData.id = this.houselease.id
+  },
+  mounted () {
+    this.getCaseList()
+    this.getBankList()
   },
   methods: {
     openDate () {
@@ -104,28 +127,51 @@ export default {
       this.fData.retireTime = formatDate(new Date(this.startTime), 'yyyy-MM-dd')
     },
     onChange (picker, val) {
-      // console.log(val)
+      console.log(val)
       this.caseArr = val
+    },
+    onBankChange (picker, val) {
+      console.log(val)
+      this.bankArr = val
     },
     caseConfirm () {
       if (this.caseArr[0]) {
-        this.fData.retireRoomCause = this.caseArr[0]
+        this.fData.retireRoomCause = this.caseArr[0].id
+        this.caseName = this.caseArr[0].cfgValue
         this.caseVisible = false
+      }
+    },
+    bankConfirm () {
+      if (this.bankArr[0]) {
+        this.fData.bankId = this.bankArr[0].id
+        this.bankName = this.bankArr[0].value
+        this.bankVisible = false
       }
     },
     submit () {
       // Toast('ddd')
-      if (!this.fData.retireApplyTime) {
+      if (!this.fData.retireTime) {
         Toast('请选择退房时间')
         return
       }
-      applyRetireRoom(this.fData).then(res => {
+      if (!this.fData.bankId) {
+        Toast('请选择银行卡')
+        return
+      }
+      let data = JSON.parse(JSON.stringify(this.fData))
+      data.retireTime = data.retireTime + ' 00:00:00'
+      console.log(data)
+      // let a = true
+      // if (a) {
+      //   return
+      // }
+      applyRetireRoom(data).then(res => {
         if (res.code === 1) {
           Toast('提交成功')
           let house = JSON.parse(JSON.stringify(this.houselease))
           house.orderStatus = 7
           this.$store.dispatch('leaseHouse', house)
-          // this.$router.go(-1)
+          this.$router.go(-1)
           this.isSubmit = true
         } else {
           Toast(res.msg)
@@ -134,6 +180,25 @@ export default {
     },
     seeCheckout () {
       this.$router.push(`/leaseDetail/${1}`)
+    },
+    getCaseList () {
+      retireRoomCause().then(res => {
+        console.log(res)
+        if (res.code === 1) {
+          this.options[0].values = res.data
+        }
+      })
+    },
+    getBankList () {
+      getUserBankList().then(res => {
+        console.log(res)
+        if (res.code === 1) {
+          this.bankOptions[0].values = []
+          for (let item of res.data) {
+            this.bankOptions[0].values.push({id: item.id, value: `${item.bankName}（${item.bankCard.slice(-4)}）`})
+          }
+        }
+      })
     }
   },
   components: {

@@ -2,17 +2,18 @@
   <div class="confirm">
     <csheader>信息确认</csheader>
     <div class="content">
-    <div class="banner-imgs">
-    <Swipe @change="handleChange">
+    <div class="banner" @click="$router.push('/imgbox')">
+      <img src="./icon/confirmImg.png" style="width: 100%" alt="">
+    <!-- <Swipe @change="handleChange">
         <SwipeItem style="background: #ff0000" v-for="item in house.imageList" :key="item.index"><img :src="item.url" alt="" class="img"></SwipeItem>
-        <!-- <SwipeItem style="background: #120050">2</SwipeItem>
-        <SwipeItem style="background: #af0000">3</SwipeItem> -->
       </Swipe>
-      <div class="tip" v-if="house.imageList&&house.imageList.length > 0">{{curImgidx}}/{{house.imageList.length}}</div>
+      <div class="tip" v-if="house.imageList&&house.imageList.length > 0">{{curImgidx}}/{{house.imageList.length}}</div> -->
     </div>
     <!-- <div class="ad"><img src="" alt=""></div> -->
     <div class="landlord">
-      <img class="img" :src="house.ownerUrl" width="27" height="27"> <span class="txt"> 房东 {{house.ownerName|name}}</span>
+      <img class="img" v-if="house.ownerUrl" :src="house.ownerUrl" width="27" height="27">
+      <img class="img" v-else src="../me/img/icon_logo11@2x.png" width="27" height="27" style="object-fit: contain;">
+      <span class="txt"> 房东 {{house.ownerName|name}}</span>
     </div>
     <div class="house">
       <div class="pic">
@@ -21,7 +22,7 @@
       <div class="right">
         <div class="title">{{house.areaName}}-<template v-if="house.roomTitle">{{house.roomTitle}}</template><template v-else>{{house.name}}</template></div>
         <div class="name">{{house.typeName}}-{{house.roomArea}}㎡</div>
-        <div v-if="house.rent" class="rent">{{house.rent}}元/月</div>
+        <div v-if="house.rent" class="rent"><span class="num">{{house.rent}}</span>元/月</div>
       </div>
     </div>
     <div class="info auth">
@@ -35,8 +36,10 @@
       <!-- <mmfield label="手机号" v-model="userData.phone" :font-size="14"></mmfield> -->
       <template v-if="userData.auditing === 1">
         <mfield label="入住人数" v-model="formData.occupantNum" :font-size="14" placeholder="请输入人数"></mfield>
-        <mfield label="租约起始日" v-model="formData.startTime" @click.native="openDate('pickerstart')" :font-size="14" disabled placeholder="请选择日期" allow></mfield>
-        <mfield label="租约结束日" v-model="formData.endTime" @click.native="openDate('pickerend')" :font-size="14" disabled placeholder="请选择日期" allow></mfield>
+        <mfield label="租约起始日" v-model="formData.startTime" @click.native="showStartDate" :font-size="14" disabled placeholder="请选择日期" allow></mfield>
+        <!-- <mfield label="租约起始日" v-model="formData.startTime" @click.native="openDate('pickerstart')" :font-size="14" disabled placeholder="请选择日期" allow></mfield> -->
+        <mfield label="租约结束日" v-model="formData.endTime" @click.native="showEndDate" :font-size="14" disabled placeholder="请选择日期" allow></mfield>
+        <!-- <mfield label="租约结束日" v-model="formData.endTime" @click.native="openDate('pickerend')" :font-size="14" disabled placeholder="请选择日期" allow></mfield> -->
         <mfield label="留言" type="textarea" placeholder="请输入留言" v-model="formData.content" :font-size="14"></mfield>
       </template>
       </div>
@@ -117,6 +120,7 @@ export default {
         startTime: null, // 开始时间
         endTime: null // 结束时间
       },
+      date: '',
       name: null,
       idcard: null
     }
@@ -126,7 +130,8 @@ export default {
     this.enddate = new Date()
     this.startdate2 = new Date()
     this.endTime = this.enddate2 = new Date()
-    this.enddate.setDate(this.enddate.getDate() + 30)
+    this.enddate.setMonth(this.enddate.getMonth() + 1)
+    // this.enddate.setDate(this.enddate.getDate() - 1)
     this.house = this.details
     this.sex = this.sexName()
     this.formData.ownerId = this.house.ownerId
@@ -151,6 +156,39 @@ export default {
     handleChange (index) {
       this.curImgidx = index + 1
     },
+    showStartDate () {
+      this.$picker.show({
+        type: 'datePicker',
+        // date: '2018-11-8',
+        startTime: formatDate(this.startdate, 'yyyy-MM-dd'),
+        endTime: formatDate(this.enddate, 'yyyy-MM-dd'),
+        onOk: (date) => {
+          // this.date = date
+          this.formData.startTime = formatDate(new Date(date), 'yyyy-MM-dd')
+        }
+      })
+    },
+    showEndDate () {
+      if (!this.formData.startTime) {
+        Toast('请先选择起始页')
+        return
+      }
+      let date = new Date(this.formData.startTime)
+      date.setMonth(date.getMonth() + 3)
+      // date.setDate(date.getDate() - 1)
+      let time = formatDate(date, 'yyyy-MM-dd')
+      this.$picker.show({
+        type: 'datePicker',
+        // date: '2019-2-3',
+        date: time,
+        startTime: time,
+        endTime: '2050-12-31',
+        onOk: (date) => {
+          // this.date = date
+          this.formData.endTime = formatDate(new Date(date), 'yyyy-MM-dd')
+        }
+      })
+    },
     startChange (val) {
       // formatDate(, 'yyyy')
       // console.log(val)
@@ -158,10 +196,12 @@ export default {
       // this.startTime2
     },
     startConfirm () {
-      this.formData.startTime = formatDate(new Date(this.startTime), 'yyyy-MM-dd')
+      console.log('sssss')
+      // this.
+      // this.formData.startTime = formatDate(new Date(this.startTime), 'yyyy-MM-dd')
       // this.enddate = new Date(this.startTime)
       // this.startdate2 = this.startdate2.setDate(this.startTime.getDate())
-      this.enddate2.setDate(this.startdate2.getDate() + 30 * 3)
+      // this.startdate2.setDate(this.startdate2.getDate() + 30 * 3)
     },
     endChange (val) {
       // console.log(val)
@@ -185,11 +225,15 @@ export default {
         return false
       }
       if (!isNumber(this.formData.occupantNum)) {
-        Toast('人数必须为数字')
+        Toast('人数必须为大于零数字')
         return false
       }
       if (this.formData.occupantNum < 1) {
         Toast('人数必须大于零')
+        return false
+      }
+      if (this.formData.occupantNum > 99) {
+        Toast('入住人数太多')
         return false
       }
       return true
@@ -228,7 +272,7 @@ export default {
   .content {
     height: calc(100vh - 44px);
     overflow: scroll;
-    .banner-imgs {
+    .banner {
       .img {
         width: 100%;
         height: 100%;
@@ -256,7 +300,7 @@ export default {
   }
   .house{
     display: flex;
-    padding: 15px 0 15px 15px;
+    padding: 0 0 15px 15px;
     background-color: #fff;
     .pic{
       flex: 0 0 98px;
@@ -284,8 +328,11 @@ export default {
         padding-top: 4px
       }
       .rent{
-        color: @gray;
-        padding-top: 4px
+        color: @pink;
+        padding-top: 4px;
+        .num{
+          font-weight: bold;
+        }
       }
     }
   }

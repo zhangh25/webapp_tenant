@@ -18,6 +18,7 @@
         <img :src="item.url" width="40" height="40"><br> <span class="title">{{item.name}}</span>
       </div>
     </div>
+    {{code}}
     <div class="house-title border-1px">
       <span style="font-weight:bold">精选房源</span> <div class="more" @click="listMore">查看更多<i class="icon-more"></i></div>
     </div>
@@ -30,9 +31,10 @@
           <span class="address" v-else>{{item.areaName}}-{{item.name}}-{{item.buildName}}</span>
           <span class="price"><span class="num">{{parseInt(item.rent)}}</span>元/月</span>
         </div>
-        <div class="describe">{{item.typeName}}</div>
+        <div class="describe">{{item.typeName}}-{{item.roomArea}}㎡</div>
         <div class="describe address-detail"><i class="icon-addr"></i><template v-if="item.metroIfo">{{item.metroIfo}}</template><template v-else>{{item.streetName}}</template></div>
       </div>
+      <!-- {{isApp}} -->
       <!-- <div class="list-item">
         <div class="img"></div>
         <div class="addr">
@@ -61,6 +63,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { Swipe, SwipeItem, Cell, Popup } from 'mint-ui'
 import houseDetails from '../houses/details.vue'
 import {homeList} from '@/api/home'
@@ -69,6 +72,9 @@ import searchPage from 'components/search'
 import list from '@/components/houseList/list'
 import tabbar from '@/components/tabbar/index'
 export default {
+  computed: {
+    ...mapGetters(['isApp'])
+  },
   data () {
     return {
       detailsPopup: false,
@@ -77,13 +83,16 @@ export default {
       roomMenuRespList: [],
       city: '深圳',
       searchVisible: false,
-      istop: true
+      istop: true,
+      code: ''
       // listVisible: false
     }
   },
 
   created () {
     this._getHomeList()
+    // alert(this.isWeiXin())
+    // this._getCode()
   },
   mounted () {
     window.onscroll = (ev) => {
@@ -121,7 +130,8 @@ export default {
       // })
     },
     showSearch () {
-      this.searchVisible = true
+      // this.searchVisible = true
+      this.$router.push('/search')
     },
     listMore () {
       this.$store.dispatch('setCondition', {})
@@ -135,6 +145,14 @@ export default {
         //   menuResp: item.id
         // }
       })
+    },
+    isWeiXin () {
+      var ua = window.navigator.userAgent.toLowerCase()
+      if (ua.match(/MicroMessenger/i) === 'micromessenger') {
+        return true
+      } else {
+        return false
+      }
     }
   },
   components: {
@@ -176,6 +194,12 @@ export default {
       // .border-1px;
       border-color: #f1f1f1;
       background-color: #fff ;
+      .city {
+        color: #484848;
+        .icon:after {
+          border-top-color: #484848;
+        }
+      }
     }
     .input{
       display: inline-block;
@@ -201,7 +225,7 @@ export default {
       float: left;
       padding-left: 10px;
       font-size: 14px;
-      color: #484848;
+      color: #fff;
       line-height: 30px;
       .icon:after {
         content:" ";
@@ -209,7 +233,7 @@ export default {
         width: 0;
         height: 0;
         margin-left: 6px;
-        border-top: 6px solid #484848;
+        border-top: 6px solid #fff;
         border-left: 6px solid transparent;
         border-right: 6px solid transparent;
         margin-bottom: 1px;

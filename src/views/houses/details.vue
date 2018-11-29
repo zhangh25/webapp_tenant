@@ -12,7 +12,7 @@
       <div class="header border-1px" :class="{scroll: !istop}">
         <!-- <i class="icon-back"></i> -->
         <div class="left" @click="hiden"><icon-svg icon-class="back" class="icon"></icon-svg></div>
-        <div class="center">{{deatil.areaName}}{{hourseTitle}}</div>
+        <div class="center">{{deatil.areaName}}-{{hourseTitle}}</div>
         <div class="right"></div>
       </div>
     </div>
@@ -41,8 +41,8 @@
         <div class="item" v-if="deatil.floorNumber">{{deatil.floorNumber}}/{{deatil.floorTotal}}层</div>
         <div class="item" v-if="deatil.orientation">{{deatil.orientation}}</div>
     </div>
-    <div class="addr-detail border-1px" v-if="deatil.metroIfo">
-      <i class="icon-addr"></i>{{deatil.metroIfo}}
+    <div class="addr-detail border-1px" >
+      <i class="icon-addr"></i><template v-if="deatil.metroIfo">{{deatil.metroIfo}}</template><template v-else>{{deatil.address}}</template>
     </div>
     <div class="box border-1px device" v-if="deatil.roomConfigRespList&&deatil.roomConfigRespList.length>0">
       <div class="title">配置设备</div>
@@ -53,7 +53,7 @@
     <div class="box around border-1px">
       <div class="title">周边及交通</div>
       <div class="amap">
-        <el-amap vid="amapDemo" :zoom="zoom" :center="center" class="" :zoomEnable="false" :dragEnable="false" :doubleClickZoom="false">
+        <el-amap vid="amapDem" :zoom="zoom" :center="center" class="" :zoomEnable="false" :dragEnable="false" :doubleClickZoom="false">
           <el-amap-marker :position="center" class="csmarker" :offset=[-7,-12]>
           <i class="local-icon"></i>
         </el-amap-marker>
@@ -69,16 +69,27 @@
     <div class="box butler border-1px">
       <div class="title">您的管家</div>
       <div class="butler-info clearfix">
-        <div class="head">
-          <img v-if="deatil.managerImageUrl" :src="deatil.managerImageUrl">
-          <img v-else src="./icon/icon_guanjia@2x.png">
-        </div>
-        <span class="name">{{deatil.managerName|name}}</span>
-        <div class="btn">联系电话</div>
+        <template v-if="deatil.managerName">
+          <div class="head">
+            <img v-if="deatil.managerImageUrl" :src="deatil.managerImageUrl">
+            <img v-else src="./icon/icon_guanjia@2x.png">
+          </div>
+          <span class="name">{{deatil.managerName|name}}</span>
+          <div class="btn" @click="phone(deatil.managerPhone)">联系电话</div>
+        </template>
+        <template v-else>
+          <div class="head">
+            <img v-if="deatil.ownerUrl" :src="deatil.ownerUrl">
+            <img v-else src="./icon/icon_guanjia@2x.png">
+          </div>
+          <span class="name">{{deatil.ownerName|name}}</span>
+          <div class="btn" @click="phone(deatil.ownerPhone)">联系电话</div>
+        </template>
         <!-- <div class="btn" @click="phone">联系电话</div> -->
       </div>
       <div class="text">
-        {{deatil.managerInfo}}
+        <template v-if="deatil.managerInfo">{{deatil.managerInfo}}</template>
+        <template v-else>您好，我是房小主，很高心您关注到我的房源，期待您的入住，关于以上房源的任何疑问，可点击我头像右方的【联系电话】联系我哦！</template>
         <!-- 您好，我是城宿管家，期待为您服务。有任何问题可致电咨询，城宿公寓欢迎您的入住。 -->
       </div>
     </div>
@@ -97,11 +108,11 @@
         <i class="icon-back" @click="hiden"></i>
       </div> -->
       <div class="header scroll border-1px" :class="{scroll: !istop}">
-        <!-- <i class="icon-back"></i> -->
         <div class="left" @click="hiden"><icon-svg icon-class="back" class="icon"></icon-svg></div>
-        <div class="center">无数据</div>
+        <div class="center"></div>
         <div class="right"></div>
       </div>
+      <nodata text="亲，没有数据哦~~"></nodata>
     </div>
     <iframe style="display: none" ref="iframe" src="" frameborder="0"></iframe>
   </div>
@@ -110,10 +121,11 @@
 <script>
 import { mapGetters } from 'vuex'
 import {querRoomDetailList, saveUsersFavorite, delUsersFavorite} from '@/api/house'
-import {Swipe, SwipeItem, MessageBox} from 'mint-ui'
+import {Swipe, SwipeItem, MessageBox, Toast} from 'mint-ui'
 import login from '@/views/me/user/login'
 import contract from './contract'
 import csheader from '@/components/header'
+import nodata from 'components/nodata/index'
 export default {
   computed: {
     ...mapGetters(['token', 'collect', 'userData']),
@@ -121,7 +133,7 @@ export default {
       if (this.deatil.roomTitle) {
         return this.deatil.roomTitle
       }
-      return this.deatil.name
+      return this.deatil.name + '-' + this.deatil.buildName
     }
   },
   props: {
@@ -166,6 +178,7 @@ export default {
         this.istop = false
       }
     }
+    this._getCode()
   },
   methods: {
     handleChange (index) {
@@ -189,6 +202,28 @@ export default {
           console.log()
         }
       })
+    },
+    _getCode () {
+      const appid = 'wx388ad7a1a03663df'
+      const url = window.location.href
+      let code = this.getUrlParam('code')
+      alert('code ' + code)
+      if (!code) {
+        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${url}&response_type=code&scope=snsapi_base&state=12234#wechat_redirect`
+      } else {
+        // this.$store.dispatch('', code)
+        this.code = code
+        // alert(code)
+      }
+    },
+    getUrlParam (name) {
+      var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)') // 构造一个含有目标参数的正则表达式对象
+      var r = window.location.search.substr(1).match(reg) // 匹配目标参数
+      if (r != null) {
+        return unescape(r[2]) // 返回参数值
+      } else {
+        return null
+      }
     },
     tips (str) {
       MessageBox({
@@ -266,10 +301,12 @@ export default {
             console.log(res)
             if (res.code === 1) {
               this.$store.dispatch('addCollect', this.deatil.roomId)
+              Toast('房源收藏成功')
             }
           })
         } else {
-          this.$store.dispatch('addCollect', this.deatil.roomId)
+          // this.$store.dispatch('addCollect', this.deatil.roomId)
+          this.$router.push('/login')
         }
       } else {
         // console.log('no')
@@ -277,33 +314,35 @@ export default {
           delUsersFavorite(this.deatil.roomId).then(res => {
             if (res.code === 1) {
               this.$store.dispatch('delCollect', this.deatil.roomId)
+              Toast('房源取消收藏成功')
             }
           })
         } else {
-          this.$store.dispatch('delCollect', this.deatil.roomId)
+          // this.$store.dispatch('delCollect', this.deatil.roomId)
+          this.$router.push('/login')
         }
       }
       // console.log(this.collect)
     },
-    phone () {
-      if (this.deatil.managerPhone) {
+    phone (mb) {
+      if (mb) {
         MessageBox({
           title: '提示',
-          message: this.deatil.managerPhone,
+          message: mb,
           showCancelButton: true,
           confirmButtonText: '呼叫'
         }).then(s => {
         // console.log('ddd', s)
           if (s === 'confirm') {
           // console.log('ssd1')
-            this.$refs.iframe.src = `tel:${this.deatil.managerPhone}`
+            this.$refs.iframe.src = `tel:${mb}`
           }
         })
       }
     }
   },
   components: {
-    Swipe, SwipeItem, login, contract, csheader
+    Swipe, SwipeItem, login, contract, csheader, nodata
   }
 }
 </script>
@@ -504,7 +543,8 @@ export default {
 }
 .introduce{
   color: @gray;
-  padding: 0 15px;
+  // padding: 0 15px;
+  text-indent: 2em;
 }
 .butler{
   // margin-top: 10px;

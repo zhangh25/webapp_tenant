@@ -25,7 +25,7 @@
         <ul class="sort" v-show="openType===1">
           <li v-for="item in sortType" :key="item.id" @click="orderClick(item)" class="border-1px" :class="{active: item.id===order.id}">{{item.name}}</li>
         </ul>
-        <csfilter v-show="openType===2" v-model="filterData" height="340px"></csfilter>
+        <csfilter v-show="openType===2" v-model="filterData" height="340px" tcenter></csfilter>
         <!-- <div class="morefilter" v-if="openType===2">
           <div class="box">
             <div class="list">
@@ -203,8 +203,8 @@ export default {
       }
       this.queryData.configResp = data.configResp.map(item => item.id).join(',')
       this.queryData.hotTagResp = data.hotTagResp.map(item => item.id).join(',')
-      let houseType = data.houseType.map(item => item.id)
-      this.queryData.houseType = houseType.length > 0 ? houseType : null
+      // let houseType = data.houseType.map(item => item.id).join(',')
+      this.queryData.houseType = data.houseType.map(item => item.id).join(',')
       this.queryData.menuResp = data.menuResp.map(item => item.id).join(',')
       this.queryData.orientation = data.orientation.map(item => item.id).join(',')
       this.$refs.list.getHouseListFrist(this.queryData)
@@ -555,6 +555,7 @@ ul {
   background-image: url(./icon/icon_daohanglanditu@2x.png);
   background-size: contain;
   position: relative;
-    top: 3px;
+  top: 3px;
+  background-repeat: no-repeat;
 }
 </style>

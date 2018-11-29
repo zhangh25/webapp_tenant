@@ -40,6 +40,7 @@
         </mcell>
         <!-- {{su}} -->
       </div>
+      <!-- <button @click="open">open</button> -->
       <iframe style="display: none" ref="iframe" src="" frameborder="0"></iframe>
       <!-- <icon-svg icon-class="user"></icon-svg> -->
     </div>
@@ -81,7 +82,7 @@ export default {
   },
   data () {
     return {
-      login_logo: require('./img/icon_logo@2x.png'),
+      login_logo: require('./img/icon_logo11@2x.png'),
       logout_logo: require('./img/icon_logo1.@2x.png'),
       phone: '0755-82462123',
       su: false,
@@ -97,6 +98,18 @@ export default {
   },
   methods: {
     // showLogin () {}
+    open () {
+      this.$router.push('/test')
+      /* eslint-disable */ 
+      // let ref = cordova.InAppBrowser.open('http://192.168.10.119:8090/#/test', '_blank', 'location=no,clearcache=yes,clearsessioncache=yes')
+      // ref.addEventListener('loadstart', function (ev) {
+      //   // alert(ev.url)
+      //   if (ev.url.indexOf('/link/sign/redirect') > 0) {
+      //     ref.close()
+      //   }
+      //   // ref.executeScript({file: "myscript.js"});
+      // })
+    },
     callPhone () {
       MessageBox({
         title: '',
@@ -107,7 +120,7 @@ export default {
         // console.log('ddd', s)
         if (s === 'confirm') {
           // console.log('ssd1')
-          this.$refs.iframe.src = this.phone
+          this.$refs.iframe.src = 'tel:' + this.phone
         }
       })
     },
@@ -181,14 +194,6 @@ export default {
   components: {
     Cell,
     mcell,
-    // login,
-    // mypop,
-    // suggest,
-    // about,
-    // setting,
-    // personal,
-    // realname,
-    // real,
     tabbar
   }
 }
@@ -196,67 +201,6 @@ export default {
 
 <style lang="less" scoped>
 @import '../../styles/mixin.less';
-// .cell{
-//   // padding: 0 15px;
-//   background-color: #ffffff;
-//   .border-1px;
-//   .border-top-1px;
-//   .cell-item{
-//     display: flex;
-//     width: 100%;
-//     position: relative;
-//     // display: block;
-//     padding: 0 15px;
-//     line-height: 1px;
-//     min-height: 48px;
-//     align-items: center;
-//     &+.cell-item {
-//       // .border-top-1px;
-//     }
-//     .mask {
-//       &::after {
-//         content: ' ';
-//         position: absolute;
-//         top: 0;
-//         right: 0;
-//         bottom: 0;
-//         left: 0;
-//         background-color: #000;
-//         opacity: 0;
-//         transition: opacity .2s;
-//       }
-//       &:active{
-//         &::after{
-//           opacity: .2;
-//         }
-//       }
-//     }
-//     .wrapper {
-//       display: flex;
-//       align-items: center;
-//       line-height: 22px;
-//       .title{
-//         flex: 1;
-//       }
-//       .icon {
-//         vertical-align: top;
-//       }
-//       .txt {
-//         vertical-align: top;
-//       }
-//     }
-
-//     // &::after{
-//     //   content: ' ';
-//     //   position: absolute;
-//     //   left: 0;
-//     //   right: 0;
-//     //   top: 0;
-//     //   bottom: 0;
-//     //   background-color: #353535;
-//     // }
-//   }
-// }
 .cell-wrapper {
   .border-1px;
   .border-top-1px;
@@ -305,6 +249,7 @@ export default {
         // object-fit: cover;
         &.def{
         width: 34px;
+        height: auto;
       }
       }
     }

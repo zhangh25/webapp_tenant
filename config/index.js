@@ -3,6 +3,9 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
+// import app from 'app'
+// const app = require('app')
+// const app = require('app')
 
 module.exports = {
   dev: {
@@ -13,8 +16,10 @@ module.exports = {
     proxyTable: {
       "/api":{
         // target:"http://192.168.0.107:8080", "http://119.23.240.246:8080"
-        // target:"http://119.23.240.246:8080",
-        target:"http://192.168.0.104:8081",
+        target:"http://119.23.240.246:8080",
+        // target:"http://192.168.0.104:8081",
+        // target:"http://ht.free.idcfengye.com",
+        // target:"https://api.chengsu.vip",
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''

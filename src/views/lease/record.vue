@@ -1,6 +1,6 @@
 <template>
   <div class="record">
-    <csheader></csheader>
+    <csheader noborder></csheader>
     <div class="content">
     <div class="title">租约记录</div>
     <div class="tab border-1px"><span class="tab-item" v-for="item in tabs" :key="item.id" :class="{active: item.id === active}" @click="active=item.id">{{item.name}}</span></div>
@@ -10,12 +10,12 @@
           <div class="up">
             <div class="left"><img :src="item.imageUrl" alt=""></div>
             <div class="right">
-              <div class="name"><template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.areaName}}-{{item.name}}</template> <div class="state" :class="{active: item.orderStatus==0, pink: item.orderStatus==3||item.orderStatus==7 || item.orderStatus == 4}">{{status[item.orderStatus]}}</div></div>
+              <div class="name">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template>-{{item.roomNumber}} <div class="state" :class="{active: item.orderStatus==0, pink: item.orderStatus==3||item.orderStatus==7 || item.orderStatus == 4}">{{status[item.orderStatus]}}</div></div>
               <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
               <div class="addr"><span class="num">{{item.rent}}</span>元/月</div>
             </div>
           </div>
-          <div class="bt">看房时间：</div>
+          <div class="bt">申请签约时间：{{item.addTime}}</div>
           <div class="btns">
             <div class="item"><Button @click.stop="call(item.ownerPhone)">联系房东</Button></div>
             <div class="item"><Button @click.stop="cancel(item.id)">取消签约</Button></div>
@@ -42,12 +42,12 @@
           <div class="up">
             <div class="left"><img :src="item.imageUrl" alt=""></div>
             <div class="right">
-              <div class="name"><template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.areaName}}-{{item.name}}</template> <div class="state">{{status[item.orderStatus]}}</div></div>
+              <div class="name">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template><template v-if="item.roomNumber">-{{item.roomNumber}}</template> <div class="state">{{status[item.orderStatus]}}</div></div>
               <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
               <div class="addr"><span class="num">{{item.rent}}</span>元/月</div>
             </div>
           </div>
-          <div class="bt">看房时间：</div>
+          <div class="bt">申请签约时间：{{item.addTime}}</div>
           <div class="btns">
             <div class="item"><Button @click.stop="call(item.ownerPhone)">联系房东</Button></div>
             <!-- <div class="item"><Button @click.stop="cancel(item.id)">取消签约</Button></div> -->
@@ -117,14 +117,14 @@ export default {
   },
   methods: {
     getunfinishList () {
-      queryLeaseOrder(1).then(res => {
+      queryLeaseOrder(1, 1, 100).then(res => {
         if (res.code === 1) {
           this.unfinishList = res.data
         }
       })
     },
     getfinishList () {
-      queryLeaseOrder(2).then(res => {
+      queryLeaseOrder(2, 1, 100).then(res => {
         if (res.code === 1) {
           this.finishList = res.data
         }
@@ -219,17 +219,30 @@ export default {
         // background-color: #222;
         margin-right: 18px;
         img{
-          height: 100%;
+          // height: 100%;
           width: 100%;
+          height: 80px;
           object-fit: cover;
         }
       }
       .right{
         flex: 1;
+        min-width: 0;
         .name {
           font-size: 15px;
           font-weight: bold;
+          position: relative;
+          padding-right: 50px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          .txt {
+
+          }
           .state{
+            position: absolute;
+            right: 0;
+            top: 0;
             float: right;
             font-size: 14px;
             font-weight: normal;

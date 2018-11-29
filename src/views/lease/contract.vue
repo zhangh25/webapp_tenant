@@ -5,24 +5,24 @@
 
     </csheader>
     <div class="content">
-      <div class="box" v-for="(item, i) in list" :key="i" @click="detail(item)">
+      <div class="box" v-if="list.length > 0" :key="i" @click="detail(list[0])">
         <div class="wrapper">
           <img src="./icon/icon_qianyuehetong@2x.png" width="36" alt="">
         </div>
         <div class="txt">签约合同</div>
       </div>
-      <div class="box" v-if="list.length===0" @click="detail(null)">
+      <div class="box" v-else @click="detail(null)">
         <div class="wrapper">
           <img src="./icon/icon_qianyuehetong@2x.png" width="36" alt="">
         </div>
         <div class="txt">签约合同</div>
       </div>
-      <div class="box" @click="alert('暂无续租合同')">
+      <!-- <div class="box" @click="alert('暂无续租合同')">
         <div class="wrapper">
           <img src="./icon/icon_xuzuhetong@2x.png" width="36" alt="">
         </div>
         <div class="txt">续租合同</div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

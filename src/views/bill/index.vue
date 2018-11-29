@@ -17,7 +17,7 @@
                 <!-- <img v-if="house.imageList" :src="house.imageList[0].url" alt=""> -->
               </div>
               <div class="right">
-                <div class="title">{{house.areaName}}-<template v-if="house.roomTitle">{{house.roomTitle}}</template><template v-else>{{house.buildName}}</template> </div>
+                <div class="title">{{house.areaName}}-<template v-if="house.roomTitle">{{house.roomTitle}}</template><template v-else>{{house.buildName}}</template><template v-if="house.roomNumber">-{{house.roomNumber}}</template> </div>
                 <div class="name">{{house.typeName}}-{{house.roomArea}}㎡ <div class="other" v-if="list.length>1" @click="changeHouse">其他租约<icon-svg icon-class="back" class="icon"></icon-svg></div></div>
                 <div class="rent">{{house.rent}}元/月</div>
               </div>
@@ -45,7 +45,7 @@
               <!-- <img v-if="house.imageList" :src="house.imageList[0].url" alt=""> -->
             </div>
             <div class="right">
-              <div class="title">{{house.areaName}}-<template v-if="house.roomTitle">{{house.roomTitle}}</template><template v-else>{{house.buildName}}</template></div>
+              <div class="title">{{unhouse.areaName}}-<template v-if="unhouse.roomTitle">{{unhouse.roomTitle}}</template><template v-else>-{{unhouse.buildName}}</template><template v-if="unhouse.roomNumber">-{{unhouse.roomNumber}}</template></div>
               <div class="name">{{unhouse.typeName}}-{{unhouse.roomArea}}㎡ <div class="other" v-if="unlist.length>1" @click="changeunHouse">其他租约<icon-svg icon-class="back" class="icon"></icon-svg></div></div>
               <div class="rent">{{unhouse.rent}}元/月</div>
             </div>
@@ -53,7 +53,7 @@
           <!-- {{house}} -->
           <div v-for="(it, i) in unhouse.list" :key="i">
             <div class="date">{{it.name}}</div>
-            <billitem class="border-1px fishitem" v-for="item in it.value" :key="item.rbsId" :info="item"></billitem>
+            <billitem class="border-1px fishitem" v-for="item in it.value" :key="item.rbsId" :info="item" @click.native="detail(item, unhouse.ownerPhone)"></billitem>
           </div>
         </template>
         <nodata v-if="unlist.length<1&&active==='finished'" imgSrc="wurenhejilu" text="暂无任何记录哦"></nodata>
@@ -64,14 +64,14 @@
       <div class="info">
         <span>已选择{{total}}条账单</span><br>
         <div style="padding-top: 6px">合计<span class="price">￥{{totalPrice}}</span></div>
-        <Button type="primary" @click="pay" :disabled="this.totalPrice===0" class="btn">支付</Button>
+        <Button type="primary" @click="pay" :disabled="this.totalPrice == 0" class="btn">支付</Button>
       </div>
     </div>
     <Popup v-model="popVisible" position="bottom" class="pop">
       <label class="radio border-1px" v-for="item in list" :key="item.id">
         <div class="left">
-          <div>{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.buildName}}</template></div>
-          <div style="padding-top: 10px">{{item.rent}}元/月</div>
+          <div>{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.buildName}}</template><template v-if="item.roomNumber">-{{item.roomNumber}}</template></div>
+          <div style="padding-top: 10px">签约成功-{{userData.realname}}-{{item.rent}}元/月</div>
         </div>
         <div class="right"><span class="mint-checkbox"><input type="radio" class="mint-checkbox-input" :value="item.id" v-model="selectid"><span class="mint-checkbox-core"></span></span></div>
       </label>
@@ -79,8 +79,8 @@
     <Popup v-model="unpopVisible" position="bottom" class="pop">
       <label class="radio border-1px" v-for="item in unlist" :key="item.id">
         <div class="left">
-          <div>{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.buildName}}</template></div>
-          <div style="padding-top: 10px">{{item.rent}}元/月</div>
+          <div>{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.buildName}}</template><template v-if="item.roomNumber">-{{item.roomNumber}}</template></div>
+          <div style="padding-top: 10px">签约成功-{{userData.realname}}-{{item.rent}}元/月</div>
         </div>
         <div class="right"><span class="mint-checkbox"><input type="radio" class="mint-checkbox-input" :value="item.id" v-model="unselectid"><span class="mint-checkbox-core"></span></span></div>
       </label>
@@ -89,12 +89,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
 import {queryUserBill} from '@/api/bill'
 import billitem from './billitem'
 import {TabContainer, TabContainerItem, Checklist, Cell, Button, Popup, Spinner} from 'mint-ui'
 import nodata from 'components/nodata/index'
 export default {
+  computed: {
+    ...mapGetters(['userData'])
+  },
   data () {
     return {
       navTxt: [{id: 'unfinished', name: '未支付'}, {id: 'finished', name: '已支付'}],
@@ -133,6 +137,8 @@ export default {
             if (id === item.rbsId) {
               // console.log(item.price.substring(1))
               this.totalPrice += +item.price
+              // this.totalPrice = this.totalPrice.toFixed(2)
+              this.totalPrice = Math.floor(this.totalPrice * 100) / 100
               // console.log(this.totalPrice)
               break
             }
@@ -189,7 +195,10 @@ export default {
       this.loading = false
       if (res.code === 1 && res.data) {
         this.house = res.data[0]
-        this.selectid = this.house.id
+        this.selectid = this.$route.query.id
+        if (!this.selectid) {
+          this.selectid = this.house.id
+        }
         this.list = res.data
       }
     }, _ => {
@@ -199,7 +208,10 @@ export default {
     queryUserBill(2).then(res => {
       if (res.code === 1 && res.data) {
         this.unhouse = res.data[0]
-        this.unselectid = this.unhouse.id
+        this.unselectid = this.$route.query.id
+        if (!this.unselectid) {
+          this.unselectid = this.house.id
+        }
         this.unlist = res.data
       }
     })

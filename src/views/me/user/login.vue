@@ -1,10 +1,46 @@
 <template>
-  <div class="login" @keyup.enter="login">
-    <div class="close">
+  <div class="login" ref="login" @keyup.enter="login">
+    <div class="top">
+      <div class="header"><div class="left" @click="$router.go(-1)"><icon-svg icon-class="back" class="icon"></icon-svg></div></div>
+        <img src="../img/icon_tu@2x.png" width="100%" alt="">
+    </div>
+    <div class="content">
+
+      <!-- <div class="title">
+        城宿租房
+      </div> -->
+      <div class="box">
+        <div class="nav">
+          <div class="item" :class="{'active': active==='code'}" @click="toggle('code')"><span>验证码登录</span></div>
+          <div class="center"></div>
+          <div class="item" :class="{'active': active==='password'}" @click="toggle('password')"><span>密码登录</span></div>
+        </div>
+        <TabContainer v-model="active" swipeable>
+        <TabContainerItem id="code">
+          <!-- <field></field> -->
+          <div class="form-item"><div class="icon"><img src="../img/phone@2x.png" width="11" height="18"></div><input class="input" maxlength='11' type="text" v-model="formData.phone" placeholder="请输入手机号"></div>
+          <div class="form-item"><div class="icon"><img src="../img/verification@2x.png" width="12" height="14"></div><input class="input" type="number" maxlength='6' ref="code" v-model="formData.code" placeholder="请输入验证码"><div class="code" @click="getCode">{{btnTxt}}</div></div>
+        </TabContainerItem>
+        <TabContainerItem id="password">
+          <div class="form-item"><div class="icon"><img src="../img/phone@2x.png" width="11" height="18"></div><input class="input" maxlength='11' type="text" v-model="formData.phone" placeholder="请输入手机号"></div>
+          <div class="form-item"><div class="icon"><img src="../img/password@2x.png" width="11" height="14"></div><input class="input" type="password" v-model="formData.password" placeholder="请输入密码"></div>
+        </TabContainerItem>
+      </TabContainer>
+      <Button type="primary" class="btn" style="margin-top: 25px" @click.native="login">登录</Button>
+      <router-link v-if="active=='password'" to="/password" class="link">忘记密码？</router-link>
+    </div>
+
+  </div>
+<div class="bottom">
+      <span class="txt"><div class="checkbox" :class="{select: agree}" @click="toggleAgree"><i class="icon-checkbox"></i></div>新用户初次登录将自动注册,注册成功  &nbsp;<br>
+      即视为已阅读并同意<router-link class="prolink" to="/protocol">《城宿租房条款》</router-link>
+      </span>
+    </div>
+    <!-- <div class="close">
       <i class="icon-close" @click="$router.go(-1)"></i>
     </div>
     <div class="title">您好，</div>
-    <div class="describe">欢迎来到城宿，让租房更简单</div>
+    <div class="describe">欢迎来到城宿，让租房更便宜</div>
     <div style="margin-top: 30px">
       <div class="form-item">
         <i class="icon icon-phone"></i>
@@ -28,9 +64,9 @@
         <div class="border-1px"></div>
       </div>
       <div class="btns">
-        <template v-if="loginType !== 3"> <checklist v-model="agree" :options='["同意"]' class="login-check"></checklist> <span class="clause" @click="$router.push('/protocol')">《城宿租房条款》</span>
+        <template v-if="loginType !== 3"> <checklist v-model="agree" class="login-check"></checklist> <span class="clause" @click="$router.push('/protocol')">《城宿租房条款》</span>
         <div class="forget" @click="forgetPwd" v-if="loginType === 2">忘记密码?</div></template>
-        <Button type="primary" class="btn" style="margin-top: 20px" @click.native="login">{{loginType !== 3 ? '登录' : '确认'}}</Button>
+        <Button type="primary" class="btn" style="margin-top: 40px" @click.native="login">{{loginType !== 3 ? '登录' : '确认'}}</Button>
         <div class="btn-pwd" @click="switchType" v-if="loginType !== 3">使用{{ loginType === 1 ? '密码' : '验证码'}}登录</div>
       </div>
     </div>
@@ -50,17 +86,19 @@
         class="main-content"
         src="https://mobile.chengsu.vip/protocol/tenantProtocol.html"
       ></iframe>
-    </mypop>
+    </mypop> -->
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import { Button, Checklist, Toast, Popup, Header, Indicator } from 'mint-ui'
+import { TabContainer, TabContainerItem, Button, Checklist, Toast, Popup, Header, Indicator } from 'mint-ui'
 // Indicator
 import { isMobile } from '@/utils/validate'
 import { sendSmsCode, userRegister, setPassword, udpatePassword } from '@/api/user'
 import mypop from '@/components/myPopup'
+import csheader from '@/components/header'
+import field from 'components/field'
 export default {
   computed: {
     ...mapGetters(['loginedPath', 'token'])
@@ -74,7 +112,8 @@ export default {
   data () {
     return {
       visible: true,
-      agree: [],
+      agree: false,
+      active: 'code',
       formData: {
         phone: '',
         code: '',
@@ -103,17 +142,31 @@ export default {
     }
     // this.popupVisible = true
   },
+  mounted () {
+    this.$refs.login.style.height = document.documentElement.clientHeight + 'px'
+  },
   methods: {
     hiden () {
       // this.visible = false
       // this.$emit('input', false)
-      // this.$router.go(-1)
-      if (this.loginedPath) {
-        this.$router.push(this.loginedPath)
-        this.$store.dispatch('setPath', '')
-      } else {
-        this.$router.go(-1)
+      this.$router.go(-1)
+      // if (this.loginedPath) {
+      //   this.$router.push(this.loginedPath)
+      //   this.$store.dispatch('setPath', '')
+      // } else {
+      //   this.$router.go(-1)
+      // }
+    },
+    toggle (str) {
+      this.active = str
+      if (str === 'code') {
+        this.loginType = 1
+      } else if (str === 'password') {
+        this.loginType = 2
       }
+    },
+    toggleAgree () {
+      this.agree = !this.agree
     },
     login () {
       if (!this.validateMobile()) {
@@ -150,7 +203,7 @@ export default {
       udpatePassword(this.formData.phone, this.formData.code, this.formData.password).then(response => {
         if (response.code === 1) {
           Toast('密码设置成功')
-          this.$router.go(-1)
+          // this.$router.go(-1)
         } else {
           Toast(response.msg)
         }
@@ -172,7 +225,8 @@ export default {
             this.$store.dispatch('setUser', response.data)
           }
           if (response.data.loginstate === -1) {
-            this.popupVisible = true
+            // this.popupVisible = true
+            this.$router.push('/setpwd')
           } else {
             Toast('登录成功')
             this.hiden()
@@ -231,7 +285,7 @@ export default {
     },
     /* 验证是否勾选条款 */
     validateClause () {
-      if (this.loginType < 3 && this.agree.length < 1) {
+      if (this.loginType < 3 && !this.agree) {
         Toast('你没同意租房条款')
         return false
       }
@@ -296,7 +350,7 @@ export default {
     }
   },
   components: {
-    Button, Checklist, Popup, Header, mypop
+    Button, Checklist, Popup, Header, mypop, csheader, TabContainer, TabContainerItem, field
   }
 }
 </script>
@@ -304,163 +358,148 @@ export default {
 <style lang="less" scoped>
 @import '../../../styles/mixin.less';
 .login {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: #fff;
-  // z-index: 10;
-}
-.close {
-  padding: 15px;
-}
-.icon-close {
-  display: inline-block;
-  width: 17px;
-  height: 17px;
-  background-image: url(../img/icon_quxiao@3x.png);
-  background-size: cover;
-}
-.title{
-  font-size: 23px;
-  padding: 15px;
-}
-.describe{
-  line-height: 35px;
-  color: @gray;
-  padding-left: 15px;
-}
-input::placeholder {
-  font-size: 13px;
-  color: @gray;
-}
-.form-item{
   position: relative;
-  padding: 0 45px;
-  .input{
+  overflow: hidden;
+  height: 100vh;
+  background-color: #fff;
+}
+.top {
+  position: relative;
+  .header {
+    position: absolute;
+    top: 0;
     width: 100%;
-    border: none;
-    padding: 20px 30px;
-    outline:none;
-    // border-bottom: 1px solid #eee;
-    // .border-1px;
-  }
-  .border-1px {
-    .border-1px;
-  }
-  &.pwd{
-    padding: 0;
-    .input{
-padding-left: 0;
-      padding-right: 0;
+    height: 44px;
+    line-height: 44px;
+    // padding: 0 15px;
+    color: #fff;
+    font-size: 15px;
+    .left {
+      padding-left: 15px;
+      float: left;
     }
   }
-  .icon-phone{
-    background-image: url(../img/icon_cellphone@2x.png);
-  }
-  .icon-code {
-    background-image: url(../img/icon_verificationcode@2x.png)
-  }
-  .icon-pwd {
-    background-image: url(../img/icon_password@2x.png);
-  }
-  .icon {
-    position: absolute;
-    left: 50px;
-    top: 18px;
-    display: inline-block;
-    width: 11px;
-    height: 18px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-  }
-  .code{
-    position: absolute;
-    width: 100px;
-    height: 20px;
-    line-height: 20px;
-    border-left: 1px solid #ccc;
-    top: 18px;
-    right: 45px;
-    text-align: center;
-    color: @themeColor;
-    font-size: 13px;
-  }
 }
-.btns {
-  padding: 15px;
+.content {
+  position: relative;
+  width: 100vw;
+  // height: calc(100vh - 44px);
+  background-color: #fff;
+  padding: 0 25px;
+  color: #21262f;
+  .box {
+    position: relative;
+    height: 286px;
+    top: -25px;
+    background-color: #fff;
+    padding: 16px;
+    padding-top: 18px;
+    box-shadow: 0px 8px 24px 0px #eae8e8;
+    border-radius: 10px;
+  }
+  .title {
+    font-size: 27px;
+    text-align: center;
+    padding: 22px 0;
+  }
+  .nav {
+    display: flex;
+    .item {
+      flex: 1;
+      text-align: center;
+      height: 44px;
+      line-height: 30px;
+      // padding: 17px 0;
+      &.active {
+        color: @themeColor;
+        >span {
+          border-bottom: 1.5px solid @themeColor;
+        }
+        //
+      }
+      >span {
+        display: inline-block;
+      }
+    }
+    .center {
+      flex: 0 0 30px;
+    }
+  }
+  .form-item {
+    display: flex;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: center;
+    .icon {
+      // width: 11px;
+      width: 12px;
+    }
+    .input{
+      flex: 1;
+      border: none;
+      height: 54px;
 
-  .btn-pwd{
-    height: 41px;
-    font-size: 14px;
-    line-height: 41px;
-    color: @gray;
-    text-align: center;
+      padding-left: 10px;
+      &::placeholder {
+        color: #c8c8cd;
+      }
+    }
+    .code {
+      width: 100px;
+      text-align: center;
+      line-height: 54px;
+      color: @themeColor;
+      white-space: nowrap;
+    }
   }
-}
-.btn{
+  .btn{
     width: 100%;
     border-radius: 48px;
     background-color: @themeColor;
     font-size: 16px;
   }
-.login-check{
-  float: left;
-
-}
-.clause{
-  display: inline-block;
-  color: @themeColor;
-  font-size: 12px;
-  // position: relative;
-  // top: 22px;
-  height: 48px;
-  line-height: 48px;
-  margin-top: 8px;
-  margin-left: 8px;
-  // background: #ad3452;
-}
-.pop{
-  width: 100%;
-  height: 100%;
-  background-color: #fff;
-}
-.header{
-  height: 44px;
-  font-size: 17px;
-  color: #353535;
-  text-align: center;
-  line-height: 44px;
-  border-bottom: 1px solid #e8e8e8;
-  position: relative;
-}
-.content {
-  padding: 15px;
-  .text{
-    color: @gray;
-    padding: 10px 0;
-    font-size: 12px;
+  .link {
+    float: right;
+    display: inline-block;
+    margin-top: 17px;
+    margin-right: 15px;
+    text-decoration: none;
+    color: @themeColor;
   }
-}
-.forget {
-  float: right;
-  font-size: 12px;
-  color: @themeColor;
-  margin-top: 8px;
-  height: 48px;
-  line-height: 48px;
-  padding-right: 10px;
-}
 
-.lpop{
-  // display: flex;
-  .main-content{
-    border: none;
-    // flex: 1
+}
+.bottom {
+    position: absolute;
     width: 100%;
-    height: calc(100% - 44px);
+    text-align: center;
+    color: #bababa;
+    bottom: 32px;
+    left: 0;
+    right: 0;
+    font-size: 11px;
+    .prolink{
+      text-decoration: none;
+      color: @themeColor;
+    }
+    .txt {
+      position: relative;
+      .checkbox {
+        position: absolute;
+        left: -22px;
+        top: -4px;
+        padding: 4px;
+        .icon-checkbox {
+          display: inline-block;
+          width: 11px;
+          height: 11px;
+          background-size: cover;
+          background-image: url(../img/icon_weigouxuan@2x.png);
+        }
+        &.select {
+          .icon-checkbox {
+            background-image: url(../img/icon_gouxuan@2x.png);
+          }
+        }
+      }
+    }
   }
-}
 </style>

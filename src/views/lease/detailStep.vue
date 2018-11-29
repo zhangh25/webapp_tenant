@@ -18,17 +18,37 @@
         </div>
         <div class="item">
           <label class="lab">身份证号</label>
-          <div class="val">{{detail.userIdNumber}}</div>
+          <div class="val">{{detail.userIdNumber|idCard}}</div>
         </div>
         <div class="item">
           <label class="lab">性别</label>
           <div class="val">{{detail.userSex | getSex}}</div>
         </div>
+        <div class="item">
+          <label class="lab">手机号</label>
+          <label class="val">{{detail.userPhone}}</label>
+        </div>
+        <div class="item">
+          <label class="lab">入住人数</label>
+          <label class="val">{{detail.occupantNum}}人</label>
+        </div>
+        <div class="item">
+          <label class="lab">租约起始日</label>
+          <label class="val">{{detail.startTime}}</label>
+        </div>
+        <div class="item">
+          <label class="lab">租约结束日</label>
+          <label class="val">{{detail.endTime}}</label>
+        </div>
+        <div class="item">
+          <label class="lab">留言</label>
+          <label class="val">{{detail.remark}}</label>
+        </div>
       </template>
       <template v-else-if="step==2">
         <div class="item">
           <label class="lab">房东信息</label>
-          <div class="val">{{detail.ownerName}}  {{detail.ownerIdNumber}}</div>
+          <div class="val">{{detail.ownerName}}  {{detail.ownerIdNumber|idCard}}</div>
         </div>
         <div class="item">
           <label class="lab">房产地址</label>
@@ -70,7 +90,7 @@
       <template v-if="step==3">
         <div class="item">
           <label class="lab">押金方式</label>
-          <div class="val"></div>
+          <div class="val">押{{detail.depositNumber}}付{{detail.paymentNumber}}</div>
         </div>
         <div class="item">
           <label class="lab">每月租金</label>
@@ -82,7 +102,7 @@
         </div>
         <div class="item">
           <label class="lab">付款周期</label>
-          <div class="val">{{detail.paymentNumber}}</div>
+          <div class="val">{{detail.paymentNumber}}期</div>
         </div>
         <div class="item">
           <label class="lab">起止时间</label>
@@ -94,7 +114,9 @@
       </template>
     </div>
     <div class="landlord">
-      <img class="img" :src="detail.ownerImageUrl" width="27" height="27"> <span class="txt"> 房东 {{detail.ownerName|name}}</span>
+      <img class="img" v-if="detail.ownerImageUrl" :src="detail.ownerImageUrl" width="27" height="27">
+        <img class="img" v-else src="../me/img/icon_logo11@2x.png" width="27" height="27" style="object-fit: contain;">
+       <span class="txt">房东 {{detail.ownerName|name}}</span>
     </div>
     <div class="house">
       <div class="pic">
@@ -102,12 +124,12 @@
         <!-- <img v-if="house.imageList" :src="house.imageList[0].url" alt=""> -->
       </div>
       <div class="right">
-        <div class="title">{{detail.roomTitle}}</div>
+        <div class="title">{{detail.areaName}}-<template v-if="detail.roomTitle">{{detail.roomTitle}}</template><template v-else>{{detail.name}}-{{detail.buildName}}</template></div>
         <div class="name">{{detail.typeName}}-{{detail.roomArea}}㎡</div>
-        <div class="rent">{{detail.rent}}元/月</div>
+        <div class="rent"><span class="num">{{detail.rent}}</span>元/月</div>
       </div>
     </div>
-    <div class="time" v-if="step==2">合同编号：</div>
+    <div class="time" v-if="step==3">合同编号：{{detail.pactNum}}</div>
     <div class="time">签约申请时间：{{detail.addTime}}</div>
     <div class="time" v-if="step==2">房东确认时间：{{detail.ownerAgreeTime}}</div>
     <div class="time"></div>
@@ -119,12 +141,13 @@
 import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
 import pro from './components/progress'
-import {queryLeaseOrderDetail, userLeaseConfirm, userPaySuccess} from '@/api/appoint'
-import {Button} from 'mint-ui'
+import {queryLeaseOrderDetail, userLeaseConfirm} from '@/api/appoint'
+import {Button, Indicator} from 'mint-ui'
 import {countDown} from '@/utils/tool'
 export default {
+  // inject: ['reload'],
   computed: {
-    ...mapGetters(['userData'])
+    ...mapGetters(['userData', 'isApp'])
   },
   data () {
     return {
@@ -154,7 +177,8 @@ export default {
         paymentNumber: 1, // 付款周期
         ownerAgreeTime: '23333', // 房东确认时间
         pactReviewUrl: '', // 合同预览地址
-        pactSignUrl: '' // 合同签名地址
+        pactSignUrl: '', // 合同签名地址
+        pactNum: '' // 合同编号
       },
       status: ['等待确认', '待签字', '待支付', '签约成功'],
       txts: ['若您尚未看房，请及明联系房东看房', '请您在规定时间内完成签字，超时系统将自动取消', '请您在规定时间内完成支付，超时系统将自动取消'],
@@ -164,7 +188,9 @@ export default {
       countdown: null,
       timer: null,
       licenceType: null,
-      licences: []
+      licences: [],
+      signed: false,
+      signedtimer: null
     }
   },
   created () {
@@ -180,6 +206,7 @@ export default {
   },
   methods: {
     getOrderDetail () {
+      // alert('get')
       queryLeaseOrderDetail(this.leaseId).then(res => {
         console.log(res)
         if (res.code === 1) {
@@ -201,9 +228,13 @@ export default {
       this.timer = setInterval(_ => {
         this.countdown = countDown(time, 0.5)
         // console.log(this.countdown)
-        if (this.countdown.minutes <= 0) {
+        if (this.countdown.seconds <= 0) {
+          console.log(this.countdown)
           clearInterval(this.timer)
-          this.getOrderDetail()
+          this.countdown.seconds = 0
+          this.countdown.minutes = 0
+          console.log('wwww')
+          // this.getOrderDetail()
         }
       })
     },
@@ -224,6 +255,11 @@ export default {
         default:
           break
       }
+      if (this.step === 3 && this.signed) {
+        this.signed = false
+        clearInterval(this.signedtimer)
+        Indicator.close()
+      }
     },
     calcTime () {
       let lastTime = new Date('2018-10-16 11:10:11')
@@ -241,11 +277,33 @@ export default {
       console.log('小时：', hours, '  分：', minutes, '  秒： ', seconds)
     },
     sign () {
+      // let _this = this
       if (this.detail.licenceType === 1) {
-        this.$store.dispatch('setPacturl', this.detail.pactSignUrl)
-        this.$store.dispatch('setLeaseId', this.leaseId)
+        // this.$store.dispatch('setPacturl', this.detail.pactSignUrl)
+        // this.$store.dispatch('setLeaseId', this.leaseId)
         // this.$router.push('/sign')
-        window.location.href = this.detail.pactSignUrl
+        /* eslint-disable */
+        if (this.isApp) {
+          let ref = cordova.InAppBrowser.open(this.detail.pactSignUrl, '_blank', 'location=no,clearcache=yes,clearsessioncache=yes')
+          ref.addEventListener('loadstart',  (ev) => {
+            if (('' + ev.url).indexOf('/link/sign/redirect') > 0) {
+              this.signed = true
+              ref.close()
+              Indicator.open()
+              // this.$router.go(0)
+              // this.reload()
+              this.signedtimer = setInterval(_ => {
+                this.getOrderDetail()
+              }, 1000)
+              
+            }
+            // ref.executeScript({file: "myscript.js"});
+          })
+        } else {
+          this.$store.dispatch('setPacturl', this.detail.pactSignUrl)
+          this.$store.dispatch('setLeaseId', this.leaseId)
+          this.$router.push('/sign')
+        }
       } else {
         userLeaseConfirm(this.leaseId).then(res => {
           if (res.code === 1) {
@@ -255,12 +313,21 @@ export default {
       }
     },
     goPay () {
-      userPaySuccess(this.leaseId).then(res => {
-        console.log(res)
-        if (res.code === 1) {
-          this.$router.push('/bill')
-        }
-      })
+      // userPaySuccess(this.leaseId).then(res => {
+      //   console.log(res)
+      //   if (res.code === 1) {
+      let subIds = []
+      let total = 0
+      for (let item of this.detail.roomBillSub) {
+        subIds.push(item.id)
+        console.log(item.total)
+        total += item.total
+      }
+      total = total.toFixed(2)
+      // total = Math.floor(total * 100) / 100
+      // console.log({id: this.leaseId, price: total, num: this.detail.roomBillSub.length, rbsId: subIds, isPay: false})
+      this.$store.dispatch('setPay', {id: this.leaseId, price: total, num: this.detail.roomBillSub.length, rbsId: subIds, isPay: false})
+      this.$router.push('/payway')
     }
   },
   components: {
@@ -364,8 +431,11 @@ export default {
         padding-top: 4px
       }
       .rent{
-        color: @gray;
-        padding-top: 4px
+        color: @pink;
+        padding-top: 4px;
+        .num {
+          font-weight: bold;
+        }
       }
     }
   }

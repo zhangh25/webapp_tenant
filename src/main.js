@@ -10,6 +10,10 @@ import '@/icons' // icon
 import store from './store'
 import * as filters from '@/utils/filters' // global filter
 import AMap from 'vue-amap'
+import Calendar from 'vue2-datepick'
+// import vueCropper from 'vue-cropper'
+// Vue.use(vueCropper)
+Vue.use(Calendar)
 Vue.use(AMap)
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

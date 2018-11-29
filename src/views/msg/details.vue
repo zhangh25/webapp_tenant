@@ -5,6 +5,9 @@
       <div class="title">{{message.fileTitle}}</div>
       <div class="label">{{message.content}}</div>
     </div>
+    <div class="bottom" v-if="message.type !== 1">
+      <Button type="primary" size="large" @click="gosee">前往查看</Button>
+    </div>
   </div>
 </template>
 
@@ -12,6 +15,7 @@
 import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
 import {usersReadMessage} from '@/api/message'
+import {Button} from 'mint-ui'
 export default {
   computed: {
     ...mapGetters(['message'])
@@ -28,8 +32,26 @@ export default {
       }
     })
   },
+  methods: {
+    gosee () {
+      // switch()
+      switch (this.message.type) {
+        case 2:
+          this.$router.push('/bill')
+          break
+        case 3:
+          this.$router.push('/record')
+          break
+        case 4:
+          this.$router.push('/leaseRecord')
+          break
+        default:
+          break
+      }
+    }
+  },
   components: {
-    csheader
+    csheader, Button
   }
 }
 </script>
@@ -53,4 +75,12 @@ export default {
     padding: 15px;
     color: @gray;
   }
+.bottom {
+  position: fixed;
+  padding: 15px;
+  bottom: 0;
+  width: 100%;
+  background-color: #fff;
+  border-top: 1px solid #f1f1f1;
+}
 </style>

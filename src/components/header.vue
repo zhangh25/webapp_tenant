@@ -1,5 +1,5 @@
 <template>
-  <div class="header border-1px">
+  <div class="header border-1px" :class="{border: !noborder}">
     <div class="left" @click="back"><icon-svg icon-class="back" class="icon"></icon-svg></div>
     <div class="center"><slot></slot></div>
     <div class="right"><slot name="right"></slot></div>
@@ -11,6 +11,12 @@
 
 <script>
 export default {
+  props: {
+    noborder: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {}
   },
@@ -32,7 +38,9 @@ export default {
   line-height: 44px;
   // padding: 0 15px;
   background-color: #fff;
-  .border-1px;
+  &.border {
+    .border-1px;
+  }
   .left{
     flex: 0 0 35px;
     text-align: left;

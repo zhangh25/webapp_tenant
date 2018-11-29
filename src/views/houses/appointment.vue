@@ -57,15 +57,15 @@
       </div>
       <div class="pickers">
         <Picker valueKey="name" :slots="daySlots" @change="dayChange" class="dayPicker"></Picker>
-        <Picker valueKey="name" :slots="hoursSlots" @change="hoursChange" class="hoursPicker"></Picker>
-        <Picker valueKey="name" :slots="minuteSlots" @change="minuteChange" class="minPicker"></Picker>
+        <Picker :slots="hoursSlots" @change="hoursChange" class="hoursPicker"></Picker>
+        <Picker :slots="minuteSlots" @change="minuteChange" class="minPicker"></Picker>
       </div>
     </Popup>
   </div>
 </template>
 
 <script>
-import {Cell, DatetimePicker, Button, Toast, Swipe, SwipeItem, Popup, Picker} from 'mint-ui'
+import {Cell, Button, Toast, Swipe, SwipeItem, Popup, Picker} from 'mint-ui'
 import field from 'components/field'
 import mypop from '@/components/myPopup'
 import finish from './finsh'
@@ -91,13 +91,15 @@ export default {
       curImgidx: 1,
       timeShow: null,
       owner: {},
-      name: null,
+      name: '',
       phone: null,
       formData: {
         addTime: '',
         content: '',
         ownerId: 1,
-        roomId: 1
+        roomId: 1,
+        phone: '',
+        name: ''
       },
       popupVisible: false,
       daySlots: [
@@ -116,30 +118,19 @@ export default {
           values: []
         }
       ],
-      hoursVal: {},
+      hoursVal: '',
       minuteSlots: [
         {
           flex: 1,
           values: []
         }
       ],
-      minuteVal: {},
-      slots: [
-        {
-          flex: 2,
-          values: ['2015-01', '2015-02', '2015-03', '2015-04', '2015-05', '2015-06']
-        }, {
-          flex: 1,
-          values: []
-        },
-        {
-          flex: 1,
-          values: ['00分', '30分']
-        }
-      ],
+      minuteVal: '',
       week: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
       dateVal: [],
-      hoursPicker: null
+      hoursPicker: null,
+      isChange: false,
+      isToday: true
     }
   },
   created () {
@@ -151,17 +142,14 @@ export default {
     // this.setYears()
     // this.setMonth()
     this.setDay()
-    this.setHours(this.startdata.getHours())
+    // this.setHours(this.startdata.getHours())
+    this.dayVal.val = formatDate(this.startdata, 'yyyy-MM-dd hh:mm')
+    this.setHoursSlot()
     this.setMinute()
+    this.initData()
   },
   mounted () {
-    this.formData.roomId = this.house.roomId
-    this.formData.ownerId = this.house.ownerId
-    // this.name = this.userData.realname
-    this.phone = this.userData.phone
-    if (this.userData.realname) {
-      this.name = this.userData.realname.substring(0, 1) + '*'
-    }
+
     // getOwnerInfo().then(res => {
     //   if (res.code === 1) {
     //     this.owner = res.data
@@ -170,6 +158,20 @@ export default {
     // })
   },
   methods: {
+    initData () {
+      // alert('eee')
+      this.formData.roomId = this.house.roomId
+      this.formData.ownerId = this.house.ownerId
+      // this.name = this.userData.realname
+      this.phone = this.userData.phone
+      console.log(this.userData)
+      if (this.userData.realname) {
+        this.name = this.userData.realname
+        console.log('sssss-------')
+      } else {
+        this.name = this.userData.nickname
+      }
+    },
     imgsChange (idx) {
       this.curImgidx = idx + 1
     },
@@ -186,17 +188,18 @@ export default {
       this.popupVisible = true
     },
     dayChange (picker, values) {
-      console.log(picker, values, '天')
+      // console.log(picker, values, '天')
       this.dayVal = values[0]
       this.setHoursSlot()
       // if ()
     },
     hoursChange (picker, values) {
       this.hoursPicker = picker
-      console.log(picker, values, '时')
+      // console.log(picker, values, '时')
       this.hoursVal = values[0]
       this.setHoursSlot()
-      picker.setSlotValues(0, values)
+      // this
+      // picker.setSlotValue(0, values[0])
     },
     minuteChange (picker, values) {
       // console.log(picker, values)
@@ -206,25 +209,43 @@ export default {
     setHoursSlot () {
       let curDate = new Date()
       let num = curDate.getHours()
+      if (curDate.getMinutes() > 30) {
+        num++
+      }
       // parseInt
       // if ()
       let istoday = false
       // if ()
       if (this.dayVal.val === formatDate(curDate, 'yyyy-MM-dd')) {
         istoday = true
+        console.log('今天')
+      } else {
+        console.log('不是今天')
       }
-      if (istoday && num >= parseInt(this.hoursVal.val)) {
+      if (istoday) {
         this.setHours(num)
+        // console.log(this.hoursVal.substring(0, 2), ' ho---------------')
+        if (+this.hoursVal.substring(0, 2) === num) {
+          this.setMinute(1)
+        } else {
+          this.setMinute(2)
+        }
       } else {
         this.setHours(8)
+        this.setMinute(2)
       }
+      this.$nextTick(_ => {
+        console.log('set defaltIndex')
+        this.hoursSlots[0].defaultIndex = 0
+        // this.$set(this.hoursSlots, 0, {flex: 1, values: vals})
+      })
     },
     confirm () {
       // console.log(this.dayVal)
       // console.log(this.hoursVal)
       // console.log(this.minuteVal)
       this.popupVisible = false
-      this.formData.addTime = this.timeShow = `${this.dayVal.val} ${this.hoursVal.val}:${this.minuteVal.val}`
+      this.formData.addTime = this.timeShow = `${this.dayVal.val} ${this.hoursVal.slice(0, 2)}:${this.minuteVal.slice(0, 2)}`
     },
     cancel () {
       this.popupVisible = false
@@ -268,10 +289,16 @@ export default {
       }
     },
     setHours (num) {
+      // if ()
+      const endHours = 22
+      if (this.hoursSlots[0].values.length === endHours - num) {
+        return
+      }
+      console.log('重新赋值')
       let vals = []
-      for (let i = num; i < 22; i++) {
+      for (let i = num; i < endHours; i++) {
         let str = this.getNumString(i)
-        vals.push({name: str + '时', val: str})
+        vals.push(str + '时')
       }
       // {
       //   flex: 1,
@@ -281,10 +308,22 @@ export default {
       // this.$set(this.hoursSlots.values, 0, values)
       console.log(this.hoursSlots)
     },
-    setMinute () {
+    setMinute (num) {
+      let len = this.minuteSlots[0].values.length
+      console.log('setpoooo', len, num)
+
+      if (len !== 0 && num === len) {
+        return
+      }
+      console.log('重新赋值， 分')
       this.minuteSlots[0].values = []
-      this.minuteSlots[0].values[0] = {name: '00分', val: '00'}
-      this.minuteSlots[0].values[1] = {name: '30分', val: '30'}
+      // if ()
+      if (num === 1) {
+        this.minuteSlots[0].values[0] = '30分'
+      } else {
+        this.minuteSlots[0].values[0] = '00分'
+        this.minuteSlots[0].values[1] = '30分'
+      }
     },
     getNumString (num) {
       if (num < 10) {
@@ -308,6 +347,16 @@ export default {
         Toast('请选择看房时间')
         return
       }
+      if (this.name.trim() === '') {
+        Toast('请输入姓名')
+        return
+      }
+      if (this.phone.trim() === '') {
+        Toast('请输入预约手机号')
+        return
+      }
+      this.formData.phone = this.phone
+      this.formData.name = this.name
       saveOrderAppoint(this.formData).then(res => {
         console.log(res)
         if (res.code === 1) {
@@ -321,7 +370,7 @@ export default {
     }
   },
   components: {
-    Cell, DatetimePicker, Button, mypop, finish, Swipe, SwipeItem, csheader, field, Picker, Popup
+    Cell, Button, mypop, finish, Swipe, SwipeItem, csheader, field, Picker, Popup
   }
 }
 </script>

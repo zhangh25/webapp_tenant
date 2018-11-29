@@ -17,6 +17,10 @@ const getters = {
   pay: state => state.wallet.pay,
   licence: state => state.lease.licence,
   billdetail: state => state.wallet.billdetail,
-  isfirst: state => state.user.isfirst
+  isfirst: state => state.user.isfirst,
+  alipayurl: state => state.wallet.alipayurl,
+  alipayed: state => state.wallet.alipayed,
+  version: state => state.user.version,
+  isApp: state => state.user.isApp
 }
 export default getters

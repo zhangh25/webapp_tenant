@@ -1,6 +1,6 @@
 <template>
   <div class="record">
-    <csheader></csheader>
+    <csheader noborder></csheader>
     <div class="content">
     <div class="title">预约记录</div>
     <div class="tab border-1px"><span class="tab-item" v-for="item in tabs" :key="item.id" :class="{active: item.id === active}" @click="active=item.id">{{item.name}}</span></div>
@@ -8,15 +8,15 @@
     <TabContainer v-model="active" swipeable>
       <TabContainerItem id="unfinished">
         <div class="list border-1px" v-for="item in unfinishList" :key="item.id">
-          <div class="up">
+          <div class="up" @click="goDetail(item)">
             <div class="left">
               <img :src="`${item.imageUrl}?imageMogr2/auto-orient`" alt="">
             </div>
             <div class="right">
               <div class="name">
-                <div class="txt"><template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template></div>
+                <div class="txt">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template></div>
                 <div class="state active">{{status[item.status]}}</div></div>
-              <div class="label">{{item.typeName}}</div>
+              <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
               <div class="addr"><i class="icon-addr"></i>{{item.address}}</div>
             </div>
           </div>
@@ -38,15 +38,15 @@
       </TabContainerItem>
       <TabContainerItem id="finished">
         <div class="list border-1px" v-for="item in finishList" :key="item.id">
-          <div class="up">
+          <div class="up" @click="goDetail(item)">
             <div class="left">
               <img :src="item.imageUrl" alt="">
             </div>
             <div class="right">
               <div class="name">
-                <div class="txt"><template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template></div>
+                <div class="txt">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template></div>
                 <div class="state">{{status[item.status]}}</div></div>
-              <div class="label">{{item.typeName}}</div>
+              <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
               <div class="addr"><i class="icon-addr"></i>{{item.address}}</div>
             </div>
           </div>
@@ -110,6 +110,9 @@ export default {
           this.finishList = res.data
         }
       })
+    },
+    goDetail (item) {
+      this.$router.push(`/roomDetails/${item.roomId}`)
     },
     cancelAppoint (item) {
       MessageBox({
@@ -225,7 +228,8 @@ export default {
         img{
           // max-width: 100%;
           width: 100%;
-          height: 100%;
+          // height: 100%;
+          height: 80px;
           object-fit: cover;
         }
       }

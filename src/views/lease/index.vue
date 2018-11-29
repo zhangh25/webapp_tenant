@@ -5,40 +5,42 @@
       <div slot="right" class="record" @click="record">租约记录 <icon-svg icon-class="back" class="icon"></icon-svg></div>
     </csheader>
     <div class="content">
+      <Loadmore :bottom-method="loadBottom" @bottom-status-change="handleBottomChange" :bottom-all-loaded="allLoaded" ref="loadmore">
       <nodata v-if="list.length<1" imgSrc="wuzuyuejilu" text="暂无租约记录"></nodata>
-    <div class="list" v-for="item in list" :key="item.id" @click="goDetail(item)">
-      <div class="up">
-        <div class="left">
-          <img :src="item.imageUrl" alt="">
+      <div class="list" v-for="item in list" :key="item.id" @click="goDetail(item)">
+        <div class="up">
+          <div class="left">
+            <img :src="item.imageUrl" alt="">
+          </div>
+          <div class="right">
+            <div class="name">
+              <div class="txt">{{item.areaName}}-<template v-if="item.roomTitle">{{item.roomTitle}}</template><template v-else>{{item.name}}-{{item.buildName}}</template><template v-if="item.roomNumber">-{{item.roomNumber}}</template></div>
+              <div class="state" :class="{active: item.orderStatus==6, pink: item.orderStatus==5}">{{status[item.orderStatus]}}</div></div>
+            <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
+            <div class="addr"><span class="num">{{item.rent}}</span>元/月</div>
+          </div>
         </div>
-        <div class="right">
-          <div class="name">
-            <div class="txt" v-if="item.roomTitle">{{item.roomTitle}} </div>
-            <div class="txt" v-else>{{item.name}} </div>
-            <div class="state" :class="{active: item.orderStatus==6, pink: item.orderStatus==5}">{{status[item.orderStatus]}}</div></div>
-          <div class="label">{{item.typeName}}-{{item.roomArea}}㎡</div>
-          <div class="addr"><span class="num">{{item.rent}}</span>元/月</div>
+        <div class="bt">看房时间：{{item.addTime}}</div> <!--暂时看房时间-->
+        <div class="btns">
+          <div class="item">
+            <Button class="btn" @click.stop="call(item.ownerPhone)">联系房东</Button>
+          </div>
+          <!-- <div class="item">
+            <Button @click.stop="licences(item)">合 同</Button>
+          </div> -->
+          <div class="item">
+            <Button class="btn" @click.stop="$router.push({path: '/bill', query: {id: item.id}})">账 单</Button>
+          </div>
+          <div class="item" v-if="item.orderStatus==6">
+            <Button class="btn" @click.stop="retireRoom(item)">申请退房</Button>
+          </div>
+          <div class="item" v-else-if="item.orderStatus==7||item.orderStatus==8">
+            <Button class="btn" @click.stop="cancelApply(item)">取消申请</Button>
+          </div>
         </div>
       </div>
-      <div class="bt">看房时间：{{item.addTime}}</div> <!--暂时看房时间-->
-      <div class="btns">
-        <div class="item">
-          <Button @click.stop="call(item.ownerPhone)">联系房东</Button>
-        </div>
-        <div class="item">
-          <Button @click.stop="">合 同</Button>
-        </div>
-        <div class="item">
-          <Button @click.stop="$router.push('/bill')">账 单</Button>
-        </div>
-        <div class="item" v-if="item.orderStatus==6">
-          <Button @click.stop="retireRoom(item)">申请退房</Button>
-        </div>
-        <div class="item" v-else-if="item.orderStatus==7||item.orderStatus==8">
-          <Button @click.stop="cancelApply(item)">取消申请</Button>
-        </div>
-      </div>
-    </div>
+      <div class="finish" v-if="allLoaded&&list.length>0">已全部加载完毕</div>
+      </Loadmore>
     </div>
     <!-- <div class="list" >
       <div class="up">
@@ -78,7 +80,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import csheader from '@/components/header'
-import {Button, MessageBox} from 'mint-ui'
+import {Button, MessageBox, Loadmore} from 'mint-ui'
 import {queryLeaseOrder, cancelApplyRetireRoom} from '@/api/appoint'
 import mypop from '@/components/myPopup'
 import checkout from './checkout'
@@ -102,18 +104,16 @@ export default {
   data () {
     return {
       curPage: 1,
+      pageNum: 10,
       list: [],
       caseVisible: false,
+      bottomStatus: '',
+      allLoaded: false,
       status: ['待确认', '已取消', '已取消', '待签字', '待支付', '支付中', '签约成功', '退房中', '退房中', '已退房'] // 0:签约申请,1用户取消,2房东取消,3房东签约,4用户签字,5支付中,6签约成功,7用户申请退房,8退房中，9已退房
     }
   },
   mounted () {
-    queryLeaseOrder(0, this.curPage).then(res => {
-      console.log(res)
-      if (res.code === 1) {
-        this.list = res.data
-      }
-    })
+    this.getList()
   },
   methods: {
     call (phone) {
@@ -131,6 +131,41 @@ export default {
           }
         })
       }
+    },
+    licences (item) {
+      if (item.licenceType === 1) {
+        window.location.href = item.pactReviewUrl
+      } else if (item.licenceType === 2) {
+        this.$store.dispatch('setlicence', item.licences)
+        this.$router.push('/contdetail')
+      }
+    },
+    getList () {
+      console.log(this.curPage)
+      queryLeaseOrder(0, this.curPage, this.pageNum).then(res => {
+        if (this.$refs.loadmore) { this.$refs.loadmore.onBottomLoaded() }
+        console.log(res)
+        if (res.code === 1) {
+          // this.list = res.data
+          for (let item of res.data) {
+            this.list.push(item)
+          }
+          if (res.data.length === this.pageNum) {
+            this.curPage++
+            console.log(this.curPage)
+          } else {
+            this.allLoaded = true
+          }
+        // if ()
+        }
+      })
+    },
+    handleBottomChange (status) {
+      this.bottomStatus = status
+    },
+    loadBottom () {
+      console.log('loadBotton')
+      this.getList()
     },
     record () {
       this.$router.push('/leaseRecord')
@@ -156,7 +191,7 @@ export default {
     }
   },
   components: {
-    csheader, Button, mypop, checkout, nodata
+    csheader, Button, mypop, checkout, nodata, Loadmore
   }
 }
 </script>
@@ -189,11 +224,11 @@ export default {
       display: flex;
       .left{
         flex: 0 0 98px;
-        background-color: #222;
+        // background-color: #222;
         margin-right: 18px;
         img {
           width: 100%;
-          height: 100%;
+          height: 80px;
           object-fit:cover;
         }
       }
@@ -256,9 +291,13 @@ export default {
     .btns {
       display: flex;
       padding-top: 15px;
+
       .item{
         flex: 1;
         text-align: center;
+        .btn {
+          width: 80px;
+        }
       }
 
     }
@@ -278,5 +317,10 @@ export default {
       width: 114px;
       margin-bottom: 30px;
     }
+  }
+  .finish {
+    padding: 15px;
+    padding-bottom: 25px;
+    text-align: center;
   }
 </style>

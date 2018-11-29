@@ -50,3 +50,24 @@ export function inPayStatus (no) {
     params: {'out_trade_no': no, role: 1}
   })
 }
+// GET
+// /createSdkPreOrder
+// sdk生成待支付訂單
+export function createSdkPreOrder (data) {
+  return request({
+    url: '/createSdkPreOrder',
+    method: 'get',
+    params: data
+  })
+}
+
+// GET
+// /createOpenApi
+// 公众号支付
+export function createOpenApi (data) {
+  return request({
+    url: '/createOpenApi',
+    method: 'get',
+    params: data
+  })
+}

@@ -7,7 +7,11 @@ const user = {
     userData: JSON.parse(localStorage.getItem('user')),
     qiniuToken: '',
     loginedPath: '',
-    isfirst: localStorage.getItem('first')
+    isfirst: localStorage.getItem('first'),
+    version: '',
+    wxAppid: '',
+    wxCode: '',
+    isApp: false
   },
   mutations: {
     SET_TOKEN: (state, token) => {
@@ -24,6 +28,18 @@ const user = {
     },
     SET_FIRST (state, first) {
       state.isfirst = first
+    },
+    SET_VERSION (state, v) {
+      state.version = v
+    },
+    SET_WXAPPID (state, appid) {
+      state.wxAppid = appid
+    },
+    SET_WXCODE (state, code) {
+      state.wxCode = code
+    },
+    SET_ISAPP (state, isApp) {
+      state.isApp = isApp
     }
   },
   actions: {
@@ -77,6 +93,18 @@ const user = {
       // console.log('set first')
       commit('SET_FIRST', 'first')
       localStorage.setItem('first', 'first')
+    },
+    setVersion ({commit}, v) {
+      commit('SET_VERSION', v)
+    },
+    setAppid ({commit}, appid) {
+      commit('SET_WXAPPID', appid)
+    },
+    setWxCode ({commit}, code) {
+      commit('SET_WXCODE', code)
+    },
+    setIsapp ({commit}, isApp) {
+      commit('SET_ISAPP', isApp)
     }
   }
 }

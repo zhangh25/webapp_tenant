@@ -3,7 +3,8 @@
     <div class="content border-1px">
       <div class="label" v-if="label" :style="{'font-size': fontSize+'px'}">{{label}}</div>
       <input v-if="type!=='textarea'" :type="type" v-model="val" @blur="onBlur" :disabled="disabled" class="input" :class="{right}" :style="{'font-size': fontSize+'px'}" :placeholder="placeholder">
-      <textarea v-else class="textarea" v-model="val" :placeholder="placeholder"></textarea>
+      <div v-else class="box"><textarea class="textarea" v-model="val" :placeholder="placeholder" @input="changeTxt"></textarea>
+      <div class="num">{{num}}/{{totallen}}</div></div>
       <div class="ri"><slot></slot></div>
       <i class="allow" v-if="allow"></i>
     </div>
@@ -46,6 +47,10 @@ export default {
     blur: {
       type: Function,
       default: null
+    },
+    totallen: {
+      default: 200,
+      type: Number
     }
   },
   watch: {
@@ -61,7 +66,9 @@ export default {
   },
   data () {
     return {
-      val: null
+      val: null,
+      // total:
+      num: 0
     }
   },
   methods: {
@@ -69,6 +76,13 @@ export default {
       if (this.blur) {
         this.blur(this.val)
       }
+    },
+    changeTxt () {
+      this.num = this.val.length
+      if (this.num >= this.totallen) {
+        this.val.substring(0, 200)
+      }
+      console.log(this.val.length)
     }
   }
 }
@@ -103,6 +117,7 @@ export default {
     }
     .textarea{
       flex: 1;
+      width: 100%;
       border: none;
       outline: none;
       padding: 15px 0;
@@ -129,6 +144,15 @@ export default {
         transform: translateY(-50%) rotate(45deg);
             //
       }
+  }
+  .box{
+    position: relative;
+    width: 100%;
+    .num {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+    }
   }
 }
 </style>

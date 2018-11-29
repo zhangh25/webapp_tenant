@@ -14,26 +14,26 @@
         <div class="item" @click="uploadCard(1)">
           <i v-if="fData.urlz" class="icon-close"  @click.stop="imgClose('urlz')"></i>
           <img v-if="fData.urlz" :src="fData.urlz">
-          <template v-else>
-            <!-- <icon-svg icon-class="add" class="icon"></icon-svg>
-            <div class="str1">手持身份证正面照</div>
-            <div class="str2">（文字清晰，四角齐全）</div> -->
-            <img src="./img/icon_yinhangkazhengmian@2x.png" alt="">
+          <div v-else>
+            <icon-svg icon-class="add" class="icon"></icon-svg>
+            <div class="str1">银行卡正面照</div>
+            <div class="str2">（文字清晰，四角齐全）</div>
+            <!-- <img src="./img/icon_yinhangkazhengmian@2x.png" alt=""> -->
             <csupload ref='idcard1' @changeFile="fileChange_1"></csupload>
-          </template>
+          </div>
         </div>
         <div class="center"></div>
         <div class="item" @click="uploadCard(2)">
           <i v-if="fData.urlf" class="icon-close" @click.stop="imgClose('urlf')"></i>
           <img v-if="fData.urlf" :src="fData.urlf">
-          <template v-else>
+          <div v-else>
             <!-- <div></div> -->
-            <!-- <icon-svg icon-class="add" class="icon"></icon-svg>
-            <div class="str1">手持身份证反面照</div>
-            <div class="str2">（文字清晰，四角齐全）</div> -->
-            <img src="./img/icon_yinhangkafanmian@2x.png" alt="">
+            <icon-svg icon-class="add" class="icon"></icon-svg>
+            <div class="str1">银行卡反面照</div>
+            <div class="str2">（文字清晰，四角齐全）</div>
+            <!-- <img src="./img/icon_yinhangkafanmian@2x.png" alt=""> -->
             <csupload ref='idcard2' @changeFile="fileChange_2"></csupload>
-          </template>
+          </div>
         </div>
         <datetime-picker
           ref="picker"
@@ -258,18 +258,22 @@ export default {
     .item{
       position: relative;
       flex: 1;
-      // border: 1px dashed @gray;
+      border: 1px dashed #ccc;
       // padding: 15px 0;
+      display: flex;
       height: 90px;
       overflow: hidden;
+      align-items: center;
+      justify-content: center;
       .str1{
         font-size: 10px;
+        padding-top: 4px;
       }
       .str2{
         font-size: 8px;
       }
       .icon{
-        font-size: 26px;
+        font-size: 12px;
       }
       img {
         max-width: 100%;
